@@ -1,0 +1,38 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://baf6qjea4b2q0"
+path.s3tc="res://.godot/imported/Tacos_Props_doors_garage_01.jpg-36a9882b9fe0f29e0a9758f4638d9d3e.s3tc.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc"],
+"vram_texture": true
+}
+generator_parameters={
+"md5": "48c4db52d3810ac09757ccf24d79a6e9"
+}
+
+[deps]
+
+source_file="res://models/Tacos_Props_doors_garage_01.jpg"
+dest_files=["res://.godot/imported/Tacos_Props_doors_garage_01.jpg-36a9882b9fe0f29e0a9758f4638d9d3e.s3tc.ctex"]
+
+[params]
+
+compress/mode=2
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0
