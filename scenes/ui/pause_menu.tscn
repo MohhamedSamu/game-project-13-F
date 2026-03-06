@@ -1,0 +1,46 @@
+[gd_scene load_steps=3 format=3 uid="uid://dw4cb8cb6na7s"]
+
+[ext_resource type="Script" uid="uid://m4emjx3pp4m0" path="res://scripts/ui/pause_menu.gd" id="1_0lmf7"]
+[ext_resource type="PackedScene" uid="uid://bo3pfobccvpbh" path="res://scenes/ui/config_module.tscn" id="1_6tw0m"]
+
+[node name="PauseMenu" type="Control"]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_0lmf7")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.141176, 0.141176, 0.141176, 0.239216)
+
+[node name="ConfigModule" parent="." instance=ExtResource("1_6tw0m")]
+visible = false
+layout_mode = 0
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 9
+anchor_bottom = 1.0
+offset_right = 8.0
+grow_vertical = 2
+
+[node name="btnResume" type="Button" parent="Panel"]
+layout_mode = 2
+
+[node name="btnOptions" type="Button" parent="Panel"]
+layout_mode = 2
+
+[node name="btnSave" type="Button" parent="Panel"]
+layout_mode = 2
+
+[node name="btnMainMenu" type="Button" parent="Panel"]
+layout_mode = 2

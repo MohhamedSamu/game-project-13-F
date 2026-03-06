@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://uppdpsv3pxlj"
+path="res://.godot/imported/idk but good.ogg-24e037a949c390b4ed8c57f3911c6ede.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/background_music/idk but good.ogg"
+dest_files=["res://.godot/imported/idk but good.ogg-24e037a949c390b4ed8c57f3911c6ede.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

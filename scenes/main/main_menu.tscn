@@ -1,0 +1,560 @@
+[gd_scene load_steps=22 format=3 uid="uid://cke50ywqyobsp"]
+
+[ext_resource type="Script" uid="uid://dac62wfr0wfjl" path="res://scripts/ui/main_menu.gd" id="1_hiibk"]
+[ext_resource type="PackedScene" uid="uid://bpn1b4yevkvaq" path="res://scenes/map/terreno_juego_13_f.tscn" id="1_sd5it"]
+[ext_resource type="PackedScene" uid="uid://bj7nvq1n6yrlo" path="res://scenes/ui/cinematic/day_night_rig.tscn" id="2_5vafy"]
+[ext_resource type="FontFile" uid="uid://dqt0hrd2fvvrb" path="res://assets/fonts/jackwrite/Jackwrite.ttf" id="3_byqcc"]
+[ext_resource type="FontFile" uid="uid://5drxvkjteadl" path="res://assets/fonts/jackwrite/JackwriteBold.ttf" id="3_w6ykx"]
+[ext_resource type="PackedScene" uid="uid://bo3pfobccvpbh" path="res://scenes/ui/config_module.tscn" id="6_cnht7"]
+[ext_resource type="AudioStream" uid="uid://du6dqvfgeqdvx" path="res://assets/audio/background_music/main_menu_1.ogg" id="6_swlpu"]
+[ext_resource type="AudioStream" uid="uid://c4pjsr8att0yc" path="res://assets/audio/menu/enter.ogg" id="9_75pso"]
+[ext_resource type="AudioStream" uid="uid://b4nxyjbvlyaqh" path="res://assets/audio/menu/back.ogg" id="9_cnht7"]
+[ext_resource type="AudioStream" uid="uid://civ0e3qqykiv1" path="res://assets/audio/menu/audio_test.ogg" id="11_s2sug"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w6ykx"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w6ykx"]
+bg_color = Color(0.10748, 0.10748, 0.10748, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_size = 5
+shadow_offset = Vector2(0, 3.41)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hiibk"]
+bg_color = Color(0.505344, 0.505344, 0.505344, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_size = 5
+shadow_offset = Vector2(0, 3.41)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1i17u"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_size = 5
+shadow_offset = Vector2(0, 3.41)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hiibk"]
+
+[sub_resource type="Animation" id="Animation_swlpu"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MainBtns:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(348, 260)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Titulo:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(331.5, 66)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("StartPanel:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("OptionsPanel:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector2(0, 0)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("../SubViewportContainer/SubViewport/MenuMapa/Camera3D:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(0, -3.14159, 0)]
+}
+tracks/5/type = "value"
+tracks/5/imported = false
+tracks/5/enabled = true
+tracks/5/path = NodePath("../SubViewportContainer/SubViewport/MenuMapa/Camera3D:position")
+tracks/5/interp = 1
+tracks/5/loop_wrap = true
+tracks/5/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [Vector3(-592.313, 902.762, -568.519)]
+}
+
+[sub_resource type="Animation" id="Animation_s2sug"]
+resource_name = "from_opt_to_main"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MainBtns:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector2(1200, 260), Vector2(348, 260)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Titulo:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector2(650, 10), Vector2(331.5, 66)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("OptionsPanel:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(-850, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("../SubViewportContainer/SubViewport/MenuMapa/Camera3D:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [Vector3(0, -1.74533, 0), Vector3(0, -3.14159, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_nm0l4"]
+resource_name = "to_main"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MainBtns:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector2(-500, 260), Vector2(348, 260)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Titulo:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector2(10, 10), Vector2(331.5, 66)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("StartPanel:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector2(0, 0), Vector2(850, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("../SubViewportContainer/SubViewport/MenuMapa/Camera3D:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector3(-592.313, 350, -568.519), Vector3(-592.313, 902.762, -568.519)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("../SubViewportContainer/SubViewport/MenuMapa/Camera3D:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector3(0, -2.79253, 0), Vector3(0, -3.14159, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_cnht7"]
+resource_name = "to_options"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MainBtns:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector2(348, 260), Vector2(1200, 260)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Titulo:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector2(331.5, 66), Vector2(650, 10)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("OptionsPanel:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector2(-500, 0), Vector2(0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("../SubViewportContainer/SubViewport/MenuMapa/Camera3D:rotation")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector3(0, -3.14159, 0), Vector3(0, -1.74533, 0)]
+}
+
+[sub_resource type="Animation" id="Animation_hiibk"]
+resource_name = "to_start"
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("MainBtns:position")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector2(348, 260), Vector2(-500, 260)]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Titulo:position")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.378929, 1),
+"update": 0,
+"values": [Vector2(331.5, 66), Vector2(10, 10)]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("StartPanel:position")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.366022, 3.24901),
+"update": 0,
+"values": [Vector2(500, 0), Vector2(0, 0)]
+}
+tracks/3/type = "value"
+tracks/3/imported = false
+tracks/3/enabled = true
+tracks/3/path = NodePath("../SubViewportContainer/SubViewport/MenuMapa/Camera3D:position")
+tracks/3/interp = 1
+tracks/3/loop_wrap = true
+tracks/3/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector3(-592.313, 902.762, -568.519), Vector3(-592.313, 350, -568.519)]
+}
+tracks/4/type = "value"
+tracks/4/imported = false
+tracks/4/enabled = true
+tracks/4/path = NodePath("../SubViewportContainer/SubViewport/MenuMapa/Camera3D:rotation")
+tracks/4/interp = 1
+tracks/4/loop_wrap = true
+tracks/4/keys = {
+"times": PackedFloat32Array(0, 0.4),
+"transitions": PackedFloat32Array(0.5, 1),
+"update": 0,
+"values": [Vector3(0, -3.14159, 0), Vector3(0, -2.79253, 0)]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_nm0l4"]
+_data = {
+&"RESET": SubResource("Animation_swlpu"),
+&"from_opt_to_main": SubResource("Animation_s2sug"),
+&"to_main": SubResource("Animation_nm0l4"),
+&"to_options": SubResource("Animation_cnht7"),
+&"to_start": SubResource("Animation_hiibk")
+}
+
+[node name="main_menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_hiibk")
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="."]
+layout_mode = 0
+offset_right = 1151.0
+offset_bottom = 649.0
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(1151, 649)
+render_target_update_mode = 4
+
+[node name="MenuMapa" type="Node3D" parent="SubViewportContainer/SubViewport"]
+
+[node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport/MenuMapa"]
+transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, -592.313, 902.762, -568.519)
+
+[node name="terreno_juego_13_f" parent="SubViewportContainer/SubViewport/MenuMapa" instance=ExtResource("1_sd5it")]
+
+[node name="DayNightRig" parent="SubViewportContainer/SubViewport/MenuMapa" instance=ExtResource("2_5vafy")]
+
+[node name="UI" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MainBtns" type="VBoxContainer" parent="UI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -228.0
+offset_top = -64.0
+offset_right = 228.0
+offset_bottom = 227.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 26
+
+[node name="btnStart" type="Button" parent="UI/MainBtns"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_w6ykx")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
+theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
+theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
+text = "Start game"
+
+[node name="btnOptions" type="Button" parent="UI/MainBtns"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_w6ykx")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
+theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
+theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
+text = "Options
+"
+
+[node name="btnExit" type="Button" parent="UI/MainBtns"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_w6ykx")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
+theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
+theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
+text = "Exit
+"
+
+[node name="Titulo" type="Label" parent="UI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -244.5
+offset_top = -258.0
+offset_right = 244.5
+offset_bottom = -124.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 10
+theme_override_fonts/font = ExtResource("3_byqcc")
+theme_override_font_sizes/font_size = 80
+theme_override_styles/normal = SubResource("StyleBoxEmpty_hiibk")
+text = "PROJECT 13 F"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StartPanel" type="Control" parent="UI"]
+layout_mode = 1
+anchor_left = 0.434028
+anchor_right = 1.43403
+anchor_bottom = 1.0
+offset_left = -500.0
+offset_right = -500.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UI/StartPanel"]
+layout_mode = 0
+offset_left = 675.0
+offset_top = 83.0
+offset_right = 1131.0
+offset_bottom = 620.0
+
+[node name="Label" type="Label" parent="UI/StartPanel/VBoxContainer"]
+layout_mode = 2
+
+[node name="CheckpointList" type="VBoxContainer" parent="UI/StartPanel/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 10
+
+[node name="btnBack" type="Button" parent="UI/StartPanel/VBoxContainer"]
+custom_minimum_size = Vector2(456, 79)
+layout_mode = 2
+size_flags_vertical = 10
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("3_w6ykx")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
+theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
+theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
+text = "Back
+"
+
+[node name="OptionsPanel" type="Control" parent="UI"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -850.0
+offset_right = -850.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" parent="UI/OptionsPanel" instance=ExtResource("6_cnht7")]
+layout_mode = 0
+offset_left = 18.0
+offset_top = 93.0
+offset_right = 474.0
+offset_bottom = 619.0
+
+[node name="MenuAnimator" type="AnimationPlayer" parent="UI"]
+libraries = {
+&"": SubResource("AnimationLibrary_nm0l4")
+}
+
+[node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_swlpu")
+autoplay = true
+bus = &"Music"
+parameters/looping = true
+
+[node name="BackStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_cnht7")
+parameters/looping = false
+
+[node name="EnterStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_75pso")
+parameters/looping = false
+
+[node name="AudioChangedStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_s2sug")
+
+[connection signal="pressed" from="UI/MainBtns/btnStart" to="." method="_on_btn_start_pressed"]
+[connection signal="pressed" from="UI/MainBtns/btnOptions" to="." method="_on_btn_options_pressed"]
+[connection signal="pressed" from="UI/MainBtns/btnExit" to="." method="_on_btn_exit_pressed"]
+[connection signal="pressed" from="UI/StartPanel/VBoxContainer/btnBack" to="." method="_on_btn_back_pressed"]
+[connection signal="back_pressed" from="UI/OptionsPanel/VBoxContainer" to="." method="_on_v_box_container_back_pressed"]

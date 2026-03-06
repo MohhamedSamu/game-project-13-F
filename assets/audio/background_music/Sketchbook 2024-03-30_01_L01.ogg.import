@@ -1,0 +1,19 @@
+[remap]
+
+importer="oggvorbisstr"
+type="AudioStreamOggVorbis"
+uid="uid://bxo7yaktjtoe0"
+path="res://.godot/imported/Sketchbook 2024-03-30_01_L01.ogg-be807adf3eb3000cc44f9adaafd54bc9.oggvorbisstr"
+
+[deps]
+
+source_file="res://assets/audio/background_music/Sketchbook 2024-03-30_01_L01.ogg"
+dest_files=["res://.godot/imported/Sketchbook 2024-03-30_01_L01.ogg-be807adf3eb3000cc44f9adaafd54bc9.oggvorbisstr"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

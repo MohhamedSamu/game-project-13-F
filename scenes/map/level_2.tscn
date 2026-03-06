@@ -1,0 +1,12 @@
+[gd_scene load_steps=3 format=3 uid="uid://dcjkky0vgp7re"]
+
+[ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
+[ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
+
+[node name="level_2" type="Node3D"]
+
+[node name="Gas_station" parent="." instance=ExtResource("1_0dhnt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 2)
+
+[node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.48085, 1.98725e-06, 10.3554)

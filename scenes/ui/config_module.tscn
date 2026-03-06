@@ -1,0 +1,244 @@
+[gd_scene load_steps=18 format=3 uid="uid://bo3pfobccvpbh"]
+
+[ext_resource type="Script" uid="uid://cw77v4d3qhcbl" path="res://scripts/ui/config_module.gd" id="1_6hfwq"]
+[ext_resource type="FontFile" uid="uid://dqt0hrd2fvvrb" path="res://assets/fonts/jackwrite/Jackwrite.ttf" id="1_17eje"]
+[ext_resource type="FontFile" uid="uid://7hsrmtsjdboa" path="res://assets/fonts/roboto/Roboto-Black.ttf" id="2_6hfwq"]
+[ext_resource type="Script" uid="uid://dlhaakrbwdu56" path="res://scripts/utils/audio/master_audio_control.gd" id="3_akes2"]
+[ext_resource type="Script" uid="uid://ca4s6bv28oeaq" path="res://scripts/ui/fullscreen_control.gd" id="4_kbiw7"]
+[ext_resource type="Script" uid="uid://c5yopq6wf6th3" path="res://scripts/ui/mouse_sens_slider.gd" id="5_voqkr"]
+[ext_resource type="FontFile" uid="uid://5drxvkjteadl" path="res://assets/fonts/jackwrite/JackwriteBold.ttf" id="6_4j41y"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_cnht7"]
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_swlpu"]
+color = Color(1, 1, 1, 1)
+thickness = 5
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_nm0l4"]
+color = Color(0.18902, 0.296963, 1, 1)
+thickness = 6
+
+[sub_resource type="StyleBoxLine" id="StyleBoxLine_bxtry"]
+color = Color(0.18902, 0.296963, 1, 1)
+thickness = 6
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_s2sug"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ygj4d"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w6ykx"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w6ykx"]
+bg_color = Color(0.10748, 0.10748, 0.10748, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_size = 5
+shadow_offset = Vector2(0, 3.41)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hiibk"]
+bg_color = Color(0.505344, 0.505344, 0.505344, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_size = 5
+shadow_offset = Vector2(0, 3.41)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1i17u"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_size = 5
+shadow_offset = Vector2(0, 3.41)
+
+[node name="VBoxContainer" type="VBoxContainer"]
+offset_left = 27.0
+offset_top = 94.0
+offset_right = 483.0
+offset_bottom = 620.0
+script = ExtResource("1_6hfwq")
+
+[node name="VScrollBar" type="VScrollBar" parent="."]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="VScrollBar"]
+layout_mode = 2
+offset_right = 456.0
+offset_bottom = 43.0
+theme_override_fonts/font = ExtResource("1_17eje")
+theme_override_font_sizes/font_size = 50
+text = "Configuration"
+
+[node name="HSeparator" type="HSeparator" parent="VScrollBar"]
+z_index = -1
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+offset_top = 47.0
+offset_right = 456.0
+offset_bottom = 77.0
+theme_override_styles/separator = SubResource("StyleBoxEmpty_cnht7")
+
+[node name="lblMaster" type="Label" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 81.0
+offset_right = 456.0
+offset_bottom = 105.0
+theme_override_fonts/font = ExtResource("2_6hfwq")
+theme_override_font_sizes/font_size = 20
+text = "Master Volume"
+
+[node name="MasterAudioControl" type="HSlider" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 109.0
+offset_right = 456.0
+offset_bottom = 125.0
+theme_override_styles/slider = SubResource("StyleBoxLine_swlpu")
+theme_override_styles/grabber_area = SubResource("StyleBoxLine_nm0l4")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_bxtry")
+max_value = 1.0
+step = 0.05
+value = 1.0
+script = ExtResource("3_akes2")
+
+[node name="HSeparator2" type="HSeparator" parent="VScrollBar"]
+z_index = -1
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+offset_top = 129.0
+offset_right = 456.0
+offset_bottom = 144.0
+theme_override_styles/separator = SubResource("StyleBoxEmpty_s2sug")
+
+[node name="lblMusic" type="Label" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 148.0
+offset_right = 456.0
+offset_bottom = 172.0
+theme_override_fonts/font = ExtResource("2_6hfwq")
+theme_override_font_sizes/font_size = 20
+text = "Music Volume"
+
+[node name="MusicAudioControl" type="HSlider" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 176.0
+offset_right = 456.0
+offset_bottom = 192.0
+theme_override_styles/slider = SubResource("StyleBoxLine_swlpu")
+theme_override_styles/grabber_area = SubResource("StyleBoxLine_nm0l4")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_bxtry")
+max_value = 1.0
+step = 0.05
+value = 1.0
+script = ExtResource("3_akes2")
+audio_bus_name = "Music"
+
+[node name="HSeparator3" type="HSeparator" parent="VScrollBar"]
+z_index = -1
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+offset_top = 196.0
+offset_right = 456.0
+offset_bottom = 211.0
+theme_override_styles/separator = SubResource("StyleBoxEmpty_ygj4d")
+
+[node name="SFXMaster" type="Label" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 215.0
+offset_right = 456.0
+offset_bottom = 239.0
+theme_override_fonts/font = ExtResource("2_6hfwq")
+theme_override_font_sizes/font_size = 20
+text = "SFX Volume"
+
+[node name="SFXAudioControl" type="HSlider" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 243.0
+offset_right = 456.0
+offset_bottom = 259.0
+theme_override_styles/slider = SubResource("StyleBoxLine_swlpu")
+theme_override_styles/grabber_area = SubResource("StyleBoxLine_nm0l4")
+theme_override_styles/grabber_area_highlight = SubResource("StyleBoxLine_bxtry")
+max_value = 1.0
+step = 0.05
+value = 1.0
+script = ExtResource("3_akes2")
+audio_bus_name = "SFX"
+
+[node name="HSeparator4" type="HSeparator" parent="VScrollBar"]
+z_index = -1
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+offset_top = 263.0
+offset_right = 456.0
+offset_bottom = 278.0
+theme_override_styles/separator = SubResource("StyleBoxEmpty_ygj4d")
+
+[node name="FullscreenControl" type="CheckButton" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 282.0
+offset_right = 456.0
+offset_bottom = 313.0
+text = "Fullscreen"
+script = ExtResource("4_kbiw7")
+
+[node name="HSeparator5" type="HSeparator" parent="VScrollBar"]
+z_index = -1
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+offset_top = 317.0
+offset_right = 456.0
+offset_bottom = 332.0
+theme_override_styles/separator = SubResource("StyleBoxEmpty_ygj4d")
+
+[node name="lblMouseSens" type="Label" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 336.0
+offset_right = 456.0
+offset_bottom = 360.0
+theme_override_fonts/font = ExtResource("2_6hfwq")
+theme_override_font_sizes/font_size = 20
+text = "Mouse sensitivity"
+
+[node name="MouseSensControl" type="HSlider" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 364.0
+offset_right = 456.0
+offset_bottom = 380.0
+min_value = 0.05
+max_value = 1.0
+step = 0.1
+value = 0.05
+script = ExtResource("5_voqkr")
+
+[node name="btnBack" type="Button" parent="VScrollBar"]
+custom_minimum_size = Vector2(456, 79)
+layout_mode = 2
+offset_top = 447.0
+offset_right = 456.0
+offset_bottom = 526.0
+size_flags_vertical = 10
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("6_4j41y")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
+theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
+theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
+text = "Back
+"
+
+[connection signal="drag_ended" from="VScrollBar/MasterAudioControl" to="VScrollBar/MasterAudioControl" method="_on_drag_ended"]
+[connection signal="value_changed" from="VScrollBar/MasterAudioControl" to="VScrollBar/MasterAudioControl" method="_on_value_changed"]
+[connection signal="drag_ended" from="VScrollBar/MusicAudioControl" to="VScrollBar/MusicAudioControl" method="_on_drag_ended"]
+[connection signal="value_changed" from="VScrollBar/MusicAudioControl" to="VScrollBar/MusicAudioControl" method="_on_value_changed"]
+[connection signal="drag_ended" from="VScrollBar/SFXAudioControl" to="VScrollBar/SFXAudioControl" method="_on_drag_ended"]
+[connection signal="value_changed" from="VScrollBar/SFXAudioControl" to="VScrollBar/SFXAudioControl" method="_on_value_changed"]
+[connection signal="toggled" from="VScrollBar/FullscreenControl" to="VScrollBar/FullscreenControl" method="_on_toggled"]
+[connection signal="drag_ended" from="VScrollBar/MouseSensControl" to="VScrollBar/MouseSensControl" method="_on_drag_ended"]
+[connection signal="value_changed" from="VScrollBar/MouseSensControl" to="VScrollBar/MouseSensControl" method="_on_value_changed"]

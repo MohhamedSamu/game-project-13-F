@@ -1,0 +1,17 @@
+[gd_scene load_steps=4 format=3 uid="uid://dtbwe2g5gis2k"]
+
+[ext_resource type="PackedScene" uid="uid://bpn1b4yevkvaq" path="res://scenes/map/terreno_juego_13_f.tscn" id="1_ii35b"]
+[ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_fmjld"]
+[ext_resource type="PackedScene" uid="uid://dw4cb8cb6na7s" path="res://scenes/ui/pause_menu.tscn" id="3_fmjld"]
+
+[node name="level1" type="Node3D"]
+
+[node name="terreno_juego_13_f" parent="." instance=ExtResource("1_ii35b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.21017, 0, 2.01607)
+
+[node name="ProtoController" parent="." instance=ExtResource("2_fmjld")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -300.254, 332.577, -191.146)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="PauseMenu" parent="CanvasLayer" instance=ExtResource("3_fmjld")]
