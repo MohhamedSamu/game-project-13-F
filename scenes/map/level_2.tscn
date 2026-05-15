@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=4 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
+[ext_resource type="PackedScene" uid="uid://bwe7kke14n0cd" path="res://scenes/characters/clown/clown_enemy.tscn" id="3_y2gk5"]
 
 [node name="level_2" type="Node3D"]
 
@@ -10,3 +11,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 2)
 
 [node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.48085, 1.98725e-06, 10.3554)
+
+[node name="ClownEnemy" parent="." instance=ExtResource("3_y2gk5")]
+transform = Transform3D(-0.742981, 0, -0.669312, 0, 1, 0, 0.669312, 0, -0.742981, 11.3385, 0.0220501, 25.2796)

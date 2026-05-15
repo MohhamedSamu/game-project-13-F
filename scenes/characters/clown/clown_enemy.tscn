@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://bwe7kke14n0cd"]
+
+[ext_resource type="PackedScene" uid="uid://c02jtkmk56p72" path="res://scenes/characters/clown/clown.tscn" id="1_motde"]
+[ext_resource type="Script" uid="uid://4rug785ubxy" path="res://scenes/characters/clown/clown_enemy.gd" id="1_o1gij"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_o1gij"]
+height = 2.37722
+
+[node name="ClownEnemy" type="CharacterBody3D"]
+script = ExtResource("1_o1gij")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.98901, 0)
+shape = SubResource("CapsuleShape3D_o1gij")
+
+[node name="Model" type="Node3D" parent="."]
+
+[node name="Clown" parent="Model" instance=ExtResource("1_motde")]
