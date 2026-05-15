@@ -41,6 +41,7 @@ extends CharacterBody3D
 @export var input_jump : String = "ui_accept"
 ## Name of Input Action to Sprint.
 @export var input_sprint : String = "sprint"
+
 ## Name of Input Action to toggle freefly mode.
 @export var input_freefly : String = "freefly"
 
@@ -73,9 +74,10 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Mouse capturing
-	if Input.is_mouse_button_pressed(MOUSE_BUTTON_LEFT):
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
 		capture_mouse()
-	if Input.is_key_pressed(KEY_ESCAPE):
+	# Solo en la pulsación real de ESC/ui_cancel (is_key_pressed rompe al cerrar el menú de pausa)
+	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
 		release_mouse()
 	
 	# Look around

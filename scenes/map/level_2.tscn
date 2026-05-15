@@ -1,8 +1,10 @@
-[gd_scene load_steps=4 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=6 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
 [ext_resource type="PackedScene" uid="uid://bwe7kke14n0cd" path="res://scenes/characters/clown/clown_enemy.tscn" id="3_y2gk5"]
+[ext_resource type="PackedScene" uid="uid://d0hjy01ci6ck2" path="res://scenes/map/iglesia.tscn" id="4_gdio5"]
+[ext_resource type="PackedScene" uid="uid://dw4cb8cb6na7s" path="res://scenes/ui/pause_menu.tscn" id="5_qt25u"]
 
 [node name="level_2" type="Node3D"]
 
@@ -14,3 +16,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.48085, 1.98725e-06, 10.3554
 
 [node name="ClownEnemy" parent="." instance=ExtResource("3_y2gk5")]
 transform = Transform3D(-0.742981, 0, -0.669312, 0, 1, 0, 0.669312, 0, -0.742981, 11.3385, 0.0220501, 25.2796)
+
+[node name="iglesia_colision" parent="." instance=ExtResource("4_gdio5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -131.289, 0.157798, 25.877)
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="PauseMenu" parent="CanvasLayer" instance=ExtResource("5_qt25u")]
+size_flags_horizontal = 4

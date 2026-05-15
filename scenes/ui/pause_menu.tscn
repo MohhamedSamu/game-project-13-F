@@ -1,7 +1,45 @@
-[gd_scene load_steps=3 format=3 uid="uid://dw4cb8cb6na7s"]
+[gd_scene load_steps=11 format=3 uid="uid://dw4cb8cb6na7s"]
 
 [ext_resource type="Script" uid="uid://m4emjx3pp4m0" path="res://scripts/ui/pause_menu.gd" id="1_0lmf7"]
 [ext_resource type="PackedScene" uid="uid://bo3pfobccvpbh" path="res://scenes/ui/config_module.tscn" id="1_6tw0m"]
+[ext_resource type="FontFile" uid="uid://dqt0hrd2fvvrb" path="res://assets/fonts/jackwrite/Jackwrite.ttf" id="2_f6eus"]
+[ext_resource type="AudioStream" uid="uid://b4nxyjbvlyaqh" path="res://assets/audio/menu/back.ogg" id="4_0bnpd"]
+[ext_resource type="AudioStream" uid="uid://c4pjsr8att0yc" path="res://assets/audio/menu/enter.ogg" id="5_4inpj"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_0lmf7"]
+content_margin_left = 20.0
+content_margin_top = 20.0
+content_margin_right = 20.0
+content_margin_bottom = 20.0
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_f6eus"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8uki6"]
+bg_color = Color(0.105882, 0.105882, 0.105882, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_size = 5
+shadow_offset = Vector2(0, 3.41)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_f6eus"]
+bg_color = Color(0.505882, 0.505882, 0.505882, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_size = 5
+shadow_offset = Vector2(0, 3.41)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0bnpd"]
+bg_color = Color(1, 1, 1, 1)
+corner_radius_top_left = 16
+corner_radius_top_right = 16
+corner_radius_bottom_right = 16
+corner_radius_bottom_left = 16
+shadow_size = 5
+shadow_offset = Vector2(0, 3.41)
 
 [node name="PauseMenu" type="Control"]
 process_mode = 3
@@ -22,25 +60,81 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.141176, 0.141176, 0.141176, 0.239216)
 
-[node name="ConfigModule" parent="." instance=ExtResource("1_6tw0m")]
-visible = false
-layout_mode = 0
-
 [node name="Panel" type="PanelContainer" parent="."]
 layout_mode = 1
-anchors_preset = 9
+anchors_preset = 15
+anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 8.0
+grow_horizontal = 2
 grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_0lmf7")
 
-[node name="btnResume" type="Button" parent="Panel"]
+[node name="VBoxContainer" type="VBoxContainer" parent="Panel"]
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 15
 
-[node name="btnOptions" type="Button" parent="Panel"]
+[node name="btnResume" type="Button" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(456, 79)
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_f6eus")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("StyleBoxEmpty_f6eus")
+theme_override_styles/hover = SubResource("StyleBoxFlat_8uki6")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_f6eus")
+theme_override_styles/normal = SubResource("StyleBoxFlat_0bnpd")
+text = "Resume"
 
-[node name="btnSave" type="Button" parent="Panel"]
+[node name="btnOptions" type="Button" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(456, 79)
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_f6eus")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("StyleBoxEmpty_f6eus")
+theme_override_styles/hover = SubResource("StyleBoxFlat_8uki6")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_f6eus")
+theme_override_styles/normal = SubResource("StyleBoxFlat_0bnpd")
+text = "Options"
 
-[node name="btnMainMenu" type="Button" parent="Panel"]
+[node name="btnMainMenu" type="Button" parent="Panel/VBoxContainer"]
+custom_minimum_size = Vector2(456, 79)
 layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
+theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_f6eus")
+theme_override_font_sizes/font_size = 30
+theme_override_styles/focus = SubResource("StyleBoxEmpty_f6eus")
+theme_override_styles/hover = SubResource("StyleBoxFlat_8uki6")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_f6eus")
+theme_override_styles/normal = SubResource("StyleBoxFlat_0bnpd")
+text = "Main menu"
+
+[node name="ConfigModule" parent="." instance=ExtResource("1_6tw0m")]
+visible = false
+layout_mode = 2
+offset_left = 30.0
+offset_top = 33.0
+offset_right = 675.0
+offset_bottom = 617.0
+
+[node name="BackStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_0bnpd")
+parameters/looping = false
+
+[node name="EnterStreamPlayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_4inpj")
+parameters/looping = false

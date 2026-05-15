@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://c74igqvoxo6s4"]
+
+[ext_resource type="ArrayMesh" uid="uid://blj6t4e22alcl" path="res://assets/models/iglesia/untitled.obj" id="1_gbqcp"]
+
+[node name="Untitled" type="MeshInstance3D"]
+transform = Transform3D(0.957511, 0, -0.288397, 0, 1, 0, 0.288397, 0, 0.957511, 0, 0, 0)
+mesh = ExtResource("1_gbqcp")
