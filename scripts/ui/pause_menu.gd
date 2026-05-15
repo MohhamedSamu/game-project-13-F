@@ -1,12 +1,15 @@
 extends Control
 
 @onready var menu_box: Control = $Panel
-@onready var btn_resume: Button = $Panel/btnResume
-@onready var btn_options: Button = $Panel/btnOptions
-@onready var btn_save: Button = $Panel/btnSave
-@onready var btn_main_menu: Button = $Panel/btnMainMenu
+
+@onready var btn_resume: Button = $Panel/VBoxContainer/btnResume
+@onready var btn_options: Button = $Panel/VBoxContainer/btnOptions
+@onready var btn_main_menu: Button = $Panel/VBoxContainer/btnMainMenu
 
 @onready var config_module: Control = $ConfigModule
+
+@onready var sfx_enter: AudioStreamPlayer = $EnterStreamPlayer
+@onready var sfx_back: AudioStreamPlayer = $BackStreamPlayer
 
 var is_open: bool = false
 
@@ -17,7 +20,6 @@ func _ready() -> void:
 	btn_resume.pressed.connect(_resume)
 	btn_options.pressed.connect(_open_options)
 	btn_main_menu.pressed.connect(_go_main_menu)
-	btn_save.pressed.connect(_save_game)
 
 	# back del config_module (tu señal back_pressed)
 	if config_module.has_signal("back_pressed"):
@@ -25,6 +27,7 @@ func _ready() -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"): # ESC por defecto
+		get_viewport().set_input_as_handled()
 		if not is_open:
 			open()
 		else:
@@ -43,25 +46,35 @@ func open() -> void:
 	config_module.visible = false
 
 func _resume() -> void:
+	_play_enter()
 	is_open = false
 	hide()
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _open_options() -> void:
+	_play_enter()
 	menu_box.visible = false
 	config_module.visible = true
 
 func _close_options() -> void:
 	config_module.visible = false
 	menu_box.visible = true
-
-func _save_game() -> void:
-	# placeholder: aquí llamas tu SaveManager
-	print("Save game (todo)")
+	_play_back()
 
 func _go_main_menu() -> void:
+	_play_back()
 	# Salir al menú principal
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file("res://scenes/main/main_menu.tscn")
+
+func _play_enter() -> void:
+	if sfx_enter:
+		sfx_enter.stop()
+		sfx_enter.play()
+
+func _play_back() -> void:
+	if sfx_back:
+		sfx_back.stop()
+		sfx_back.play()
