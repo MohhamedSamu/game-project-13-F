@@ -1,0 +1,19 @@
+[gd_scene load_steps=5 format=3 uid="uid://dtbwe2g5gis2k"]
+
+[ext_resource type="PackedScene" uid="uid://bpn1b4yevkvaq" path="res://scenes/map/terreno_juego_13_f.tscn" id="1_ii35b"]
+[ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_fmjld"]
+[ext_resource type="PackedScene" uid="uid://d0hjy01ci6ck2" path="res://scenes/map/iglesia.tscn" id="4_gdio5"]
+[ext_resource type="PackedScene" uid="uid://baiidha04m3ud" path="res://scenes/ui/ingame_HUD.tscn" id="4_x42e6"]
+
+[node name="level1" type="Node3D"]
+
+[node name="terreno_juego_13_f" parent="." instance=ExtResource("1_ii35b")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.21017, 0, 2.01607)
+
+[node name="iglesia_colision" parent="." instance=ExtResource("4_gdio5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -85.9503, 311.561, -268.134)
+
+[node name="ProtoController" parent="." instance=ExtResource("2_fmjld")]
+transform = Transform3D(0.527193, 0, 0.849746, 0, 1, 0, -0.849746, 0, 0.527193, -42.4512, 319.623, -268.788)
+
+[node name="InGameHUD" parent="." instance=ExtResource("4_x42e6")]
