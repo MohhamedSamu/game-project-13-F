@@ -82,6 +82,12 @@ func _unhandled_input(event: InputEvent) -> void:
 			disable_freefly()
 
 func _physics_process(delta: float) -> void:
+	if GameManager.dialogue_active:
+		velocity.x = 0.0
+		velocity.z = 0.0
+		move_and_slide()
+		return
+	
 	# If freeflying, handle freefly and nothing else
 	if can_freefly and freeflying:
 		var input_dir := Input.get_vector(input_left, input_right, input_forward, input_back)
