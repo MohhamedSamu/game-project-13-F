@@ -1,0 +1,27 @@
+[gd_scene load_steps=7 format=3 uid="uid://dcjkky0vgp7re"]
+
+[ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
+[ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
+[ext_resource type="PackedScene" uid="uid://d0hjy01ci6ck2" path="res://scenes/map/iglesia.tscn" id="3_y2gk5"]
+[ext_resource type="PackedScene" uid="uid://d1vhu4ikpiebu" path="res://scenes/props/flashlight.tscn" id="5_l37oo"]
+[ext_resource type="PackedScene" uid="uid://baiidha04m3ud" path="res://scenes/ui/ingame_HUD.tscn" id="5_qpwj6"]
+[ext_resource type="PackedScene" uid="uid://baoljmaytd3rs" path="res://scenes/props/camera.tscn" id="6_qpwj6"]
+
+[node name="level_2" type="Node3D"]
+
+[node name="Gas_station" parent="." instance=ExtResource("1_0dhnt")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 2)
+
+[node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
+transform = Transform3D(-0.0150266, 0, -0.999887, 0, 1, 0, 0.999887, 0, -0.0150266, -77.8537, 1.98725e-06, 28.0695)
+
+[node name="iglesia_colision" parent="." instance=ExtResource("3_y2gk5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -131.289, 0.157798, 25.877)
+
+[node name="InGameHUD" parent="." instance=ExtResource("5_qpwj6")]
+
+[node name="flashlight" parent="." instance=ExtResource("5_l37oo")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -74.9293, 0.0566161, 28.164)
+
+[node name="camera" parent="." instance=ExtResource("6_qpwj6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70.0538, 0.0360137, 26.8067)

@@ -103,9 +103,9 @@ func _on_checkpoint_selected(id: String) -> void:
 	
 	match id:
 		"new_game", "lvl1":
-			get_tree().change_scene_to_file("res://scenes/map/level_1.tscn")
+			get_tree().change_scene_to_file("res://scenes/levels/level_1.tscn")
 		"lvl2":
-			get_tree().change_scene_to_file("res://scenes/map/level_2.tscn")
+			get_tree().change_scene_to_file("res://scenes/levels/level_2.tscn")
 		_:
 			print("Checkpoint not mapped:", id)
 

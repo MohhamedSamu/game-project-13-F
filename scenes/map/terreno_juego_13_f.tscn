@@ -8,6 +8,7 @@ data = PackedVector3Array(-716.129, -0.8069, -4891.32, -715.23, -0.7706, -4892.2
 [node name="terreno_juego_13_f" instance=ExtResource("1_fwq2a")]
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Plane" index="0"]
+metadata/footstep_surface = "Dirt"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Plane/StaticBody3D" index="0"]
 shape = SubResource("ConcavePolygonShape3D_fwq2a")
