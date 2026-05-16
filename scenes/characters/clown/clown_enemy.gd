@@ -28,21 +28,17 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	
 	if player_near and Input.is_action_just_pressed("interact"):
-		start_dialogue()
+		request_dialogue()
 
-func start_dialogue() -> void:
+func request_dialogue() -> void:
 	if GameManager.dialogue_active:
 		return
+	
 	if trigger_once and already_talked:
 		return
-	if dialogue_resource == null:
-		push_warning("ClownEnemy has no dialogue_resource assigned.")
-		return
+	
 	already_talked = true
-	GameManager.set_dialogue_active(true)
-	var balloon = DialogueManager.show_dialogue_balloon(dialogue_resource, dialogue_title)
-	if balloon:
-		balloon.tree_exited.connect(_on_dialogue_finished)
+	DialogueController.start_dialogue(dialogue_resource, dialogue_title)
 
 func _on_interaction_area_body_entered(body: Node3D) -> void:
 	if body.is_in_group("player"):

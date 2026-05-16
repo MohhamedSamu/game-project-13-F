@@ -21,6 +21,7 @@ Settings="*res://scripts/autoload/settings.gd"
 UISFX="*res://scripts/autoload/ui_sfx.gd"
 DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 GameManager="*res://scripts/autoload/game_manager.gd"
+DialogueController="*res://scripts/autoload/dialogue_controller.gd"
 
 [dialogue_manager]
 

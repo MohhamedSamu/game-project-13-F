@@ -48,6 +48,7 @@ var mouse_captured : bool = false
 var look_rotation : Vector2
 var move_speed : float = 0.0
 var freeflying : bool = false
+var input_enabled: bool = true
 
 ## IMPORTANT REFERENCES
 @onready var head: Node3D = $Head
@@ -57,6 +58,9 @@ func _ready() -> void:
 	check_input_mappings()
 	look_rotation.y = rotation.y
 	look_rotation.x = head.rotation.x
+	
+	GameManager.register_player(self)
+	
 	# 1) quita pausa por si el menú pausaba algo
 	get_tree().paused = false
 
@@ -82,7 +86,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			disable_freefly()
 
 func _physics_process(delta: float) -> void:
-	if GameManager.dialogue_active:
+	if not input_enabled:
+		if not is_on_floor():
+			velocity += get_gravity() * delta
 		velocity.x = 0.0
 		velocity.z = 0.0
 		move_and_slide()
@@ -187,3 +193,9 @@ func check_input_mappings():
 	if can_freefly and not InputMap.has_action(input_freefly):
 		push_error("Freefly disabled. No InputAction found for input_freefly: " + input_freefly)
 		can_freefly = false
+
+func set_input_enabled(value: bool) -> void:
+	input_enabled = value
+	if not input_enabled:
+		velocity.x = 0.0
+		velocity.z = 0.0
