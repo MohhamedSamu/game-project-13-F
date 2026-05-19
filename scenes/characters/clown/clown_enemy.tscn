@@ -9,7 +9,7 @@ height = 2.37722
 [sub_resource type="SphereShape3D" id="SphereShape3D_o1gij"]
 radius = 1.5
 
-[node name="ClownEnemy" type="CharacterBody3D"]
+[node name="ClownEnemy" type="CharacterBody3D" groups=["dialogue_interactable"]]
 script = ExtResource("1_o1gij")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -25,3 +25,6 @@ shape = SubResource("CapsuleShape3D_o1gij")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.976854, 1.00447)
 shape = SubResource("SphereShape3D_o1gij")
+
+[node name="DialogueFocusPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.88596, 0)

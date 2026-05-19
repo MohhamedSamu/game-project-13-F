@@ -3,6 +3,7 @@ extends Node
 var dialogue_active: bool = false
 var player: Node = null
 var has_met_clown: bool = false
+var interaction_prompt: String = ""
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -30,3 +31,6 @@ func unlock_player() -> void:
 
 	if player and player.has_method("set_input_enabled"):
 		player.set_input_enabled(true)
+
+func set_interaction_prompt(text: String) -> void:
+	interaction_prompt = text

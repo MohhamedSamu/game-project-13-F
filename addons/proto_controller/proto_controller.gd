@@ -48,11 +48,15 @@ var mouse_captured : bool = false
 var look_rotation : Vector2
 var move_speed : float = 0.0
 var freeflying : bool = false
+
+# Dialogue variables
 var input_enabled: bool = true
+var current_interactable: Node = null
 
 ## IMPORTANT REFERENCES
 @onready var head: Node3D = $Head
 @onready var collider: CollisionShape3D = $Collider
+@onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRayCast
 
 func _ready() -> void:
 	check_input_mappings()
@@ -86,6 +90,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			disable_freefly()
 
 func _physics_process(delta: float) -> void:
+	update_interaction_target()
+
+	if input_enabled and current_interactable and Input.is_action_just_pressed("interact"):
+		current_interactable.interact()
+	
 	if not input_enabled:
 		if not is_on_floor():
 			velocity += get_gravity() * delta
@@ -199,3 +208,34 @@ func set_input_enabled(value: bool) -> void:
 	if not input_enabled:
 		velocity.x = 0.0
 		velocity.z = 0.0
+
+func update_interaction_target() -> void:
+	current_interactable = null
+	if GameManager.dialogue_active:
+		GameManager.set_interaction_prompt("")
+		return
+	
+	if not interaction_ray.is_colliding():
+		GameManager.set_interaction_prompt("")
+		return
+	
+	var collider = interaction_ray.get_collider()
+	
+	if collider == null:
+		GameManager.set_interaction_prompt("")
+		return
+	
+	var target = collider
+	
+	while target and not target.is_in_group("dialogue_interactable"):
+		target = target.get_parent()
+	
+	if target and target.has_method("can_interact") and target.can_interact():
+		current_interactable = target
+	
+		if target.has_method("get_interaction_text"):
+			GameManager.set_interaction_prompt(target.get_interaction_text())
+		else:
+			GameManager.set_interaction_prompt("Presiona E")
+	else:
+		GameManager.set_interaction_prompt("")

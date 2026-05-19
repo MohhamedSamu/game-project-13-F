@@ -8,11 +8,14 @@ var player_near: bool = false
 var already_talked: bool = false
 
 @onready var interaction_area: Area3D = $InteractionArea
+@onready var dialogue_focus_point: Marker3D = $DialogueFocusPoint
 
 const SPEED = 5.0
 const JUMP_VELOCITY = 4.5
 
 func _ready() -> void:
+	add_to_group("dialogue_interactable")
+	
 	interaction_area.body_entered.connect(_on_interaction_area_body_entered)
 	interaction_area.body_exited.connect(_on_interaction_area_body_exited)
 	return
@@ -26,11 +29,26 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0, SPEED)
 	
 	move_and_slide()
-	
-	if player_near and Input.is_action_just_pressed("interact"):
-		request_dialogue()
 
-func request_dialogue() -> void:
+func can_interact() -> bool:
+	if GameManager.dialogue_active:
+		return false
+	
+	if not player_near:
+		return false
+	
+	if trigger_once and already_talked:
+		return false
+	
+	if dialogue_resource == null:
+		return false
+	
+	return true
+
+func interact() -> void:
+	if not can_interact():
+		return
+	
 	if GameManager.dialogue_active:
 		return
 	
@@ -38,7 +56,10 @@ func request_dialogue() -> void:
 		return
 	
 	already_talked = true
-	DialogueController.start_dialogue(dialogue_resource, dialogue_title)
+	DialogueController.start_dialogue(dialogue_resource, dialogue_title, dialogue_focus_point)
+
+func get_interaction_text() -> String:
+	return "Presiona E para hablar"
 
 func _on_interaction_area_body_entered(body: Node3D) -> void:
 	if body.is_in_group("player"):
