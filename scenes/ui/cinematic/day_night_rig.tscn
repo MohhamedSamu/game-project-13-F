@@ -1,25 +1,16 @@
 [gd_scene load_steps=7 format=3 uid="uid://bj7nvq1n6yrlo"]
 
 [ext_resource type="Script" uid="uid://bionxx18t8cl4" path="res://scripts/ui/day_night_rig.gd" id="1_80htk"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5dq4m"]
-albedo_color = Color(0.865452, 0.702655, 0, 1)
-emission_enabled = true
-emission = Color(0.778327, 0.680294, 0, 1)
-emission_energy_multiplier = 10.0
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_80htk"]
-emission_enabled = true
-emission = Color(1, 1, 1, 1)
-emission_energy_multiplier = 10.0
-
-[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_80htk"]
+[ext_resource type="Texture2D" uid="uid://do3x2cgcirson" path="res://assets/materials/Sun.png" id="2_3l57m"]
+[ext_resource type="Texture2D" uid="uid://d3uy2bd4fdfbw" path="res://assets/materials/Moon.png" id="3_v3o0r"]
+[ext_resource type="Material" uid="uid://cjqh47mw3rx1y" path="res://assets/shaders/sky_day_night_material.tres" id="4_85ngt"]
 
 [sub_resource type="Sky" id="Sky_3l57m"]
-sky_material = SubResource("ProceduralSkyMaterial_80htk")
+sky_material = ExtResource("4_85ngt")
 
 [sub_resource type="Environment" id="Environment_80htk"]
 background_mode = 2
+background_energy_multiplier = 0.75
 sky = SubResource("Sky_3l57m")
 fog_mode = 1
 fog_light_color = Color(0.00109834, 0.0449034, 0.108015, 1)
@@ -35,24 +26,20 @@ script = ExtResource("1_80htk")
 [node name="SunDirectional" type="DirectionalLight3D" parent="SunPivot"]
 transform = Transform3D(-4.37114e-08, -1, 0, -4.37114e-08, 1.91069e-15, 1, -1, 4.37114e-08, -4.37114e-08, 0, 407.714, 0)
 
-[node name="SunMesh" type="CSGSphere3D" parent="SunPivot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.06494, 407.369, -0.581787)
-radius = 80.0
-radial_segments = 30
-rings = 8
-material = SubResource("StandardMaterial3D_5dq4m")
+[node name="SunSprite3D" type="Sprite3D" parent="SunPivot"]
+pixel_size = 0.4
+billboard = 2
+texture = ExtResource("2_3l57m")
 
 [node name="MoonPivot" type="Node3D" parent="."]
 
 [node name="MoonDirectional" type="DirectionalLight3D" parent="MoonPivot"]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, -605.666, 0)
 
-[node name="MoonMesh" type="CSGSphere3D" parent="MoonPivot"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.06494, -631.607, -0.581787)
-radius = 50.0
-radial_segments = 18
-rings = 8
-material = SubResource("StandardMaterial3D_80htk")
+[node name="MoonSprite3D" type="Sprite3D" parent="MoonPivot"]
+pixel_size = 1.8
+billboard = 2
+texture = ExtResource("3_v3o0r")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_80htk")
