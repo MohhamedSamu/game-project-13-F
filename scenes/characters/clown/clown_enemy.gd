@@ -14,7 +14,7 @@ const SPEED = 5.0
 const JUMP_VELOCITY = 4.5
 
 func _ready() -> void:
-	add_to_group("dialogue_interactable")
+	add_to_group("interactable")
 	
 	interaction_area.body_entered.connect(_on_interaction_area_body_entered)
 	interaction_area.body_exited.connect(_on_interaction_area_body_exited)
@@ -58,8 +58,8 @@ func interact() -> void:
 	already_talked = true
 	DialogueController.start_dialogue(dialogue_resource, dialogue_title, dialogue_focus_point)
 
-func get_interaction_text() -> String:
-	return "Presiona E para hablar"
+func get_interaction_prompt() -> String:
+	return "Presiona [E] para hablar"
 
 func _on_interaction_area_body_entered(body: Node3D) -> void:
 	if body.is_in_group("player"):

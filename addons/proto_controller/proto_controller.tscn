@@ -34,9 +34,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
 [node name="Camera3D" type="Camera3D" parent="Head"]
 current = true
 
-[node name="InteractionRayCast" type="RayCast3D" parent="Head/Camera3D"]
-target_position = Vector3(0, 0, -3)
-
 [node name="HandRight" type="Marker3D" parent="Head/Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, -0.36, -0.58)
 

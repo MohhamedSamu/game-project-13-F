@@ -38,8 +38,10 @@ enabled=PackedStringArray("res://addons/dialogue_manager/plugin.cfg")
 
 [global_group]
 
-dialogue_interactable=""
+interactable=""
+pickup=""
 player=""
+interaction_crosshair=""
 
 [input]
 

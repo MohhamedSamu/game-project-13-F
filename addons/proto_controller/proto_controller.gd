@@ -87,10 +87,7 @@ var look_rotation : Vector2
 var move_speed : float = 0.0
 var freeflying : bool = false
 
-# Diálogo (feature/dialogs)
 var input_enabled: bool = true
-var current_interactable: Node = null
-# Recoger objetos / linterna
 var _interaction_crosshair: Control
 var _held_pickup: Node3D
 var _focus_interactable: Node
@@ -98,7 +95,6 @@ var _focus_interactable: Node
 ## IMPORTANT REFERENCES
 @onready var head: Node3D = $Head
 @onready var collider: CollisionShape3D = $Collider
-@onready var interaction_ray: RayCast3D = $Head/Camera3D/InteractionRayCast
 @onready var footstep_player: AudioStreamPlayer3D = $FootstepPlayer
 @onready var jump_player: AudioStreamPlayer3D = $JumpPlayer
 @onready var land_player: AudioStreamPlayer3D = $LandPlayer
@@ -150,13 +146,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			disable_freefly()
 
 func _physics_process(delta: float) -> void:
-	update_interaction_target()
-
-	if input_enabled and current_interactable and Input.is_action_just_pressed("interact"):
-		current_interactable.interact()
-	elif interaction_enabled and mouse_captured and not freeflying:
+	if input_enabled and interaction_enabled and mouse_captured and not freeflying:
 		if Input.is_action_just_pressed(input_interact):
-			_try_pickup_focused()
+			_try_interact_focused()
 		if Input.is_action_just_pressed(input_drop_item):
 			_try_drop_held()
 		if Input.is_action_just_pressed(input_flashlight_toggle):
@@ -273,15 +265,16 @@ func _interaction_prompt(node: Node) -> String:
 		var p: Variant = node.call("get_interaction_prompt")
 		if p is String:
 			return p as String
+	if node.has_method("get_interaction_text"):
+		var t: Variant = node.call("get_interaction_text")
+		if t is String:
+			return t as String
 	return ""
 
 
-func _update_interaction_focus() -> void:
-	_focus_interactable = null
-	_ensure_crosshair_ref()
+func _interaction_raycast() -> Dictionary:
 	if camera_3d == null:
-		_apply_crosshair_ui(false, "")
-		return
+		return {}
 	var dir := -camera_3d.global_basis.z.normalized()
 	var origin := camera_3d.global_position + dir * 0.12
 	var to := origin + dir * interaction_distance
@@ -296,28 +289,38 @@ func _update_interaction_focus() -> void:
 	pq.collide_with_bodies = true
 	var hit := get_world_3d().direct_space_state.intersect_ray(pq)
 	if hit.is_empty():
-		_apply_crosshair_ui(false, "")
-		return
+		return {}
 	var hit_pos: Vector3 = hit.position
 	if origin.distance_to(hit_pos) > interaction_distance:
+		return {}
+	return hit
+
+
+func _update_interaction_focus() -> void:
+	_focus_interactable = null
+	_ensure_crosshair_ref()
+	if GameManager.dialogue_active:
+		_apply_crosshair_ui(false, "")
+		return
+	var hit := _interaction_raycast()
+	if hit.is_empty():
 		_apply_crosshair_ui(false, "")
 		return
 	var collider: Object = hit.get("collider")
 	var focus := _resolve_interactable(collider)
-	if focus != null:
-		_focus_interactable = focus
-		var prompt: String = ""
-		if (
-			_held_pickup != null
-			and focus != _held_pickup
-			and focus.is_in_group("pickup")
-		):
-			prompt = prompt_need_drop_before_pickup
-		else:
-			prompt = _interaction_prompt(focus)
-		_apply_crosshair_ui(true, prompt)
-	else:
+	if focus == null:
 		_apply_crosshair_ui(false, "")
+		return
+	if focus.has_method("can_interact") and not focus.can_interact():
+		_apply_crosshair_ui(false, "")
+		return
+	_focus_interactable = focus
+	var prompt: String = ""
+	if _held_pickup != null and focus != _held_pickup and focus.is_in_group("pickup"):
+		prompt = prompt_need_drop_before_pickup
+	else:
+		prompt = _interaction_prompt(focus)
+	_apply_crosshair_ui(true, prompt)
 
 
 func _resolve_interactable(collider: Object) -> Node:
@@ -334,12 +337,22 @@ func _apply_crosshair_ui(active: bool, prompt: String) -> void:
 		_interaction_crosshair.call("update_focus", active, prompt)
 
 
-func _try_pickup_focused() -> void:
-	if _held_pickup != null or hand_right == null:
+func _try_interact_focused() -> void:
+	if _focus_interactable == null:
 		return
-	if _focus_interactable != null and _focus_interactable.is_in_group("pickup") and _focus_interactable.has_method("pickup_to_hand"):
+	if _focus_interactable.has_method("can_interact") and not _focus_interactable.can_interact():
+		return
+	if (
+		_held_pickup == null
+		and hand_right != null
+		and _focus_interactable.is_in_group("pickup")
+		and _focus_interactable.has_method("pickup_to_hand")
+	):
 		_focus_interactable.pickup_to_hand(hand_right)
 		_held_pickup = _focus_interactable as Node3D
+		return
+	if _focus_interactable.has_method("interact"):
+		_focus_interactable.interact()
 
 
 func _try_drop_held() -> void:
@@ -548,34 +561,5 @@ func set_input_enabled(value: bool) -> void:
 	if not input_enabled:
 		velocity.x = 0.0
 		velocity.z = 0.0
-
-func update_interaction_target() -> void:
-	current_interactable = null
-	if GameManager.dialogue_active:
-		GameManager.set_interaction_prompt("")
-		return
-	
-	if not interaction_ray.is_colliding():
-		GameManager.set_interaction_prompt("")
-		return
-	
-	var collider = interaction_ray.get_collider()
-	
-	if collider == null:
-		GameManager.set_interaction_prompt("")
-		return
-	
-	var target = collider
-	
-	while target and not target.is_in_group("dialogue_interactable"):
-		target = target.get_parent()
-	
-	if target and target.has_method("can_interact") and target.can_interact():
-		current_interactable = target
-	
-		if target.has_method("get_interaction_text"):
-			GameManager.set_interaction_prompt(target.get_interaction_text())
-		else:
-			GameManager.set_interaction_prompt("Presiona E")
-	else:
-		GameManager.set_interaction_prompt("")
+		_focus_interactable = null
+		_apply_crosshair_ui(false, "")

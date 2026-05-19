@@ -9,7 +9,7 @@ height = 2.37722
 [sub_resource type="SphereShape3D" id="SphereShape3D_o1gij"]
 radius = 1.5
 
-[node name="ClownEnemy" type="CharacterBody3D" groups=["dialogue_interactable"]]
+[node name="ClownEnemy" type="CharacterBody3D" groups=["interactable"]]
 script = ExtResource("1_o1gij")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
