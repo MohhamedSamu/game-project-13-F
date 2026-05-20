@@ -1,5 +1,7 @@
 extends Node
 
+signal dialogue_finished
+
 var current_balloon: Node = null
 var current_focus_target: Node3D = null
 
@@ -53,3 +55,4 @@ func _on_dialogue_finished() -> void:
 	current_balloon = null
 	current_focus_target = null
 	GameManager.unlock_player()
+	dialogue_finished.emit()

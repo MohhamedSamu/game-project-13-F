@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://bwe7kke14n0cd"]
+[gd_scene load_steps=8 format=3 uid="uid://bwe7kke14n0cd"]
 
 [ext_resource type="PackedScene" uid="uid://c02jtkmk56p72" path="res://scenes/characters/clown/clown.tscn" id="1_motde"]
 [ext_resource type="Script" uid="uid://4rug785ubxy" path="res://scenes/characters/clown/clown_enemy.gd" id="1_o1gij"]
@@ -14,6 +14,9 @@ size = Vector3(1.94238, 1.62488, 2.04053)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_focus"]
 radius = 1.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_proximity"]
+radius = 3.0
 
 [node name="ClownEnemy" type="CharacterBody3D" groups=["interactable"]]
 script = ExtResource("1_o1gij")
@@ -43,3 +46,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.88596, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DialogueFocusPoint/FocusHitbox"]
 shape = SubResource("SphereShape3D_focus")
+
+[node name="ProximityDialogueArea" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ProximityDialogueArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.976854, 1)
+shape = SubResource("SphereShape3D_proximity")

@@ -9,3 +9,8 @@ Nathan: Here are some choices.
 - End the conversation => END
 Nathan: For more information see the online documentation.
 => END
+
+~ proximity_start
+Nathan: You came back.
+Nathan: I thought you were leaving.
+=> END

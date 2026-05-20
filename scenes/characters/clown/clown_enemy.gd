@@ -1,11 +1,20 @@
 extends CharacterBody3D
 
 const dialogue_resource = preload("res://dialogues/my_dialogue.dialogue")
+const proximity_dialogue_resource = preload("res://dialogues/my_dialogue.dialogue")
 var dialogue_title: String = "start"
+var proximity_dialogue_title: String = "proximity_start"
 var trigger_once: bool = false
+
+var enable_proximity_dialogue: bool = true
+var proximity_requires_first_interaction: bool = true
+var proximity_trigger_once: bool = true
 
 var player_near: bool = false
 var already_talked: bool = false
+var has_completed_first_interaction: bool = false
+var player_has_left_after_first_interaction: bool = false
+var proximity_dialogue_played: bool = false
 
 @export var dialogue_stand_min_distance: float = 1.4
 @export var dialogue_stand_max_distance: float = 2.6
@@ -14,6 +23,7 @@ var already_talked: bool = false
 
 @onready var interaction_area: Area3D = $InteractionArea
 @onready var dialogue_focus_point: Marker3D = $DialogueFocusPoint
+@onready var proximity_dialogue_area: Area3D = get_node_or_null("ProximityDialogueArea") as Area3D
 
 const SPEED = 5.0
 const JUMP_VELOCITY = 4.5
@@ -23,7 +33,12 @@ func _ready() -> void:
 	
 	interaction_area.body_entered.connect(_on_interaction_area_body_entered)
 	interaction_area.body_exited.connect(_on_interaction_area_body_exited)
-	return
+
+	if proximity_dialogue_area != null:
+		proximity_dialogue_area.body_entered.connect(_on_proximity_dialogue_area_body_entered)
+		proximity_dialogue_area.body_exited.connect(_on_proximity_dialogue_area_body_exited)
+	else:
+		push_warning("ClownEnemy: falta ProximityDialogueArea; el diálogo por proximidad no funcionará.")
 
 func _physics_process(delta: float) -> void:
 	# Add the gravity.
@@ -61,6 +76,11 @@ func interact() -> void:
 		return
 	
 	already_talked = true
+	if not has_completed_first_interaction:
+		DialogueController.dialogue_finished.connect(
+			_on_first_interaction_dialogue_finished,
+			CONNECT_ONE_SHOT
+		)
 	DialogueController.start_dialogue(dialogue_resource, dialogue_title, dialogue_focus_point)
 
 func get_interaction_prompt() -> String:
@@ -163,6 +183,47 @@ func _on_interaction_area_body_entered(body: Node3D) -> void:
 func _on_interaction_area_body_exited(body: Node3D) -> void:
 	if body.is_in_group("player"):
 		player_near = false
+		_mark_player_left_after_first_interaction()
 
-func _on_dialogue_finished() -> void:
-	GameManager.set_dialogue_active(false)
+
+func _on_proximity_dialogue_area_body_entered(body: Node3D) -> void:
+	if not body.is_in_group("player"):
+		return
+	_try_start_proximity_dialogue()
+
+
+func _on_proximity_dialogue_area_body_exited(body: Node3D) -> void:
+	if not body.is_in_group("player"):
+		return
+	_mark_player_left_after_first_interaction()
+
+
+func _mark_player_left_after_first_interaction() -> void:
+	if has_completed_first_interaction:
+		player_has_left_after_first_interaction = true
+
+
+func _on_first_interaction_dialogue_finished() -> void:
+	has_completed_first_interaction = true
+
+
+func _try_start_proximity_dialogue() -> void:
+	if not enable_proximity_dialogue:
+		return
+	if GameManager.dialogue_active:
+		return
+	if proximity_trigger_once and proximity_dialogue_played:
+		return
+	if proximity_requires_first_interaction and not has_completed_first_interaction:
+		return
+	if proximity_requires_first_interaction and not player_has_left_after_first_interaction:
+		return
+	if proximity_dialogue_resource == null:
+		return
+
+	proximity_dialogue_played = true
+	DialogueController.start_dialogue(
+		proximity_dialogue_resource,
+		proximity_dialogue_title,
+		dialogue_focus_point
+	)
