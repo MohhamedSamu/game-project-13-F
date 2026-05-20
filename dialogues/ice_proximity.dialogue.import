@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://cad1bpgref1ra"
+path="res://.godot/imported/ice_proximity.dialogue-9ca7a59946a8617446990364aba6ffdc.tres"
+
+[deps]
+
+source_file="res://dialogues/ice_proximity.dialogue"
+dest_files=["res://.godot/imported/ice_proximity.dialogue-9ca7a59946a8617446990364aba6ffdc.tres"]
+
+[params]
+
+defaults=true

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=10 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -7,7 +7,8 @@
 [ext_resource type="PackedScene" uid="uid://d1vhu4ikpiebu" path="res://scenes/props/flashlight.tscn" id="5_flash"]
 [ext_resource type="PackedScene" uid="uid://baiidha04m3ud" path="res://scenes/ui/ingame_HUD.tscn" id="6_hud"]
 [ext_resource type="PackedScene" uid="uid://baoljmaytd3rs" path="res://scenes/props/camera.tscn" id="7_cam"]
-[ext_resource type="PackedScene" path="res://scenes/interactables/door_01_interact_setup.tscn" id="8_door01"]
+[ext_resource type="PackedScene" uid="uid://blhoimejjrojj" path="res://scenes/interactables/door_01_interact_setup.tscn" id="8_door01"]
+[ext_resource type="PackedScene" path="res://scenes/interactables/ice_proximity_setup.tscn" id="9_iceprox"]
 
 [node name="level_2" type="Node3D"]
 
@@ -16,6 +17,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 2)
 
 [node name="Door01InteractSetup" parent="Gas_station" instance=ExtResource("8_door01")]
 transform = Transform3D(-100, 3.89414e-05, -2.84217e-12, 0, 5.96046e-06, 100, 3.89414e-05, 100, -1.19209e-05, 20.8168, 1.24941, -20.9974)
+
+[node name="IceProximitySetup" parent="Gas_station" instance=ExtResource("9_iceprox")]
+transform = Transform3D(100, 0, 0, 0, -1.19209e-05, 100, 0, -100, -1.19209e-05, -1.06007, 1.11659, -13.6583)
 
 [node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
 transform = Transform3D(-0.0150266, 0, -0.999887, 0, 1, 0, 0.999887, 0, -0.0150266, -7.29434, 1.98725e-06, 28.0695)
