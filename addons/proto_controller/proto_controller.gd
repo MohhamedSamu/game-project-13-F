@@ -368,17 +368,67 @@ func _resolve_interactable(collider: Object) -> Node:
 	if n == null:
 		return null
 
-	var candidate := n
+	var candidate := _find_interactable_on_ancestors(n)
+	if candidate == null:
+		candidate = _find_interactable_in_node_family(n)
+	if candidate == null:
+		return null
+
+	if candidate.has_method("requires_dialogue_focus_aim") and candidate.requires_dialogue_focus_aim():
+		if _is_aiming_at_dialogue_focus(candidate):
+			return candidate
+		return null
+
+	return candidate
+
+
+func _find_interactable_on_ancestors(node: Node) -> Node:
+	var candidate := node
 	while candidate != null:
 		if candidate.is_in_group("interactable"):
-			if candidate.has_method("requires_dialogue_focus_aim") and candidate.requires_dialogue_focus_aim():
-				if _is_aiming_at_dialogue_focus(candidate):
-					return candidate
-				return null
 			return candidate
-
 		candidate = candidate.get_parent()
+	return null
 
+
+func _find_interactable_in_node_family(node: Node) -> Node:
+	var current := node
+	while current != null:
+		var found := _find_interactable_on_ancestors(current)
+		if found != null:
+			return found
+		found = _find_interactable_among_descendants(current)
+		if found != null:
+			return found
+		found = _find_interactable_among_siblings(current)
+		if found != null:
+			return found
+		current = current.get_parent()
+	return null
+
+
+func _find_interactable_among_siblings(node: Node) -> Node:
+	var parent := node.get_parent()
+	if parent == null:
+		return null
+	for child in parent.get_children():
+		if child == node:
+			continue
+		if child.is_in_group("interactable"):
+			return child
+		var nested := _find_interactable_among_descendants(child)
+		if nested != null:
+			return nested
+	return null
+
+
+func _find_interactable_among_descendants(root: Node) -> Node:
+	for child in root.get_children():
+		if child.is_in_group("interactable"):
+			return child
+		var nested := _find_interactable_among_descendants(child)
+		if nested != null:
+			return nested
 	return null
 
 

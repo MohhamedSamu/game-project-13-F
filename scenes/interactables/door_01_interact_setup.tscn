@@ -1,0 +1,29 @@
+[gd_scene load_steps=4 format=3 uid="uid://blhoimejjrojj"]
+
+[ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="1_ixdlg"]
+[ext_resource type="Resource" uid="uid://du8sfa0irqkv6" path="res://dialogues/door_01.dialogue" id="2_door"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_door_face"]
+size = Vector3(0.00055, 0.0105, 0.028)
+
+[node name="Door01InteractSetup" type="Node3D"]
+
+[node name="DoorFocusPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
+
+[node name="InteractableDialogueComponent" type="Area3D" parent="."]
+script = ExtResource("1_ixdlg")
+dialogue_resource = ExtResource("2_door")
+focus_target = NodePath("../DoorFocusPoint")
+proximity_radius = 3.5
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
+shape = SubResource("BoxShape3D_door_face")
+
+[node name="InteractionRayTarget" type="StaticBody3D" parent="InteractableDialogueComponent"]
+collision_mask = 0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent/InteractionRayTarget"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
+shape = SubResource("BoxShape3D_door_face")

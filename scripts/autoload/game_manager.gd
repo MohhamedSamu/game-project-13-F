@@ -3,6 +3,7 @@ extends Node
 var dialogue_active: bool = false
 var player: Node = null
 var has_met_clown: bool = false
+var flags: Dictionary = {}
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -18,6 +19,14 @@ func set_dialogue_active(value: bool) -> void:
 
 func register_player(player_node: Node) -> void:
 	player = player_node
+
+
+func set_flag(flag_name: String, value: bool = true) -> void:
+	flags[flag_name] = value
+
+
+func get_flag(flag_name: String) -> bool:
+	return flags.get(flag_name, false)
 
 func _set_crosshair_dialogue_hidden(hidden: bool) -> void:
 	var crosshair := get_tree().get_first_node_in_group("interaction_crosshair") as Control
