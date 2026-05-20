@@ -19,14 +19,35 @@ func set_dialogue_active(value: bool) -> void:
 func register_player(player_node: Node) -> void:
 	player = player_node
 
+func _set_crosshair_dialogue_hidden(hidden: bool) -> void:
+	var crosshair := get_tree().get_first_node_in_group("interaction_crosshair") as Control
+	if crosshair and crosshair.has_method("set_dialogue_hidden"):
+		crosshair.set_dialogue_hidden(hidden)
+
+
 func lock_player() -> void:
 	dialogue_active = true
+	_set_crosshair_dialogue_hidden(true)
 
 	if player and player.has_method("set_input_enabled"):
 		player.set_input_enabled(false)
 
+	if player and player.has_method("release_mouse"):
+		player.release_mouse()
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
 func unlock_player() -> void:
 	dialogue_active = false
+	_set_crosshair_dialogue_hidden(false)
+
+	if player and player.has_method("clear_camera_focus"):
+		player.clear_camera_focus()
 
 	if player and player.has_method("set_input_enabled"):
 		player.set_input_enabled(true)
+
+	if player and player.has_method("capture_mouse"):
+		player.capture_mouse()
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

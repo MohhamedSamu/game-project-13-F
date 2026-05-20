@@ -48,6 +48,11 @@ extends CharacterBody3D
 @export_group("Interacción")
 @export var interaction_enabled: bool = true
 @export var interaction_distance: float = 2.5
+@export var dialogue_focus_speed: float = 2.5
+@export var dialogue_focus_stop_threshold: float = 0.02
+@export_range(0.0, 1.0) var dialogue_reposition_blend: float = 0.5
+@export var dialogue_reposition_speed: float = 1.4
+@export var dialogue_reposition_stop_threshold: float = 0.05
 @export var input_interact: String = "interact"
 @export var input_drop_item: String = "drop_item"
 @export var input_flashlight_toggle: String = "flashlight_toggle"
@@ -88,6 +93,10 @@ var move_speed : float = 0.0
 var freeflying : bool = false
 
 var input_enabled: bool = true
+var camera_focus_target: Node3D = null
+var focusing_camera: bool = false
+var repositioning_for_dialogue: bool = false
+var dialogue_reposition_goal: Vector3 = Vector3.ZERO
 var _interaction_crosshair: Control
 var _held_pickup: Node3D
 var _focus_interactable: Node
@@ -127,15 +136,20 @@ func _ready() -> void:
 		land_player.volume_db = land_sfx_volume_db
 
 func _unhandled_input(event: InputEvent) -> void:
-	# Mouse capturing
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+	# Mouse capturing (no recapturar durante diálogo: el ratón debe seguir visible).
+	if (
+		not GameManager.dialogue_active
+		and event is InputEventMouseButton
+		and event.button_index == MOUSE_BUTTON_LEFT
+		and event.pressed
+	):
 		capture_mouse()
 	# Solo en la pulsación real de ESC/ui_cancel (is_key_pressed rompe al cerrar el menú de pausa)
 	if event.is_action_pressed("ui_cancel") or (event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_ESCAPE):
 		release_mouse()
 	
 	# Look around
-	if mouse_captured and event is InputEventMouseMotion:
+	if input_enabled and mouse_captured and event is InputEventMouseMotion:
 		rotate_look(event.relative)
 	
 	# Toggle freefly mode
@@ -146,6 +160,9 @@ func _unhandled_input(event: InputEvent) -> void:
 			disable_freefly()
 
 func _physics_process(delta: float) -> void:
+	if focusing_camera:
+		_update_dialogue_camera_focus(delta)
+
 	if input_enabled and interaction_enabled and mouse_captured and not freeflying:
 		if Input.is_action_just_pressed(input_interact):
 			_try_interact_focused()
@@ -155,11 +172,14 @@ func _physics_process(delta: float) -> void:
 			_try_toggle_held_flashlight()
 
 	if not input_enabled:
-		if not is_on_floor():
-			velocity += get_gravity() * delta
-		velocity.x = 0.0
-		velocity.z = 0.0
-		move_and_slide()
+		if repositioning_for_dialogue:
+			_update_dialogue_reposition(delta)
+		else:
+			if not is_on_floor():
+				velocity += get_gravity() * delta
+			velocity.x = 0.0
+			velocity.z = 0.0
+			move_and_slide()
 		return
 	
 	# If freeflying, handle freefly and nothing else
@@ -302,12 +322,13 @@ func _update_interaction_focus() -> void:
 	if GameManager.dialogue_active:
 		_apply_crosshair_ui(false, "")
 		return
+	var focus: Node = null
 	var hit := _interaction_raycast()
-	if hit.is_empty():
-		_apply_crosshair_ui(false, "")
-		return
-	var collider: Object = hit.get("collider")
-	var focus := _resolve_interactable(collider)
+	if not hit.is_empty():
+		var collider: Object = hit.get("collider")
+		focus = _resolve_interactable(collider)
+	if focus == null:
+		focus = _find_dialogue_aim_interactable()
 	if focus == null:
 		_apply_crosshair_ui(false, "")
 		return
@@ -323,12 +344,41 @@ func _update_interaction_focus() -> void:
 	_apply_crosshair_ui(true, prompt)
 
 
+func _is_aiming_at_dialogue_focus(interactable: Node) -> bool:
+	if camera_3d == null:
+		return false
+	if interactable.has_method("is_player_aiming_at_dialogue_focus"):
+		return interactable.is_player_aiming_at_dialogue_focus(camera_3d, interaction_distance)
+	return false
+
+
+func _find_dialogue_aim_interactable() -> Node:
+	for node in get_tree().get_nodes_in_group("interactable"):
+		if not node.has_method("requires_dialogue_focus_aim") or not node.requires_dialogue_focus_aim():
+			continue
+		if node.has_method("can_interact") and not node.can_interact():
+			continue
+		if _is_aiming_at_dialogue_focus(node):
+			return node
+	return null
+
+
 func _resolve_interactable(collider: Object) -> Node:
 	var n := collider as Node
-	while n != null:
-		if n.is_in_group("interactable"):
-			return n
-		n = n.get_parent()
+	if n == null:
+		return null
+
+	var candidate := n
+	while candidate != null:
+		if candidate.is_in_group("interactable"):
+			if candidate.has_method("requires_dialogue_focus_aim") and candidate.requires_dialogue_focus_aim():
+				if _is_aiming_at_dialogue_focus(candidate):
+					return candidate
+				return null
+			return candidate
+
+		candidate = candidate.get_parent()
+
 	return null
 
 
@@ -555,6 +605,99 @@ func check_input_mappings():
 	if can_freefly and not InputMap.has_action(input_freefly):
 		push_error("Freefly disabled. No InputAction found for input_freefly: " + input_freefly)
 		can_freefly = false
+
+func focus_camera_on(target: Node3D) -> void:
+	camera_focus_target = target
+	focusing_camera = target != null
+
+
+func clear_camera_focus() -> void:
+	camera_focus_target = null
+	focusing_camera = false
+	clear_dialogue_reposition()
+
+
+func start_dialogue_reposition(ideal_position: Vector3) -> void:
+	dialogue_reposition_goal = global_position.lerp(ideal_position, dialogue_reposition_blend)
+	var horizontal_delta := Vector2(
+		global_position.x - dialogue_reposition_goal.x,
+		global_position.z - dialogue_reposition_goal.z
+	).length()
+	if horizontal_delta < dialogue_reposition_stop_threshold:
+		repositioning_for_dialogue = false
+		return
+	repositioning_for_dialogue = true
+	velocity = Vector3.ZERO
+
+
+func reposition_for_dialogue(ideal_position: Vector3) -> void:
+	start_dialogue_reposition(ideal_position)
+	if not repositioning_for_dialogue:
+		return
+	while repositioning_for_dialogue:
+		await get_tree().physics_frame
+
+
+func clear_dialogue_reposition() -> void:
+	repositioning_for_dialogue = false
+	velocity.x = 0.0
+	velocity.z = 0.0
+
+
+func _update_dialogue_reposition(delta: float) -> void:
+	var current := global_position
+	var goal := dialogue_reposition_goal
+	var to_goal := Vector3(goal.x - current.x, 0.0, goal.z - current.z)
+	var dist := to_goal.length()
+	if dist < dialogue_reposition_stop_threshold:
+		repositioning_for_dialogue = false
+		velocity = Vector3.ZERO
+		return
+
+	if not is_on_floor():
+		velocity += get_gravity() * delta
+	else:
+		velocity.y = 0.0
+
+	var step := minf(dist, dialogue_reposition_speed * delta)
+	var horizontal_motion := to_goal.normalized() * step
+	# Solo deslizamiento cinemático: evita empujar al NPC con move_and_collide.
+	global_position = Vector3(
+		current.x + horizontal_motion.x,
+		current.y,
+		current.z + horizontal_motion.z,
+	)
+
+
+func _update_dialogue_camera_focus(delta: float) -> void:
+	if camera_focus_target == null:
+		focusing_camera = false
+		return
+
+	var target_pos := camera_focus_target.global_position
+	var camera_pos := camera_3d.global_position
+	var direction := (target_pos - camera_pos).normalized()
+
+	var target_yaw := atan2(-direction.x, -direction.z)
+	look_rotation.y = lerp_angle(look_rotation.y, target_yaw, dialogue_focus_speed * delta)
+
+	var local_direction := global_transform.basis.inverse() * direction
+	var target_pitch := atan2(local_direction.y, -local_direction.z)
+	target_pitch = clamp(target_pitch, deg_to_rad(-85), deg_to_rad(85))
+	look_rotation.x = lerp_angle(look_rotation.x, target_pitch, dialogue_focus_speed * delta)
+
+	transform.basis = Basis()
+	rotate_y(look_rotation.y)
+
+	head.transform.basis = Basis()
+	head.rotate_x(look_rotation.x)
+
+	if (
+		abs(angle_difference(look_rotation.y, target_yaw)) < dialogue_focus_stop_threshold
+		and abs(angle_difference(look_rotation.x, target_pitch)) < dialogue_focus_stop_threshold
+	):
+		focusing_camera = false
+
 
 func set_input_enabled(value: bool) -> void:
 	input_enabled = value

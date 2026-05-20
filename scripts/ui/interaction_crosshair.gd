@@ -15,6 +15,9 @@ var focused: bool = false:
 		focused = value
 		queue_redraw()
 
+var _dialogue_hidden: bool = false
+var _pause_hidden: bool = false
+
 @onready var prompt_label: Label = $PromptLabel
 
 
@@ -26,7 +29,33 @@ func _ready() -> void:
 	queue_redraw()
 
 
+func set_dialogue_hidden(hidden: bool) -> void:
+	if _dialogue_hidden == hidden:
+		return
+	_dialogue_hidden = hidden
+	_apply_visibility()
+	if hidden:
+		set_highlight(false)
+		set_prompt("")
+
+
+func set_pause_hidden(hidden: bool) -> void:
+	if _pause_hidden == hidden:
+		return
+	_pause_hidden = hidden
+	_apply_visibility()
+	if hidden:
+		set_highlight(false)
+		set_prompt("")
+
+
+func _is_suppressed() -> bool:
+	return _dialogue_hidden or _pause_hidden
+
+
 func update_focus(active: bool, prompt: String = "") -> void:
+	if _is_suppressed():
+		return
 	set_highlight(active)
 	set_prompt(prompt if active else "")
 
@@ -47,7 +76,18 @@ func _notification(what: int) -> void:
 		queue_redraw()
 
 
+func _apply_visibility() -> void:
+	var hidden := _is_suppressed()
+	visible = not hidden
+	if hidden and prompt_label:
+		prompt_label.visible = false
+	elif not hidden:
+		queue_redraw()
+
+
 func _draw() -> void:
+	if _is_suppressed():
+		return
 	var c := size * 0.5
 	var steps := 48
 	draw_arc(c, outer_radius_px, 0.0, TAU, steps, idle_color if not focused else focused_color, ring_width_px, true)

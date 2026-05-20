@@ -14,7 +14,7 @@
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 2)
 
 [node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
-transform = Transform3D(-0.0150266, 0, -0.999887, 0, 1, 0, 0.999887, 0, -0.0150266, -77.8537, 1.98725e-06, 28.0695)
+transform = Transform3D(-0.0150266, 0, -0.999887, 0, 1, 0, 0.999887, 0, -0.0150266, -7.29434, 1.98725e-06, 28.0695)
 
 [node name="iglesia_colision" parent="." instance=ExtResource("3_y2gk5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -131.289, 0.157798, 25.877)

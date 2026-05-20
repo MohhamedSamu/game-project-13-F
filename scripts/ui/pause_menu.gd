@@ -37,11 +37,18 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				_resume()
 
+func _set_crosshair_pause_hidden(hidden: bool) -> void:
+	var crosshair := get_tree().get_first_node_in_group("interaction_crosshair") as Control
+	if crosshair and crosshair.has_method("set_pause_hidden"):
+		crosshair.set_pause_hidden(hidden)
+
+
 func open() -> void:
 	is_open = true
 	show()
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_set_crosshair_pause_hidden(true)
 	menu_box.visible = true
 	config_module.visible = false
 
@@ -50,6 +57,7 @@ func _resume() -> void:
 	is_open = false
 	hide()
 	get_tree().paused = false
+	_set_crosshair_pause_hidden(false)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _open_options() -> void:
@@ -66,6 +74,7 @@ func _go_main_menu() -> void:
 	_play_back()
 	# Salir al menú principal
 	get_tree().paused = false
+	_set_crosshair_pause_hidden(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	get_tree().change_scene_to_file("res://scenes/main/main_menu.tscn")
 
