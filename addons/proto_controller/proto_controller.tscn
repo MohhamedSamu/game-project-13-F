@@ -10,7 +10,7 @@ radius = 0.4
 height = 1.8
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_iof21"]
-radius = 0.4
+radius = 0.821187
 height = 1.8
 
 [node name="ProtoController" type="CharacterBody3D" groups=["player"]]

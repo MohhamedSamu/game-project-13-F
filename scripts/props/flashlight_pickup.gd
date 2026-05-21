@@ -29,6 +29,19 @@ func _ready() -> void:
 	_beam_csg = find_child("CSGCylinder3D", true, false) as CSGCylinder3D
 	if _beam_csg:
 		_beam_csg.visible = false
+	_configure_flashlight_beam()
+
+
+func _configure_flashlight_beam() -> void:
+	var light := find_child("SpotLight3D", true, false) as SpotLight3D
+	if light == null:
+		return
+	light.shadow_enabled = true
+	light.shadow_bias = 0.1
+	light.shadow_normal_bias = 2.0
+	light.shadow_opacity = 1.0
+	light.light_volumetric_fog_energy = 2.8
+	light.light_indirect_energy = 0.0
 
 
 func get_interaction_prompt() -> String:

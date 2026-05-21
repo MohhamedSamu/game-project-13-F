@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=12 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -9,6 +9,9 @@
 [ext_resource type="PackedScene" uid="uid://baoljmaytd3rs" path="res://scenes/props/camera.tscn" id="7_cam"]
 [ext_resource type="PackedScene" uid="uid://blhoimejjrojj" path="res://scenes/interactables/door_01_interact_setup.tscn" id="8_door01"]
 [ext_resource type="PackedScene" uid="uid://dldv3k4ruuhhr" path="res://scenes/interactables/ice_proximity_setup.tscn" id="9_iceprox"]
+[ext_resource type="PackedScene" uid="uid://bj7nvq1n6yrlo" path="res://scenes/ui/cinematic/day_night_rig.tscn" id="10_8qukl"]
+[ext_resource type="Script" uid="uid://bikqe675bud6f" path="res://scripts/lights/security_spot_light.gd" id="11_secspot"]
+[ext_resource type="Script" uid="uid://cc18lwvm6ffbg" path="res://scripts/lights/security_lighting_zone.gd" id="12_seclzone"]
 
 [node name="level_2" type="Node3D"]
 
@@ -37,3 +40,28 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -74.9293, 0.0566161, 28.164)
 
 [node name="camera" parent="." instance=ExtResource("7_cam")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70.0538, 0.0360137, 26.8067)
+
+[node name="DayNightRig" parent="." instance=ExtResource("10_8qukl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.8872, 45.4019, 77.2291)
+time_mode = 1
+fixed_hour = 0.0
+ambience_profile = 2
+
+[node name="iluminacion" type="Node3D" parent="."]
+script = ExtResource("12_seclzone")
+
+[node name="SpotLight3D" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.000768015, 1, 0, -1, 0.000768015, 0.907625, 6.4551, -0.025121)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+night_spot_angle = 38.0
+night_volumetric_fog_energy = 3.2
+cast_shadows = true

@@ -69,9 +69,13 @@ mesh = SubResource("ArrayMesh_h75ou")
 skeleton = NodePath("")
 
 [node name="SpotLight3D" type="SpotLight3D" parent="RigidBody3D"]
-transform = Transform3D(1.94707e-07, -1, -4.37114e-08, 0, -4.37114e-08, 1, -1, -1.94707e-07, -1.77636e-14, -0.00806765, -0.0352824, 0.00241545)
-light_energy = 6.0
-spot_range = 28.65
-spot_attenuation = 0.7
-spot_angle = 20.28
-spot_angle_attenuation = 0.659753
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.00806765, -0.138618, 0.00241545)
+light_energy = 25.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 2.8
+shadow_enabled = true
+shadow_bias = 0.1
+shadow_normal_bias = 2.0
+spot_range = 80.0
+spot_attenuation = 2.0
+spot_angle = 40.0
