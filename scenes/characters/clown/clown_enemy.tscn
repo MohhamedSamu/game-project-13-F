@@ -1,10 +1,16 @@
-[gd_scene load_steps=8 format=3 uid="uid://bwe7kke14n0cd"]
+[gd_scene load_steps=11 format=3 uid="uid://bwe7kke14n0cd"]
 
 [ext_resource type="PackedScene" uid="uid://c02jtkmk56p72" path="res://scenes/characters/clown/clown.tscn" id="1_motde"]
 [ext_resource type="Script" uid="uid://4rug785ubxy" path="res://scenes/characters/clown/clown_enemy.gd" id="1_o1gij"]
+[ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]
+[ext_resource type="Script" uid="uid://3wo7lah4owqs" path="res://scripts/dialogue/proximity_dialogue_component.gd" id="3_prox"]
+[ext_resource type="Resource" uid="uid://byllildyvj5dh" path="res://dialogues/my_dialogue.dialogue" id="4_dlg"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_o1gij"]
 height = 2.37722
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_focus"]
+radius = 1.0
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_o1gij"]
 size = Vector3(1.10229, 1.57922, 2.12354)
@@ -12,13 +18,10 @@ size = Vector3(1.10229, 1.57922, 2.12354)
 [sub_resource type="BoxShape3D" id="BoxShape3D_rrjsw"]
 size = Vector3(1.94238, 1.62488, 2.04053)
 
-[sub_resource type="SphereShape3D" id="SphereShape3D_focus"]
-radius = 1.0
-
 [sub_resource type="SphereShape3D" id="SphereShape3D_proximity"]
 radius = 3.0
 
-[node name="ClownEnemy" type="CharacterBody3D" groups=["interactable"]]
+[node name="ClownEnemy" type="CharacterBody3D"]
 script = ExtResource("1_o1gij")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
@@ -29,16 +32,6 @@ shape = SubResource("CapsuleShape3D_o1gij")
 
 [node name="Clown" parent="Model" instance=ExtResource("1_motde")]
 
-[node name="InteractionArea" type="Area3D" parent="."]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionArea"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0321045, 0.810729, 1.04239)
-shape = SubResource("BoxShape3D_o1gij")
-
-[node name="CollisionShape3D2" type="CollisionShape3D" parent="InteractionArea"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.801194, 1.3533)
-shape = SubResource("BoxShape3D_rrjsw")
-
 [node name="DialogueFocusPoint" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.88596, 0)
 
@@ -47,8 +40,36 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.88596, 0)
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DialogueFocusPoint/FocusHitbox"]
 shape = SubResource("SphereShape3D_focus")
 
-[node name="ProximityDialogueArea" type="Area3D" parent="."]
+[node name="InteractableDialogueComponent" type="Area3D" parent="."]
+visible = false
+script = ExtResource("2_ixdlg")
+dialogue_resource = ExtResource("4_dlg")
+dialogue_title = "start"
+prompt_text = "Presiona [E] para hablar"
+trigger_once = true
+requires_focus_hitbox = true
+focus_target = NodePath("../DialogueFocusPoint")
+set_flag_on_finish = "clown_first_dialogue_completed"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="ProximityDialogueArea"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0321045, 0.810729, 1.04239)
+shape = SubResource("BoxShape3D_o1gij")
+
+[node name="CollisionShape3D2" type="CollisionShape3D" parent="InteractableDialogueComponent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.801194, 1.3533)
+shape = SubResource("BoxShape3D_rrjsw")
+
+[node name="ProximityDialogueComponent" type="Area3D" parent="."]
+script = ExtResource("3_prox")
+dialogue_resource = ExtResource("4_dlg")
+dialogue_title = "proximity_start"
+focus_target = NodePath("../DialogueFocusPoint")
+required_flag = "clown_first_dialogue_completed"
+second_required_flag = "clown_player_left_after_first_dialogue"
+require_player_exit_after_required_flag = true
+player_exit_flag = "clown_player_left_after_first_dialogue"
+set_flag_on_trigger = "clown_proximity_dialogue_played"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ProximityDialogueComponent"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.976854, 1)
 shape = SubResource("SphereShape3D_proximity")

@@ -14,7 +14,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
 [node name="InteractableDialogueComponent" type="Area3D" parent="."]
 script = ExtResource("1_ixdlg")
 dialogue_resource = ExtResource("2_door")
-focus_target = NodePath("../DoorFocusPoint")
 proximity_radius = 3.5
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent"]

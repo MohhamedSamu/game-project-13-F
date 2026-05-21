@@ -14,6 +14,10 @@ extends Area3D
 @export_group("Flags / Conditions")
 @export var required_flag: String = ""
 @export var required_flag_value: bool = true
+@export var second_required_flag: String = ""
+@export var second_required_flag_value: bool = true
+@export var require_player_exit_after_required_flag: bool = false
+@export var player_exit_flag: String = ""
 @export var set_flag_on_trigger: String = ""
 @export var set_flag_value: bool = true
 
@@ -23,11 +27,19 @@ func _ready() -> void:
 	monitoring = true
 	monitorable = true
 	body_entered.connect(_on_body_entered)
+	body_exited.connect(_on_body_exited)
 
 	if focus_target == null:
-		focus_target = get_parent().get_node_or_null("IceFocusPoint") as Node3D
+		focus_target = _find_default_focus_target()
 
 	call_deferred("_check_overlapping_bodies")
+
+
+func _find_default_focus_target() -> Node3D:
+	var parent := get_parent()
+	if parent == null:
+		return null
+	return parent.get_node_or_null("DialogueFocusPoint") as Node3D
 
 
 func _check_overlapping_bodies() -> void:
@@ -43,6 +55,15 @@ func _on_body_entered(body: Node3D) -> void:
 	_try_trigger_dialogue()
 
 
+func _on_body_exited(body: Node3D) -> void:
+	if not body.is_in_group("player"):
+		return
+	if require_player_exit_after_required_flag and player_exit_flag != "":
+		var first_ok := required_flag == "" or GameManager.get_flag(required_flag) == required_flag_value
+		if first_ok:
+			GameManager.set_flag(player_exit_flag, true)
+
+
 func _try_trigger_dialogue() -> void:
 	if not enabled:
 		return
@@ -55,6 +76,9 @@ func _try_trigger_dialogue() -> void:
 		return
 	if required_flag != "":
 		if GameManager.get_flag(required_flag) != required_flag_value:
+			return
+	if second_required_flag != "":
+		if GameManager.get_flag(second_required_flag) != second_required_flag_value:
 			return
 
 	already_triggered = true
