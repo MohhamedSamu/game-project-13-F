@@ -12,8 +12,13 @@ extends Area3D
 
 @export var requires_focus_hitbox: bool = false
 @export var focus_hitbox_group: String = "interactable_focus"
-@export var focus_target: Node3D
 @export var proximity_radius: float = 2.5
+
+@export_group("Camera Focus")
+@export var use_camera_focus: bool = true
+@export var focus_target: Node3D
+@export var auto_find_focus_target: bool = true
+@export var focus_target_node_name: String = "DialogueFocusPoint"
 
 @export_group("Flags")
 @export var set_flag_on_finish: String = ""
@@ -31,15 +36,15 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 
-	if focus_target == null:
-		focus_target = _find_default_focus_target()
 
-
-func _find_default_focus_target() -> Node3D:
-	var parent := get_parent()
-	if parent == null:
-		return null
-	return parent.get_node_or_null("DialogueFocusPoint") as Node3D
+func _get_focus_target() -> Node3D:
+	return DialogueFocusResolver.resolve_focus_target(
+		use_camera_focus,
+		focus_target,
+		auto_find_focus_target,
+		focus_target_node_name,
+		self
+	)
 
 
 func _is_player_in_range() -> bool:
@@ -75,7 +80,7 @@ func interact() -> void:
 			_on_dialogue_finished_apply_flag,
 			CONNECT_ONE_SHOT
 		)
-	DialogueController.start_dialogue(dialogue_resource, dialogue_title, focus_target)
+	DialogueController.start_dialogue(dialogue_resource, dialogue_title, _get_focus_target())
 
 
 func _on_dialogue_finished_apply_flag() -> void:
@@ -96,20 +101,22 @@ func get_focus_hitbox_group() -> String:
 
 
 func get_dialogue_focus_radius() -> float:
-	if focus_target == null:
+	var target := _get_focus_target()
+	if target == null:
 		return 0.85
-	var shape_node := focus_target.get_node_or_null("FocusHitbox/CollisionShape3D") as CollisionShape3D
+	var shape_node := target.get_node_or_null("FocusHitbox/CollisionShape3D") as CollisionShape3D
 	if shape_node != null and shape_node.shape is SphereShape3D:
 		return (shape_node.shape as SphereShape3D).radius
 	return 0.85
 
 
 func is_player_aiming_at_dialogue_focus(camera: Camera3D, max_distance: float = 2.5) -> bool:
-	if camera == null or focus_target == null:
+	var target := _get_focus_target()
+	if camera == null or target == null:
 		return false
 	var origin := camera.global_position
 	var direction := (-camera.global_basis.z).normalized()
-	var center := focus_target.global_position
+	var center := target.global_position
 	return _ray_hits_sphere_forward(origin, direction, center, get_dialogue_focus_radius(), max_distance)
 
 

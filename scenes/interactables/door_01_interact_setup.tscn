@@ -1,15 +1,18 @@
-[gd_scene load_steps=4 format=3 uid="uid://blhoimejjrojj"]
+[gd_scene load_steps=5 format=3 uid="uid://blhoimejjrojj"]
 
 [ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="1_ixdlg"]
 [ext_resource type="Resource" uid="uid://du8sfa0irqkv6" path="res://dialogues/door_01.dialogue" id="2_door"]
+[ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="3_dlgfocus"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_door_face"]
 size = Vector3(0.00055, 0.0105, 0.028)
 
 [node name="Door01InteractSetup" type="Node3D"]
 
-[node name="DoorFocusPoint" type="Marker3D" parent="."]
+[node name="DialogueFocusPoint" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
+script = ExtResource("3_dlgfocus")
+use_stand_position = false
 
 [node name="InteractableDialogueComponent" type="Area3D" parent="."]
 script = ExtResource("1_ixdlg")

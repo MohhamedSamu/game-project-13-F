@@ -9,7 +9,11 @@ extends Area3D
 @export var trigger_once: bool = true
 @export var already_triggered: bool = false
 
+@export_group("Camera Focus")
+@export var use_camera_focus: bool = true
 @export var focus_target: Node3D
+@export var auto_find_focus_target: bool = true
+@export var focus_target_node_name: String = "DialogueFocusPoint"
 
 @export_group("Flags / Conditions")
 @export var required_flag: String = ""
@@ -28,18 +32,17 @@ func _ready() -> void:
 	monitorable = true
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
-
-	if focus_target == null:
-		focus_target = _find_default_focus_target()
-
 	call_deferred("_check_overlapping_bodies")
 
 
-func _find_default_focus_target() -> Node3D:
-	var parent := get_parent()
-	if parent == null:
-		return null
-	return parent.get_node_or_null("DialogueFocusPoint") as Node3D
+func _get_focus_target() -> Node3D:
+	return DialogueFocusResolver.resolve_focus_target(
+		use_camera_focus,
+		focus_target,
+		auto_find_focus_target,
+		focus_target_node_name,
+		self
+	)
 
 
 func _check_overlapping_bodies() -> void:
@@ -86,4 +89,4 @@ func _try_trigger_dialogue() -> void:
 	if set_flag_on_trigger != "":
 		GameManager.set_flag(set_flag_on_trigger, set_flag_value)
 
-	DialogueController.start_dialogue(dialogue_resource, dialogue_title, focus_target)
+	DialogueController.start_dialogue(dialogue_resource, dialogue_title, _get_focus_target())

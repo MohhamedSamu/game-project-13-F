@@ -8,7 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://baiidha04m3ud" path="res://scenes/ui/ingame_HUD.tscn" id="6_hud"]
 [ext_resource type="PackedScene" uid="uid://baoljmaytd3rs" path="res://scenes/props/camera.tscn" id="7_cam"]
 [ext_resource type="PackedScene" uid="uid://blhoimejjrojj" path="res://scenes/interactables/door_01_interact_setup.tscn" id="8_door01"]
-[ext_resource type="PackedScene" path="res://scenes/interactables/ice_proximity_setup.tscn" id="9_iceprox"]
+[ext_resource type="PackedScene" uid="uid://dldv3k4ruuhhr" path="res://scenes/interactables/ice_proximity_setup.tscn" id="9_iceprox"]
 
 [node name="level_2" type="Node3D"]
 

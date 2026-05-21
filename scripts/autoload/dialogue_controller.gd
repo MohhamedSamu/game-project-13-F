@@ -25,6 +25,8 @@ func _run_start_dialogue(dialogue_resource: DialogueResource, title: String, foc
 		GameManager.player.focus_camera_on(focus_target)
 
 	var stand_owner := _find_dialogue_stand_owner(focus_target)
+	if stand_owner is DialogueFocusPoint and not (stand_owner as DialogueFocusPoint).use_stand_position:
+		stand_owner = null
 	if (
 		GameManager.player
 		and stand_owner

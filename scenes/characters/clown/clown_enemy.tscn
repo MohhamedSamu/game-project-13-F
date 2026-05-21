@@ -1,10 +1,11 @@
-[gd_scene load_steps=11 format=3 uid="uid://bwe7kke14n0cd"]
+[gd_scene load_steps=12 format=3 uid="uid://bwe7kke14n0cd"]
 
 [ext_resource type="PackedScene" uid="uid://c02jtkmk56p72" path="res://scenes/characters/clown/clown.tscn" id="1_motde"]
 [ext_resource type="Script" uid="uid://4rug785ubxy" path="res://scenes/characters/clown/clown_enemy.gd" id="1_o1gij"]
 [ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]
 [ext_resource type="Script" uid="uid://3wo7lah4owqs" path="res://scripts/dialogue/proximity_dialogue_component.gd" id="3_prox"]
 [ext_resource type="Resource" uid="uid://byllildyvj5dh" path="res://dialogues/my_dialogue.dialogue" id="4_dlg"]
+[ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="5_dlgfocus"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_o1gij"]
 height = 2.37722
@@ -34,6 +35,7 @@ shape = SubResource("CapsuleShape3D_o1gij")
 
 [node name="DialogueFocusPoint" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.88596, 0)
+script = ExtResource("5_dlgfocus")
 
 [node name="FocusHitbox" type="Area3D" parent="DialogueFocusPoint"]
 
