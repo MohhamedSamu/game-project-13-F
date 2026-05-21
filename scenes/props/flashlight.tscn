@@ -49,41 +49,33 @@ shadow_mesh = SubResource("ArrayMesh_vojtk")
 
 [node name="flashlight" type="Node3D"]
 script = ExtResource("2_pickup")
-hold_offset = Vector3(0.12, -0.08, 0)
+hold_offset = Vector3(0, 0, 0)
 
 [node name="RigidBody3D" type="RigidBody3D" parent="."]
+transform = Transform3D(2.38419e-07, -4.37114e-08, -1, -1, -4.37114e-08, -2.38419e-07, -4.37114e-08, 1, -4.37114e-08, 0, 0, 0)
 mass = 0.328
 continuous_cd = true
 linear_damp = 0.3
 angular_damp = 0.3
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
-transform = Transform3D(0, 0.0149046, 0.999889, 1, 0, 0, 0, 0.999889, -0.0149046, -0.000956386, -0.000495933, -0.0187119)
+transform = Transform3D(1, 0, 1.91069e-15, 0, 1, 0, 1.91069e-15, 0, 1, 0.000228677, 0.0136355, 2.65173e-08)
 shape = SubResource("CylinderShape3D_1xfoi")
 debug_color = Color(0.728927, 0.572347, 0.214119, 0.419608)
 
-[node name="Visual" type="Node3D" parent="RigidBody3D"]
-transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 0, 0, 0)
-
-[node name="Flashlight" type="MeshInstance3D" parent="RigidBody3D/Visual"]
+[node name="Flashlight" type="MeshInstance3D" parent="RigidBody3D"]
 transform = Transform3D(0.03, 0, 0, 0, 0.03, 0, 0, 0, 0.03, 0, 0, 0)
 mesh = SubResource("ArrayMesh_h75ou")
 skeleton = NodePath("")
 
-[node name="SpotLight3D" type="SpotLight3D" parent="RigidBody3D/Visual"]
-transform = Transform3D(1, 0, 0, 0, 4.37114e-08, 1, 0, -1, 4.37114e-08, 0, -0.132382, 0.00275542)
-light_energy = 32.0
-light_indirect_energy = 0.15
-light_volumetric_fog_energy = 3.5
-light_specular = 0.45
+[node name="SpotLight3D" type="SpotLight3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, -0.00806765, -0.138618, 0.00241545)
+light_energy = 25.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 2.8
 shadow_enabled = true
-shadow_bias = 0.04
-shadow_normal_bias = 0.55
-shadow_blur = 0.35
-spot_range = 45.0
+shadow_bias = 0.1
+shadow_normal_bias = 2.0
+spot_range = 80.0
 spot_attenuation = 2.0
-spot_angle = 35.0
-
-[node name="OmniLight3D" type="OmniLight3D" parent="RigidBody3D/Visual"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.146065, 0.0116272)
-omni_range = 0.136667
+spot_angle = 40.0
