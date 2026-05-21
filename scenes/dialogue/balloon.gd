@@ -67,6 +67,12 @@ var mutation_cooldown: Timer = Timer.new()
 ## The base balloon anchor
 @onready var balloon: Control = %Balloon
 
+## Fuente del título del menú (Jackwrite). Asignar en Inspector si cambia.
+@export var dialogue_font: Font = preload("res://assets/fonts/jackwrite/Jackwrite.ttf")
+
+## Bloque inferior (20% márgenes laterales, sin panel visible).
+@onready var dialogue_anchor: MarginContainer = %DialogueAnchor
+
 ## The label showing the name of the currently speaking character
 @onready var character_label: RichTextLabel = %CharacterLabel
 
@@ -76,12 +82,21 @@ var mutation_cooldown: Timer = Timer.new()
 ## The menu of responses
 @onready var responses_menu: DialogueResponsesMenu = %ResponsesMenu
 
-## Indicator to show that player can progress dialogue.
+## Indicador legacy (oculto; se usa ContinueDots).
 @onready var progress: Polygon2D = %Progress
+
+@onready var continue_dots: Label = %ContinueDots
+
+const ANCHOR_TOP_NO_RESPONSES: float = 0.63
+const ANCHOR_TOP_WITH_RESPONSES: float = 0.52
+const ANCHOR_BOTTOM: float = 0.86
 
 
 func _ready() -> void:
 	balloon.hide()
+	progress.hide()
+	continue_dots.hide()
+	_apply_dialogue_fonts()
 	Engine.get_singleton("DialogueManager").mutated.connect(_on_mutated)
 
 	# If the responses menu doesn't have a next action set, use this one
@@ -97,9 +112,17 @@ func _ready() -> void:
 		start()
 
 
-func _process(delta: float) -> void:
-	if is_instance_valid(dialogue_line):
-		progress.visible = not dialogue_label.is_typing and dialogue_line.responses.size() == 0 and not dialogue_line.has_tag("voice")
+func _process(_delta: float) -> void:
+	if not is_instance_valid(dialogue_line):
+		return
+	progress.visible = false
+	var show_continue: bool = (
+		not dialogue_label.is_typing
+		and dialogue_line.responses.size() == 0
+		and not dialogue_line.has_tag("voice")
+		and is_waiting_for_input
+	)
+	continue_dots.visible = show_continue
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -203,18 +226,24 @@ func apply_dialogue_line() -> void:
 	balloon.focus_mode = Control.FOCUS_ALL
 	balloon.grab_focus()
 
-	character_label.visible = not dialogue_line.character.is_empty()
-	character_label.text = tr(dialogue_line.character, "dialogue")
+	var has_character: bool = not dialogue_line.character.is_empty()
+	var character_row: Node = character_label.get_parent()
+	if character_row is CanvasItem:
+		(character_row as CanvasItem).visible = has_character
+	character_label.visible = has_character
+	character_label.text = tr(dialogue_line.character, "dialogue").to_upper()
 
 	dialogue_label.hide()
 	dialogue_label.dialogue_line = dialogue_line
 
 	responses_menu.hide()
 	responses_menu.responses = dialogue_line.responses
+	_set_dialogue_anchor_for_responses(dialogue_line.responses.size() > 0)
 
 	# Show our balloon
 	balloon.show()
 	will_hide_balloon = false
+	_fade_in_dialogue_panel()
 
 	dialogue_label.show()
 	if not dialogue_line.text.is_empty():
@@ -230,6 +259,7 @@ func apply_dialogue_line() -> void:
 	elif dialogue_line.responses.size() > 0:
 		balloon.focus_mode = Control.FOCUS_NONE
 		responses_menu.show()
+		_update_response_labels()
 	elif dialogue_line.time != "":
 		var time: float = dialogue_line.text.length() * 0.02 if dialogue_line.time == "auto" else dialogue_line.time.to_float()
 		await get_tree().create_timer(time).timeout
@@ -287,6 +317,52 @@ func _on_balloon_gui_input(event: InputEvent) -> void:
 
 func _on_responses_menu_response_selected(response: DialogueResponse) -> void:
 	next(response.next_id)
+
+
+func _on_responses_menu_response_focused(_response_control: Control) -> void:
+	_update_response_labels()
+
+
+func _apply_dialogue_fonts() -> void:
+	if dialogue_font == null:
+		return
+	character_label.add_theme_font_override(&"normal_font", dialogue_font)
+	dialogue_label.add_theme_font_override(&"normal_font", dialogue_font)
+	continue_dots.add_theme_font_override(&"font", dialogue_font)
+
+
+func _set_dialogue_anchor_for_responses(has_responses: bool) -> void:
+	if dialogue_anchor == null:
+		return
+	dialogue_anchor.anchor_top = ANCHOR_TOP_WITH_RESPONSES if has_responses else ANCHOR_TOP_NO_RESPONSES
+	dialogue_anchor.anchor_bottom = ANCHOR_BOTTOM
+	dialogue_anchor.set_meta(&"rest_offset_top", dialogue_anchor.offset_top)
+
+
+func _update_response_labels() -> void:
+	var focused: Control = get_viewport().gui_get_focus_owner() as Control
+	for item: Control in responses_menu.get_menu_items():
+		if not item.has_meta("response"):
+			continue
+		var response: DialogueResponse = item.get_meta("response")
+		var label_text: String = response.text.to_upper()
+		if item == focused:
+			item.text = "> " + label_text
+		else:
+			item.text = "  " + label_text
+
+
+func _fade_in_dialogue_panel() -> void:
+	if dialogue_anchor == null:
+		return
+	var rest_offset_top: float = dialogue_anchor.get_meta(&"rest_offset_top", dialogue_anchor.offset_top)
+	dialogue_anchor.set_meta(&"rest_offset_top", rest_offset_top)
+	dialogue_anchor.modulate = Color(1, 1, 1, 0)
+	dialogue_anchor.offset_top = rest_offset_top + 8
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(dialogue_anchor, "modulate:a", 1.0, 0.16)
+	tween.tween_property(dialogue_anchor, "offset_top", rest_offset_top, 0.16).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 
 
 #endregion
