@@ -1,67 +1,51 @@
-[gd_scene load_steps=9 format=3 uid="uid://cher5odyfpku0"]
+[gd_scene load_steps=10 format=3 uid="uid://cher5odyfpku0"]
 
 [ext_resource type="Script" uid="uid://f3s3woe741r4" path="res://scenes/dialogue/balloon.gd" id="1_36de5"]
-[ext_resource type="PackedScene" uid="uid://ckvgyvclnwggo" path="res://addons/dialogue_manager/dialogue_label.tscn" id="2_a8ve6"]
-[ext_resource type="Script" uid="uid://bb52rsfwhkxbn" path="res://addons/dialogue_manager/dialogue_responses_menu.gd" id="3_72ixx"]
+[ext_resource type="FontFile" uid="uid://dqt0hrd2fvvrb" path="res://assets/fonts/jackwrite/Jackwrite.ttf" id="2_jackwrite"]
+[ext_resource type="PackedScene" uid="uid://ckvgyvclnwggo" path="res://addons/dialogue_manager/dialogue_label.tscn" id="3_dialogue_label"]
+[ext_resource type="Script" uid="uid://bb52rsfwhkxbn" path="res://addons/dialogue_manager/dialogue_responses_menu.gd" id="4_responses"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_spyqn"]
-bg_color = Color(0, 0, 0, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.329412, 0.329412, 0.329412, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_btn"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ri4m3"]
-bg_color = Color(0.121569, 0.121569, 0.121569, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 1, 1, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panel"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_e0njw"]
-bg_color = Color(0, 0, 0, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(0.6, 0.6, 0.6, 1)
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
+[sub_resource type="Theme" id="Theme_subtitle"]
+default_font = ExtResource("2_jackwrite")
+default_font_size = 24
+Button/colors/font_color = Color(0.72, 0.72, 0.72, 0.88)
+Button/colors/font_disabled_color = Color(0.45, 0.45, 0.45, 0.5)
+Button/colors/font_focus_color = Color(0.82, 0.98, 0.78, 1)
+Button/colors/font_hover_color = Color(0.9, 1, 0.86, 1)
+Button/colors/font_outline_color = Color(0, 0, 0, 1)
+Button/colors/font_pressed_color = Color(0.82, 0.98, 0.78, 1)
+Button/constants/outline_size = 3
+Button/fonts/font = ExtResource("2_jackwrite")
+Button/styles/disabled = SubResource("StyleBoxEmpty_btn")
+Button/styles/focus = SubResource("StyleBoxEmpty_btn")
+Button/styles/hover = SubResource("StyleBoxEmpty_btn")
+Button/styles/normal = SubResource("StyleBoxEmpty_btn")
+Button/styles/pressed = SubResource("StyleBoxEmpty_btn")
+PanelContainer/styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qkmqt"]
-bg_color = Color(0, 0, 0, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-corner_radius_top_left = 5
-corner_radius_top_right = 5
-corner_radius_bottom_right = 5
-corner_radius_bottom_left = 5
+[sub_resource type="Animation" id="Animation_reset"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("ProgressRow/ProgressIndicator/Progress:visible")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [false]
+}
 
-[sub_resource type="Theme" id="Theme_qq3yp"]
-default_font_size = 20
-Button/styles/disabled = SubResource("StyleBoxFlat_spyqn")
-Button/styles/focus = SubResource("StyleBoxFlat_ri4m3")
-Button/styles/hover = SubResource("StyleBoxFlat_e0njw")
-Button/styles/normal = SubResource("StyleBoxFlat_e0njw")
-MarginContainer/constants/margin_bottom = 15
-MarginContainer/constants/margin_left = 30
-MarginContainer/constants/margin_right = 30
-MarginContainer/constants/margin_top = 15
-PanelContainer/styles/panel = SubResource("StyleBoxFlat_qkmqt")
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_progress"]
+_data = {
+&"RESET": SubResource("Animation_reset")
+}
 
 [node name="ExampleBalloon" type="CanvasLayer"]
 layer = 100
@@ -75,87 +59,113 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = SubResource("Theme_qq3yp")
+theme = SubResource("Theme_subtitle")
 
-[node name="MarginContainer" type="MarginContainer" parent="Balloon"]
+[node name="DialogueAnchor" type="MarginContainer" parent="Balloon"]
+unique_name_in_owner = true
 layout_mode = 1
-anchors_preset = 12
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_top = -219.0
+anchors_preset = -1
+anchor_left = 0.2
+anchor_top = 0.63
+anchor_right = 0.8
+anchor_bottom = 0.86
 grow_horizontal = 2
 grow_vertical = 0
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
 
-[node name="PanelContainer" type="PanelContainer" parent="Balloon/MarginContainer"]
-clip_children = 2
+[node name="DialogueContent" type="VBoxContainer" parent="Balloon/DialogueAnchor"]
 layout_mode = 2
-mouse_filter = 1
+theme_override_constants/separation = 8
 
-[node name="MarginContainer" type="MarginContainer" parent="Balloon/MarginContainer/PanelContainer"]
+[node name="CharacterRow" type="HBoxContainer" parent="Balloon/DialogueAnchor/DialogueContent"]
 layout_mode = 2
+theme_override_constants/separation = 6
 
-[node name="HBoxContainer" type="HBoxContainer" parent="Balloon/MarginContainer/PanelContainer/MarginContainer"]
+[node name="NameIcon" type="ColorRect" parent="Balloon/DialogueAnchor/DialogueContent/CharacterRow"]
+custom_minimum_size = Vector2(8, 8)
 layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.9, 0.9, 0.9, 0.85)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Balloon/MarginContainer/PanelContainer/MarginContainer/HBoxContainer"]
+[node name="CharacterLabel" type="RichTextLabel" parent="Balloon/DialogueAnchor/DialogueContent/CharacterRow"]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="CharacterLabel" type="RichTextLabel" parent="Balloon/MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer"]
-unique_name_in_owner = true
-modulate = Color(1, 1, 1, 0.501961)
-layout_mode = 2
-mouse_filter = 1
+mouse_filter = 2
+theme_override_colors/default_color = Color(0.88, 0.88, 0.88, 0.95)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/normal_font = ExtResource("2_jackwrite")
+theme_override_font_sizes/normal_font_size = 20
 bbcode_enabled = true
-text = "Character"
+text = "CHARACTER"
 fit_content = true
 scroll_active = false
 
-[node name="DialogueLabel" parent="Balloon/MarginContainer/PanelContainer/MarginContainer/HBoxContainer/VBoxContainer" instance=ExtResource("2_a8ve6")]
+[node name="DialogueLabel" parent="Balloon/DialogueAnchor/DialogueContent" instance=ExtResource("3_dialogue_label")]
 unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 3
+theme_override_colors/default_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/normal_font = ExtResource("2_jackwrite")
+theme_override_font_sizes/normal_font_size = 32
 text = "Dialogue..."
 
-[node name="Control" type="Control" parent="Balloon/MarginContainer/PanelContainer/MarginContainer/HBoxContainer"]
-custom_minimum_size = Vector2(20, 10)
+[node name="ProgressRow" type="HBoxContainer" parent="Balloon/DialogueAnchor/DialogueContent"]
 layout_mode = 2
-size_flags_vertical = 8
 
-[node name="Progress" type="Polygon2D" parent="Balloon/MarginContainer/PanelContainer/MarginContainer/HBoxContainer/Control"]
+[node name="ContinueDots" type="Label" parent="Balloon/DialogueAnchor/DialogueContent/ProgressRow"]
 unique_name_in_owner = true
-polygon = PackedVector2Array(0, 0, 10, 10, 20, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.72, 0.72, 0.72, 0.75)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_jackwrite")
+theme_override_font_sizes/font_size = 18
+text = "..."
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="Balloon/MarginContainer/PanelContainer/MarginContainer/HBoxContainer/Control"]
-autoplay = "progress"
+[node name="ProgressIndicator" type="Control" parent="Balloon/DialogueAnchor/DialogueContent/ProgressRow"]
+visible = false
+custom_minimum_size = Vector2(1, 1)
+layout_mode = 2
 
-[node name="ResponsesMenu" type="VBoxContainer" parent="Balloon" node_paths=PackedStringArray("response_template")]
+[node name="Progress" type="Polygon2D" parent="Balloon/DialogueAnchor/DialogueContent/ProgressRow/ProgressIndicator"]
 unique_name_in_owner = true
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -290.5
-offset_top = -35.0
-offset_right = 290.5
-offset_bottom = 35.0
-grow_horizontal = 2
-grow_vertical = 2
-size_flags_vertical = 8
-theme_override_constants/separation = 2
-alignment = 1
-script = ExtResource("3_72ixx")
+visible = false
+polygon = PackedVector2Array(0, 0, 6, 7, 12, 0)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="Balloon/DialogueAnchor/DialogueContent/ProgressRow/ProgressIndicator"]
+libraries = {
+&"": SubResource("AnimationLibrary_progress")
+}
+
+[node name="ResponsesMenu" type="VBoxContainer" parent="Balloon/DialogueAnchor/DialogueContent" node_paths=PackedStringArray("response_template")]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 6
+script = ExtResource("4_responses")
 response_template = NodePath("ResponseExample")
 
-[node name="ResponseExample" type="Button" parent="Balloon/ResponsesMenu"]
+[node name="ResponseExample" type="Button" parent="Balloon/DialogueAnchor/DialogueContent/ResponsesMenu"]
 layout_mode = 2
-text = "Response example"
+theme_override_colors/font_hover_color = Color(0.9, 1, 0.86, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_colors/font_color = Color(0.72, 0.72, 0.72, 0.88)
+theme_override_colors/font_focus_color = Color(0.82, 0.98, 0.78, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("2_jackwrite")
+theme_override_font_sizes/font_size = 24
+text = "  RESPONSE EXAMPLE"
+flat = true
+alignment = 0
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
 unique_name_in_owner = true
 
 [connection signal="gui_input" from="Balloon" to="." method="_on_balloon_gui_input"]
-[connection signal="response_selected" from="Balloon/ResponsesMenu" to="." method="_on_responses_menu_response_selected"]
+[connection signal="response_focused" from="Balloon/DialogueAnchor/DialogueContent/ResponsesMenu" to="." method="_on_responses_menu_response_focused"]
+[connection signal="response_selected" from="Balloon/DialogueAnchor/DialogueContent/ResponsesMenu" to="." method="_on_responses_menu_response_selected"]
