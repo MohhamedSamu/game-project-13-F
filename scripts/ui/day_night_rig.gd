@@ -3,6 +3,7 @@ extends Node3D
 const SKY_SHADER_PATH := "res://assets/shaders/sky_day_night.gdshader"
 const SUN_TEX := preload("res://assets/materials/Sun.png")
 const MOON_TEX := preload("res://assets/materials/Moon.png")
+const POM_CLOUD_MAT := preload("res://addons/POM clouds/POM_Clouds_shader_material.tres")
 
 enum TimeMode {
 	## El ciclo avanza solo (menú, demos).
@@ -16,7 +17,7 @@ enum AmbienceProfile {
 	AUTO,
 	## Fuerza reglas de menú (ciclo, nubes altas, sin niebla de gameplay).
 	MENU_CINEMATIC,
-	## Fuerza reglas de gameplay (niebla, Sunshine Clouds).
+	## Fuerza reglas de gameplay (niebla, POM Clouds).
 	GAMEPLAY,
 }
 
@@ -103,16 +104,17 @@ enum AmbienceProfile {
 ## 0 = misma distancia que el sol; si la acercas, no hace falta subir tanto el multiplicador.
 @export_range(0.0, 25000.0, 100.0) var menu_moon_orbit_radius: float = 0.0
 ## Por encima del pico del terreno (~5 km en este mapa) + margen.
-@export_range(4500.0, 15000.0, 100.0) var menu_cloud_floor: float = 6200.0
-@export_range(6000.0, 30000.0, 100.0) var menu_cloud_ceiling: float = 15000.0
-@export_range(0.0, 1.0, 0.05) var menu_clouds_fog_on_ground: float = 0.0
-
-@export_group("Sunshine Clouds 2")
-@export var sunshine_clouds_enabled: bool = true
-@export var sunshine_wind_direction: Vector3 = Vector3(1.0, 0.0, 0.0)
-@export_range(500.0, 8000.0, 50.0) var sunshine_cloud_floor: float = 2800.0
-@export_range(2000.0, 30000.0, 100.0) var sunshine_cloud_ceiling: float = 12000.0
-@export_range(0.5, 4.0, 0.1) var sunshine_sun_light_multiplier: float = 2.5
+@export_group("POM Clouds (ligeras, valores demo)")
+@export var pom_clouds_enabled: bool = true
+@export var pom_clouds_in_gameplay: bool = true
+## Como la demo: sin sprites 3D de sol/luna cuando hay nubes POM (solo luces direccionales).
+@export var hide_celestial_sprites_with_pom: bool = true
+@export_range(8, 25, 1) var pom_layers: int = 15
+@export_range(3500.0, 12000.0, 50.0) var pom_height: float = 6000.0
+@export_range(20000.0, 150000.0, 1000.0) var pom_mesh_scale: float = 100000.0
+@export_range(0.01, 0.06, 0.001) var pom_layer_gap: float = 0.03
+@export_range(20.0, 300.0, 5.0) var pom_wind_resistance: float = 100.0
+@export_range(0.5, 8.0, 0.1) var pom_uv_scale: float = 5.0
 
 @export_group("Estrellas")
 @export_range(40.0, 400.0, 1.0) var star_density: float = 140.0
@@ -136,12 +138,13 @@ enum AmbienceProfile {
 @onready var sun_sprite: Sprite3D = $SunPivot/SunSprite3D
 @onready var moon_sprite: Sprite3D = $MoonPivot/MoonSprite3D
 @onready var we: WorldEnvironment = $WorldEnvironment
-@onready var sunshine_clouds: Node = $SunshineClouds
+@onready var pom_clouds: POM_Clouds = $POM_Clouds
 
 ## Posición en el ciclo 0..1 (solo lectura útil en depuración).
 var t: float = 0.0
 var _sky_material: ShaderMaterial
-var _saved_compositor: Compositor
+var _pom_cached_layers: int = -1
+var _pom_cached_menu: bool = false
 
 func _ready() -> void:
 	rotation_degrees.z = tilt_degrees
@@ -151,8 +154,8 @@ func _ready() -> void:
 	_prepare_world_environment()
 	_sync_cycle_time()
 	_apply_at_cycle_t(t)
-	if sunshine_clouds_enabled:
-		call_deferred("_setup_sunshine_clouds")
+	if pom_clouds_enabled:
+		call_deferred("_setup_pom_clouds")
 	if debug_print:
 		print(
 			"DayNightRig mode:", TimeMode.keys()[time_mode],
@@ -227,7 +230,6 @@ func _apply_at_cycle_t(cycle_t: float) -> void:
 		_apply_menu_cinematic(day_factor, night_factor, sunset_factor)
 		return
 
-	_restore_compositor_for_gameplay()
 	sun_sprite.top_level = false
 	moon_sprite.top_level = false
 	sun_sprite.no_depth_test = false
@@ -238,7 +240,7 @@ func _apply_at_cycle_t(cycle_t: float) -> void:
 	moon_light.light_indirect_energy = moon_indirect_energy * night_light
 	sun_light.shadow_enabled = day_factor > 0.35
 	moon_light.shadow_enabled = night_light > 0.2
-	_update_gameplay_celestial_visibility(day_factor, night_factor)
+	_update_gameplay_celestial_layout(day_factor, night_factor)
 
 	var star_vis := _star_visibility_factor(sunset_factor, night_factor)
 	star_vis = maxf(star_vis, _star_hour_factor() * night_factor)
@@ -251,12 +253,8 @@ func _apply_at_cycle_t(cycle_t: float) -> void:
 
 	_update_gameplay_visibility(day_factor, night_factor, sunset_factor)
 	_apply_security_lighting_zones(day_factor, night_factor)
-	if _should_use_sunshine_clouds():
-		_apply_sunshine_cloud_defaults(sunshine_cloud_floor, sunshine_cloud_ceiling, false)
-		_update_sunshine_cloud_ambience(day_factor, night_factor, sunset_factor)
-		_refresh_sunshine_cloud_lights()
-	else:
-		_set_sunshine_clouds_active(false)
+	_apply_pom_clouds_profile(day_factor, night_factor)
+	_sync_celestial_sprites_visibility(day_factor, night_factor)
 
 func _is_menu_viewport() -> bool:
 	# El rig vive *dentro* del SubViewport; el padre es SubViewportContainer, no SubViewport.
@@ -272,9 +270,6 @@ func _uses_menu_cinematic() -> bool:
 		_:
 			return _is_menu_viewport()
 
-func _should_use_sunshine_clouds() -> bool:
-	return sunshine_clouds_enabled
-
 func _apply_menu_cinematic(
 	day_factor: float,
 	night_factor: float,
@@ -289,9 +284,6 @@ func _apply_menu_cinematic(
 
 	if menu_show_celestial_sprites:
 		_apply_menu_celestial_sprites(day_factor, night_factor)
-	else:
-		sun_sprite.visible = false
-		moon_sprite.visible = false
 
 	var menu_stars: float = _star_hour_factor()
 	_last_star_factor = menu_stars
@@ -310,13 +302,8 @@ func _apply_menu_cinematic(
 			day_factor
 		)
 
-	if sunshine_clouds != null and _should_use_sunshine_clouds():
-		_ensure_compositor_has_clouds()
-		_apply_sunshine_cloud_defaults(menu_cloud_floor, menu_cloud_ceiling, true)
-		sunshine_clouds.set("update_continuously", true)
-		_set_sunshine_clouds_active(true)
-		_update_sunshine_cloud_ambience(day_factor, night_factor, sunset_factor)
-		_refresh_sunshine_cloud_lights()
+	_apply_pom_clouds_profile(day_factor, night_factor)
+	_sync_celestial_sprites_visibility(day_factor, night_factor)
 
 func _apply_menu_celestial_sprites(day_factor: float, night_factor: float) -> void:
 	# Orbitan con SunPivot/MoonPivot (ya rotados arriba); sin top_level ni depth test off.
@@ -333,8 +320,6 @@ func _apply_menu_celestial_sprites(day_factor: float, night_factor: float) -> vo
 	moon_sprite.pixel_size = px * menu_moon_size_multiplier
 	sun_sprite.modulate = Color(1.0, 0.98, 0.92, 1.0)
 	moon_sprite.modulate = Color(0.92, 0.95, 1.0, 1.0)
-	sun_sprite.visible = day_factor > 0.12
-	moon_sprite.visible = night_factor > 0.12
 	_align_directional_light(sun_sprite, sun_pivot, sun_light)
 	_align_directional_light(moon_sprite, moon_pivot, moon_light)
 
@@ -343,115 +328,70 @@ func _menu_sprite_pixel_size() -> float:
 		return menu_sprite_pixel_size
 	return menu_sprite_pixel_size * orbit_radius / menu_orbit_radius
 
-func _ensure_compositor_has_clouds() -> void:
-	if we == null or sunshine_clouds == null:
-		return
-	if _saved_compositor == null and we.compositor != null:
-		_saved_compositor = we.compositor
-	if we.compositor == null:
-		we.compositor = _saved_compositor if _saved_compositor != null else Compositor.new()
-	var clouds_res: Object = sunshine_clouds.get("clouds_resource")
-	if clouds_res == null:
-		return
-	if clouds_res not in we.compositor.compositor_effects:
-		var fx: Array = we.compositor.compositor_effects.duplicate()
-		fx.append(clouds_res)
-		we.compositor.compositor_effects = fx
-
-func _restore_compositor_for_gameplay() -> void:
-	if we == null or _uses_menu_cinematic():
-		return
-	_ensure_compositor_has_clouds()
-
 func _sky_horizon_color(day_factor: float, night_factor: float, sunset_factor: float) -> Color:
 	var col := sky_night_color.lerp(sky_day_color, day_factor)
 	return col.lerp(sky_sunset_color, sunset_factor * 0.55)
 
-func _setup_sunshine_clouds() -> void:
-	if sunshine_clouds == null:
+func _setup_pom_clouds() -> void:
+	if pom_clouds == null:
 		return
-	if not sunshine_clouds.has_method("build_new_clouds"):
-		push_warning("DayNightRig: activa el plugin SunshineClouds2 en Ajustes del proyecto > Plugins.")
-		return
-	if not sunshine_clouds_enabled:
-		_set_sunshine_clouds_active(false)
-		return
-	sunshine_clouds.set("tracked_directional_lights", [sun_light, moon_light])
-	sunshine_clouds.set("tracked_directional_light_shadow_steps", [16, 8])
-	sunshine_clouds.set("directional_light_power_multiplier", sunshine_sun_light_multiplier)
-	sunshine_clouds.set("wind_direction", sunshine_wind_direction)
-	if we.environment:
-		sunshine_clouds.set("ambience_sample_environment", we.environment)
-	if sunshine_clouds.get("clouds_resource") == null:
-		sunshine_clouds.call("build_new_clouds")
-	if _uses_menu_cinematic():
-		_apply_sunshine_cloud_defaults(menu_cloud_floor, menu_cloud_ceiling, true)
-	else:
-		_apply_sunshine_cloud_defaults(sunshine_cloud_floor, sunshine_cloud_ceiling, false)
-	sunshine_clouds.set("update_continuously", true)
-	_set_sunshine_clouds_active(true)
-	_refresh_sunshine_cloud_lights()
-	_update_sunshine_cloud_ambience(1.0, 0.0, 0.0)
+	if POM_CLOUD_MAT != null:
+		pom_clouds.material_override = POM_CLOUD_MAT.duplicate()
+	pom_clouds.visible = pom_clouds_enabled
+	_pom_cached_layers = -1
+	_apply_pom_clouds_profile(1.0, 0.0)
 
-func _apply_sunshine_cloud_defaults(
-	cloud_floor: float = -1.0,
-	cloud_ceiling: float = -1.0,
-	menu_profile: bool = false
-) -> void:
-	var clouds_res: Object = sunshine_clouds.get("clouds_resource")
-	if clouds_res == null:
-		return
-	if cloud_floor < 0.0:
-		cloud_floor = sunshine_cloud_floor
-	if cloud_ceiling < 0.0:
-		cloud_ceiling = sunshine_cloud_ceiling
-	clouds_res.set("cloud_floor", cloud_floor)
-	clouds_res.set("cloud_ceiling", cloud_ceiling)
-	clouds_res.set("clouds_density", 0.16 if menu_profile else 0.18)
-	clouds_res.set("clouds_coverage", 0.68 if menu_profile else 0.72)
-	clouds_res.set("lighting_density", 1.35)
-	clouds_res.set("atmospheric_density", 0.18 if menu_profile else 0.32)
-	clouds_res.set("clouds_powder", 0.62)
-	clouds_res.set("clouds_anisotropy", 0.22)
-	clouds_res.set("use_environment_fog", 0.0)
-	clouds_res.set("fog_effect_ground", menu_clouds_fog_on_ground if menu_profile else 0.0)
-	clouds_res.set("atmosphere_color", Color(0.96, 0.98, 1.0))
-	clouds_res.set("cloud_ambient_color", Color(0.94, 0.96, 1.0))
-	clouds_res.set("cloud_ambient_tint", Color(0.55, 0.65, 0.78))
-	clouds_res.set("lighting_travel_distance", 18000.0)
-	clouds_res.set("max_step_distance", 900.0)
-	clouds_res.set("resolution_scale", 1)
-
-func _update_sunshine_cloud_ambience(
-	day_factor: float,
-	night_factor: float,
-	sunset_factor: float
-) -> void:
-	if sunshine_clouds == null or not _should_use_sunshine_clouds():
-		return
-	var clouds_res: Object = sunshine_clouds.get("clouds_resource")
-	if clouds_res == null:
-		return
-	var amb_day := Color(0.96, 0.98, 1.0)
-	var amb_night := Color(0.42, 0.48, 0.62)
-	var amb := amb_day.lerp(amb_night, night_factor)
-	amb = amb.lerp(Color(0.75, 0.58, 0.5), sunset_factor * 0.35)
-	clouds_res.set("cloud_ambient_color", amb)
-	var atmos := sky_day_color.lerp(sky_night_color, night_factor)
-	atmos = atmos.lerp(sky_sunset_color, sunset_factor * 0.4)
-	clouds_res.set("atmosphere_color", Color(atmos.r, atmos.g, atmos.b).lightened(0.25))
-	clouds_res.set("lighting_density", lerpf(1.0, 1.45, day_factor))
-	clouds_res.set("clouds_powder", lerpf(0.5, 0.68, day_factor))
+func _should_show_pom_clouds() -> bool:
+	if not pom_clouds_enabled or pom_clouds == null:
+		return false
 	if _uses_menu_cinematic():
-		clouds_res.set("atmospheric_density", lerpf(0.1, 0.18, day_factor))
-		clouds_res.set("lighting_density", lerpf(0.75, 1.05, day_factor))
-		clouds_res.set("fog_effect_ground", menu_clouds_fog_on_ground)
+		return true
+	return pom_clouds_in_gameplay
+
+func _apply_pom_clouds_profile(_day_factor: float, _night_factor: float) -> void:
+	if pom_clouds == null:
+		return
+	var menu := _uses_menu_cinematic()
+	var show := _should_show_pom_clouds()
+	pom_clouds.visible = show
+	if not show:
+		return
+	pom_clouds.height = pom_height
+	pom_clouds._scale = pom_mesh_scale
+	# El script del addon solo aplica escala en el editor; en juego hay que setearla aquí.
+	pom_clouds.scale = Vector3.ONE * pom_mesh_scale
+	if pom_clouds.material_override is ShaderMaterial:
+		var sm := pom_clouds.material_override as ShaderMaterial
+		sm.set_shader_parameter("mesh_scale", pom_mesh_scale)
+		sm.set_shader_parameter("wind_resistance", pom_wind_resistance)
+		sm.set_shader_parameter("uv_scale", pom_uv_scale)
+		sm.set_shader_parameter("layer_gap", pom_layer_gap)
+	if pom_clouds.POM_layers != pom_layers:
+		pom_clouds.POM_layers = pom_layers
+	if _pom_cached_layers != pom_layers or _pom_cached_menu != menu:
+		pom_clouds.do_POM()
+		_pom_cached_layers = pom_layers
+		_pom_cached_menu = menu
+
+func _sync_celestial_sprites_visibility(day_factor: float, night_factor: float) -> void:
+	if hide_celestial_sprites_with_pom and _should_show_pom_clouds():
+		sun_sprite.visible = false
+		moon_sprite.visible = false
+		return
+	if _uses_menu_cinematic():
+		if not menu_show_celestial_sprites:
+			sun_sprite.visible = false
+			moon_sprite.visible = false
+			return
+		sun_sprite.visible = day_factor > 0.12
+		moon_sprite.visible = night_factor > 0.12
+		sun_sprite.render_priority = -2
+		moon_sprite.render_priority = -1
 	else:
-		clouds_res.set("atmospheric_density", lerpf(0.38, 0.28, day_factor))
-	sunshine_clouds.set(
-		"directional_light_power_multiplier",
-		lerpf(sunshine_sun_light_multiplier * 0.65, sunshine_sun_light_multiplier, day_factor)
-	)
+		sun_sprite.visible = day_factor > 0.12
+		moon_sprite.visible = night_factor > 0.12
+		sun_sprite.render_priority = 10
+		moon_sprite.render_priority = 11
 
 func _make_celestial_sprite_material(tex: Texture2D) -> StandardMaterial3D:
 	var mat := StandardMaterial3D.new()
@@ -479,13 +419,11 @@ func _setup_celestial_textures() -> void:
 	sun_sprite.render_priority = 10
 	moon_sprite.render_priority = 11
 
-func _update_gameplay_celestial_visibility(day_factor: float, night_factor: float) -> void:
+func _update_gameplay_celestial_layout(_day_factor: float, _night_factor: float) -> void:
 	sun_sprite.position = Vector3(0.0, 0.0, -orbit_radius)
 	moon_sprite.position = Vector3(0.0, 0.0, -orbit_radius)
 	sun_sprite.pixel_size = gameplay_sun_pixel_size
 	moon_sprite.pixel_size = gameplay_moon_pixel_size
-	sun_sprite.visible = day_factor > 0.12
-	moon_sprite.visible = night_factor > 0.12
 
 func _min_camera_far_for_celestials(cam: Camera3D) -> float:
 	var d := maxf(
@@ -585,20 +523,6 @@ func _apply_gameplay_fog(
 		env.volumetric_fog_ambient_inject = 0.0
 	else:
 		env.volumetric_fog_enabled = false
-
-func _refresh_sunshine_cloud_lights() -> void:
-	if sunshine_clouds == null or not _should_use_sunshine_clouds():
-		return
-	if sunshine_clouds.has_method("retrieve_texture_data"):
-		sunshine_clouds.call("retrieve_texture_data")
-
-func _set_sunshine_clouds_active(active: bool) -> void:
-	if sunshine_clouds == null:
-		return
-	var clouds_res: Object = sunshine_clouds.get("clouds_resource")
-	if clouds_res != null and clouds_res is CompositorEffect:
-		(clouds_res as CompositorEffect).enabled = active
-	sunshine_clouds.set("update_continuously", active)
 
 func _cache_sky_material() -> void:
 	_sky_material = null

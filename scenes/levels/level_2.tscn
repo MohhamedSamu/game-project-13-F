@@ -45,7 +45,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70.0538, 0.0360137, 26.8067)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 38.8872, 45.4019, 77.2291)
 time_mode = 1
 fixed_hour = 0.0
+cycle_sunrise_hour = 15.0
 ambience_profile = 2
+pom_layers = 12
+pom_height = 4000.0
+pom_mesh_scale = 20000.0
+pom_uv_scale = 1.0
 
 [node name="iluminacion" type="Node3D" parent="."]
 script = ExtResource("12_seclzone")

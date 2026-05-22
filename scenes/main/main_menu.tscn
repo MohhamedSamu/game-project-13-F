@@ -386,6 +386,12 @@ far = 50000.0
 ambience_profile = 1
 menu_orbit_radius = 7500.0
 menu_moon_size_multiplier = 4.0
+pom_layers = 25
+pom_height = 12000.0
+pom_mesh_scale = 150000.0
+pom_layer_gap = 0.06
+pom_wind_resistance = 300.0
+pom_uv_scale = 8.0
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 1
