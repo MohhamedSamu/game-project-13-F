@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://bs72ogkvdd7d6"]
+[gd_scene load_steps=6 format=3 uid="uid://bs72ogkvdd7d6"]
 
 [ext_resource type="Script" uid="uid://c20xlu66w544h" path="res://addons/proto_controller/proto_controller.gd" id="1_ucva2"]
 
@@ -10,8 +10,11 @@ radius = 0.4
 height = 1.8
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_iof21"]
-radius = 0.821187
+radius = 0.521659
 height = 1.8
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_g2uji"]
+size = Vector3(0.689575, 1, 1.06299)
 
 [node name="ProtoController" type="CharacterBody3D" groups=["player"]]
 script = ExtResource("1_ucva2")
@@ -27,6 +30,10 @@ mesh = SubResource("CapsuleMesh_ucva2")
 [node name="Collider" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_iof21")
+
+[node name="Collider2" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0132446, 0.997503, -0.209229)
+shape = SubResource("BoxShape3D_g2uji")
 
 [node name="Head" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)

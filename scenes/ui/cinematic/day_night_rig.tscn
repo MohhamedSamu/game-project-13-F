@@ -1,21 +1,11 @@
-[gd_scene load_steps=21 format=3 uid="uid://bj7nvq1n6yrlo"]
+[gd_scene load_steps=11 format=3 uid="uid://bj7nvq1n6yrlo"]
 
 [ext_resource type="Script" uid="uid://bionxx18t8cl4" path="res://scripts/ui/day_night_rig.gd" id="1_80htk"]
 [ext_resource type="Texture2D" uid="uid://do3x2cgcirson" path="res://assets/materials/Sun.png" id="2_3l57m"]
 [ext_resource type="Texture2D" uid="uid://d3uy2bd4fdfbw" path="res://assets/materials/Moon.png" id="3_v3o0r"]
 [ext_resource type="Material" uid="uid://cjqh47mw3rx1y" path="res://assets/shaders/sky_day_night_material.tres" id="4_85ngt"]
-[ext_resource type="RDShaderFile" uid="uid://dx1y5cye1m1hu" path="res://addons/SunshineClouds2/SunshineCloudsCompute.glsl" id="5_r2ses"]
-[ext_resource type="Script" uid="uid://djusduuxf0voj" path="res://addons/SunshineClouds2/SunshineCloudsDriver.gd" id="5_sunshine"]
-[ext_resource type="CompressedTexture3D" uid="uid://dei12lsgrjpyu" path="res://addons/SunshineClouds2/NoiseTextures/curl_noise_varied.tga" id="6_e8mm8"]
-[ext_resource type="CompressedTexture3D" uid="uid://b3uyfsp4in821" path="res://addons/SunshineClouds2/NoiseTextures/bluenoise_Dither.png" id="7_fs1ui"]
-[ext_resource type="Texture2D" uid="uid://de2nsujnhdlg0" path="res://addons/SunshineClouds2/NoiseTextures/ExtraLargeScaleNoise.tres" id="8_nsuen"]
-[ext_resource type="Texture2D" uid="uid://g02m2ewpwusq" path="res://addons/SunshineClouds2/NoiseTextures/HeightGradient.tres" id="9_ejfvs"]
-[ext_resource type="NoiseTexture3D" uid="uid://6ed3lvlpbqmg" path="res://addons/SunshineClouds2/NoiseTextures/LargeScaleNoise.tres" id="10_g1t06"]
-[ext_resource type="NoiseTexture3D" uid="uid://dxyewgt7o40m0" path="res://addons/SunshineClouds2/NoiseTextures/MediumScaleNoise.tres" id="11_4fc5e"]
-[ext_resource type="RDShaderFile" uid="uid://cqhejbalsrvjp" path="res://addons/SunshineClouds2/SunshineCloudsPostCompute.glsl" id="12_dby43"]
-[ext_resource type="RDShaderFile" uid="uid://crfpk8ta4qxsk" path="res://addons/SunshineClouds2/SunshineCloudsPreCompute.glsl" id="13_5ptg5"]
-[ext_resource type="Script" uid="uid://dnblgqynq1t7l" path="res://addons/SunshineClouds2/SunshineClouds.gd" id="14_l6mij"]
-[ext_resource type="NoiseTexture3D" uid="uid://bnck2kxeg5bkg" path="res://addons/SunshineClouds2/NoiseTextures/SmallScaleNoise.tres" id="15_kt0q2"]
+[ext_resource type="Script" path="res://scripts/environment/pom_clouds_runtime.gd" id="5_pom"]
+[ext_resource type="Material" uid="uid://lp7ajofhmang" path="res://addons/POM clouds/POM_Clouds_shader_material.tres" id="6_pommat"]
 
 [sub_resource type="Sky" id="Sky_3l57m"]
 sky_material = ExtResource("4_85ngt")
@@ -31,73 +21,17 @@ fog_sky_affect = 0.0
 fog_depth_begin = 200.0
 fog_depth_end = 2500.0
 
-[sub_resource type="CompositorEffect" id="CompositorEffect_yiv28"]
-resource_local_to_scene = false
-resource_name = ""
-enabled = true
-effect_callback_type = 3
-access_resolved_color = true
-access_resolved_depth = true
-needs_motion_vectors = true
-needs_normal_roughness = false
-script = ExtResource("14_l6mij")
-clouds_coverage = 0.72
-clouds_density = 0.18
-atmospheric_density = 0.503
-lighting_density = 1.15
-fog_effect_ground = 1.0
-use_environment_fog = 1.0
-clouds_anisotropy = 0.16
-clouds_powder = 0.5
-cloud_ambient_color = Color(0.88, 0.92, 0.98, 1)
-cloud_ambient_tint = Color(0.133, 0.2, 0.243, 1)
-atmosphere_color = Color(0.92, 0.95, 1, 1)
-sampled_environment_fog_color = Color(0.55, 0.75, 1, 1)
-ambient_occlusion_color = Color(1, 0, 0, 1)
-accumulation_decay = 0.7
-extra_large_noise_scale = 320000.0
-large_noise_scale = 120000.0
-medium_noise_scale = 20000.0
-small_noise_scale = 8500.0
-clouds_sharpness = 0.746
-clouds_detail_power = 1.075
-curl_noise_strength = 4500.0
-lighting_sharpness = 0.38
-wind_swept_range = 0.54
-wind_swept_strength = 0.0
-cloud_floor = 2800.0
-cloud_ceiling = 12000.0
-max_step_count = 300.0
-max_lighting_steps = 32.0
-resolution_scale = 1
-lod_bias = 1.0
-dither_noise = ExtResource("7_fs1ui")
-height_gradient = ExtResource("9_ejfvs")
-extra_large_noise_patterns = ExtResource("8_nsuen")
-large_scale_noise = ExtResource("10_g1t06")
-medium_scale_noise = ExtResource("11_4fc5e")
-small_scale_noise = ExtResource("15_kt0q2")
-curl_noise = ExtResource("6_e8mm8")
-dither_speed = 15.111
-blur_power = 2.0
-blur_quality = 1.0
-reflections_globalshaderparam = ""
-min_step_distance = 400.0
-max_step_distance = 500.0
-lighting_travel_distance = 10000.0
-extra_large_used_as_mask = false
-mask_width_km = 32.0
-pre_pass_compute_shader = ExtResource("13_5ptg5")
-compute_shader = ExtResource("5_r2ses")
-post_pass_compute_shader = ExtResource("12_dby43")
-origin_offset = Vector3(0, 0, 0)
-wind_direction = Vector3(1, 0, 0)
-directional_lights_data = Array[Vector4]([Vector4(3.59989e-21, 1, -4.37114e-08, 16), Vector4(1, 1, 1, 1), Vector4(0, -1, -4.37114e-08, 8), Vector4(1, 1, 1, 0)])
-point_lights_data = Array[Vector4]([])
-point_effector_data = Array[Vector4]([])
+[sub_resource type="PlaneMesh" id="PlaneMesh_ilcgv"]
+size = Vector2(1, 1)
+subdivide_width = 10
+subdivide_depth = 10
 
-[sub_resource type="Compositor" id="Compositor_oytfp"]
-compositor_effects = Array[CompositorEffect]([SubResource("CompositorEffect_yiv28")])
+[sub_resource type="MultiMesh" id="MultiMesh_e8bc4"]
+transform_format = 1
+use_colors = true
+instance_count = 15
+mesh = SubResource("PlaneMesh_ilcgv")
+buffer = PackedFloat32Array(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.0666667, 0.0666667, 0.0666667, 0.0666667, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.133333, 0.133333, 0.133333, 0.133333, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.2, 0.2, 0.2, 0.2, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.266667, 0.266667, 0.266667, 0.266667, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.333333, 0.333333, 0.333333, 0.333333, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.4, 0.4, 0.4, 0.4, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.466667, 0.466667, 0.466667, 0.466667, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.533333, 0.533333, 0.533333, 0.533333, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.6, 0.6, 0.6, 0.6, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.666667, 0.666667, 0.666667, 0.666667, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.733333, 0.733333, 0.733333, 0.733333, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.8, 0.8, 0.8, 0.8, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.866667, 0.866667, 0.866667, 0.866667, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0.933333, 0.933333, 0.933333, 0.933333)
 
 [node name="DayNightRig" type="Node3D"]
 script = ExtResource("1_80htk")
@@ -127,13 +61,12 @@ texture = ExtResource("3_v3o0r")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_80htk")
-compositor = SubResource("Compositor_oytfp")
 
-[node name="SunshineClouds" type="Node" parent="." node_paths=PackedStringArray("tracked_directional_lights")]
-script = ExtResource("5_sunshine")
-update_continuously = true
-clouds_resource = SubResource("CompositorEffect_yiv28")
-ambience_sample_environment = SubResource("Environment_80htk")
-tracked_directional_lights = [NodePath("../SunPivot/SunDirectional"), NodePath("../MoonPivot/MoonDirectional")]
-tracked_directional_light_shadow_steps = Array[int]([16, 8])
-wind_direction = Vector3(1, 0, 0)
+[node name="POM_Clouds" type="MultiMeshInstance3D" parent="."]
+transform = Transform3D(100000, 0, 0, 0, 100000, 0, 0, 0, 100000, 0, 0, 0)
+top_level = true
+material_override = ExtResource("6_pommat")
+cast_shadow = 0
+multimesh = SubResource("MultiMesh_e8bc4")
+script = ExtResource("5_pom")
+POM_layers = 15
