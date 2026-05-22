@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=13 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -62,6 +62,3 @@ spot_attenuation = 0.8
 spot_angle = 38.0
 script = ExtResource("11_secspot")
 night_light_energy = 5.0
-night_spot_angle = 38.0
-night_volumetric_fog_energy = 3.2
-cast_shadows = true
