@@ -9,7 +9,7 @@ extends Node3D
 ## Respeta el frente de la cámara: el objeto mira donde -Z local del marcador HandRight (~ mirada FPS).
 @export var hold_offset: Vector3 = Vector3(0.12, -0.12, -0.38)
 ## Ajuste de orientación cogida [grados Euler YXZ típico en Godot]. Si el modelo mira mal, retoca aquí o en Godot inspector.
-@export var hold_rotation_deg: Vector3 = Vector3(-90.0, 180.0, 0.0)
+@export var hold_rotation_deg: Vector3 = Vector3(8.0, 0.0, 0.0)
 
 var _rb: RigidBody3D
 var _collision_shape: CollisionShape3D
@@ -37,11 +37,14 @@ func _configure_flashlight_beam() -> void:
 	if light == null:
 		return
 	light.shadow_enabled = true
-	light.shadow_bias = 0.1
-	light.shadow_normal_bias = 2.0
+	light.shadow_bias = 0.04
+	light.shadow_normal_bias = 0.55
 	light.shadow_opacity = 1.0
-	light.light_volumetric_fog_energy = 2.8
-	light.light_indirect_energy = 0.0
+	light.shadow_blur = 0.35
+	light.light_energy = maxf(light.light_energy, 32.0)
+	light.light_volumetric_fog_energy = 3.5
+	light.light_indirect_energy = 0.15
+	light.light_specular = 0.45
 
 
 func get_interaction_prompt() -> String:

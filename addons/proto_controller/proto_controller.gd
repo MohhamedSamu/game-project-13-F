@@ -103,7 +103,6 @@ var _focus_interactable: Node
 
 ## IMPORTANT REFERENCES
 @onready var head: Node3D = $Head
-@onready var collider: CollisionShape3D = $Collider
 @onready var footstep_player: AudioStreamPlayer3D = $FootstepPlayer
 @onready var jump_player: AudioStreamPlayer3D = $JumpPlayer
 @onready var land_player: AudioStreamPlayer3D = $LandPlayer
@@ -252,14 +251,21 @@ func rotate_look(rot_input : Vector2):
 	head.rotate_x(look_rotation.x)
 
 
-func enable_freefly():
-	collider.disabled = true
+func enable_freefly() -> void:
+	_set_collision_shapes_enabled(false)
 	freeflying = true
 	velocity = Vector3.ZERO
 
-func disable_freefly():
-	collider.disabled = false
+
+func disable_freefly() -> void:
+	_set_collision_shapes_enabled(true)
 	freeflying = false
+
+
+func _set_collision_shapes_enabled(enabled: bool) -> void:
+	for child in get_children():
+		if child is CollisionShape3D:
+			(child as CollisionShape3D).disabled = not enabled
 
 
 func capture_mouse():

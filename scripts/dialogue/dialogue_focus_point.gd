@@ -11,13 +11,12 @@ extends Marker3D
 
 
 func get_dialogue_stand_position() -> Vector3:
+	var player := GameManager.player as Node3D
 	if not use_stand_position:
-		var player := GameManager.player as Node3D
 		if player != null:
 			return player.global_position
 		return global_position
 
-	var player := GameManager.player as Node3D
 	if player == null:
 		return global_position
 
