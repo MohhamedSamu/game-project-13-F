@@ -87,9 +87,9 @@ var mutation_cooldown: Timer = Timer.new()
 
 @onready var continue_dots: Label = %ContinueDots
 
-const ANCHOR_TOP_NO_RESPONSES: float = 0.63
-const ANCHOR_TOP_WITH_RESPONSES: float = 0.52
-const ANCHOR_BOTTOM: float = 0.86
+const ANCHOR_TOP_NO_RESPONSES: float = 0.73
+const ANCHOR_TOP_WITH_RESPONSES: float = 0.62
+const ANCHOR_BOTTOM: float = 0.96
 
 
 func _ready() -> void:

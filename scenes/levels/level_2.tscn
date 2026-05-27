@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=14 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://bj7nvq1n6yrlo" path="res://scenes/ui/cinematic/day_night_rig.tscn" id="10_8qukl"]
 [ext_resource type="Script" uid="uid://bikqe675bud6f" path="res://scripts/lights/security_spot_light.gd" id="11_secspot"]
 [ext_resource type="Script" uid="uid://cc18lwvm6ffbg" path="res://scripts/lights/security_lighting_zone.gd" id="12_seclzone"]
+[ext_resource type="PackedScene" uid="uid://cxghc4tbbirhs" path="res://scenes/interactables/key_door_bathroom.tscn" id="13_tv7cl"]
 
 [node name="level_2" type="Node3D"]
 
@@ -67,3 +68,6 @@ spot_attenuation = 0.8
 spot_angle = 38.0
 script = ExtResource("11_secspot")
 night_light_energy = 5.0
+
+[node name="key" parent="." instance=ExtResource("13_tv7cl")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.64806, 7.90809e-07, 2.78142)
