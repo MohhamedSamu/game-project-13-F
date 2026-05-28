@@ -12,7 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://bj7nvq1n6yrlo" path="res://scenes/ui/cinematic/day_night_rig.tscn" id="10_8qukl"]
 [ext_resource type="Script" uid="uid://bikqe675bud6f" path="res://scripts/lights/security_spot_light.gd" id="11_secspot"]
 [ext_resource type="Script" uid="uid://cc18lwvm6ffbg" path="res://scripts/lights/security_lighting_zone.gd" id="12_seclzone"]
-[ext_resource type="PackedScene" uid="uid://cxghc4tbbirhs" path="res://scenes/interactables/key_door_bathroom.tscn" id="13_tv7cl"]
+[ext_resource type="PackedScene" uid="uid://cxghc4tbbirhs" path="res://scenes/props/key_door_bathroom.tscn" id="13_tv7cl"]
 
 [node name="level_2" type="Node3D"]
 

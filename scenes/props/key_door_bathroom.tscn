@@ -1,0 +1,31 @@
+[gd_scene load_steps=4 format=3 uid="uid://cxghc4tbbirhs"]
+
+[ext_resource type="Script" uid="uid://k1wln4s0huet" path="res://scripts/props/generic_pickup.gd" id="1_pickup"]
+[ext_resource type="PackedScene" uid="uid://bnme0m5nr3eag" path="res://assets/models/props/key.fbx" id="2_key_fbx"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_key"]
+size = Vector3(0.237305, 0.0837402, 0.536233)
+
+[node name="key_door_bathroom" type="Node3D"]
+script = ExtResource("1_pickup")
+pickup_prompt = "[E] Recoger llave"
+hold_offset = Vector3(0.1, -0.1, -0.34)
+drop_forward_speed = 0.85
+drop_up_speed = 0.18
+drop_spawn_forward = 0.28
+drop_spawn_lift = 0.16
+drop_floor_snap_margin = 0.05
+
+[node name="RigidBody3D" type="RigidBody3D" parent="."]
+mass = 0.12
+continuous_cd = true
+contact_monitor = true
+max_contacts_reported = 8
+linear_damp = 0.65
+angular_damp = 0.65
+
+[node name="key" parent="RigidBody3D" instance=ExtResource("2_key_fbx")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.012, 0.0323181)
+shape = SubResource("BoxShape3D_key")
