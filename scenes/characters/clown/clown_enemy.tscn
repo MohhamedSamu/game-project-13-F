@@ -50,7 +50,6 @@ dialogue_title = "start"
 prompt_text = "Presiona [E] para hablar"
 trigger_once = true
 requires_focus_hitbox = true
-focus_target = NodePath("../DialogueFocusPoint")
 set_flag_on_finish = "clown_first_dialogue_completed"
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent"]

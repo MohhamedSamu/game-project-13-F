@@ -39,6 +39,7 @@ enabled=PackedStringArray("res://addons/dialogue_manager/plugin.cfg")
 [global_group]
 
 interactable=""
+interactable_ray_target=""
 pickup=""
 player=""
 interaction_crosshair=""

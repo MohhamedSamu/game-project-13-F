@@ -12,6 +12,8 @@ extends Area3D
 
 @export var requires_focus_hitbox: bool = false
 @export var focus_hitbox_group: String = "interactable_focus"
+@export var require_specific_ray_target: bool = false
+@export var ray_target_group: String = "interactable_ray_target"
 @export var proximity_radius: float = 2.5
 
 @export_group("Camera Focus")
@@ -26,15 +28,20 @@ extends Area3D
 
 var player_near: bool = false
 
+## Capa física dedicada para InteractionRayTarget (layer 3 = bit 4).
+const RAY_TARGET_COLLISION_LAYER: int = 4
+
 
 func _ready() -> void:
 	add_to_group("interactable")
 	collision_layer = 1
 	collision_mask = 1
 	monitoring = true
-	monitorable = true
+	monitorable = not require_specific_ray_target
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+	if require_specific_ray_target:
+		_configure_ray_target()
 
 
 func _get_focus_target() -> Node3D:
@@ -98,6 +105,86 @@ func requires_dialogue_focus_aim() -> bool:
 
 func get_focus_hitbox_group() -> String:
 	return focus_hitbox_group
+
+
+func requires_specific_ray_target() -> bool:
+	return require_specific_ray_target
+
+
+func get_ray_target_group() -> String:
+	return ray_target_group
+
+
+func is_valid_interaction_hit(collider: Object) -> bool:
+	if not require_specific_ray_target:
+		return true
+	return _collider_belongs_to_ray_target(collider)
+
+
+func is_player_aiming_at_ray_target(camera: Camera3D, max_distance: float = 2.5) -> bool:
+	if not require_specific_ray_target or camera == null:
+		return false
+	var ray_target := _get_ray_target_area()
+	if ray_target == null:
+		return false
+
+	var direction := (-camera.global_basis.z).normalized()
+	var origin := camera.global_position + direction * 0.12
+	var to := origin + direction * max_distance
+	var space := get_world_3d().direct_space_state
+	if space == null:
+		return false
+
+	var pq := PhysicsRayQueryParameters3D.create(origin, to)
+	pq.collision_mask = RAY_TARGET_COLLISION_LAYER
+	pq.collide_with_areas = true
+	pq.collide_with_bodies = false
+
+	var hit := space.intersect_ray(pq)
+	if hit.is_empty():
+		return false
+	return _collider_belongs_to_ray_target(hit.get("collider"))
+
+
+func _get_ray_target_area() -> Area3D:
+	var setup_root := get_parent()
+	if setup_root == null:
+		return null
+	return setup_root.get_node_or_null("InteractionRayTarget") as Area3D
+
+
+func _configure_ray_target() -> void:
+	var ray_target := _get_ray_target_area()
+	if ray_target == null:
+		push_warning("%s: require_specific_ray_target activo pero falta InteractionRayTarget (Area3D)." % name)
+		return
+	ray_target.collision_layer = RAY_TARGET_COLLISION_LAYER
+	ray_target.collision_mask = 0
+	ray_target.monitoring = false
+	ray_target.monitorable = true
+	if not ray_target.is_in_group(ray_target_group):
+		ray_target.add_to_group(ray_target_group)
+
+
+func _collider_belongs_to_ray_target(collider: Object) -> bool:
+	if ray_target_group.is_empty():
+		return false
+	var hit_node := collider as Node
+	if hit_node == null:
+		return false
+	var current: Node = hit_node
+	while current != null:
+		if current.is_in_group(ray_target_group):
+			return _is_target_under_same_setup(current)
+		current = current.get_parent()
+	return false
+
+
+func _is_target_under_same_setup(target_node: Node) -> bool:
+	var setup_root := get_parent()
+	if setup_root == null:
+		return false
+	return target_node == setup_root or setup_root.is_ancestor_of(target_node)
 
 
 func get_dialogue_focus_radius() -> float:

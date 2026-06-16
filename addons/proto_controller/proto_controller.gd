@@ -330,6 +330,8 @@ func _update_interaction_focus() -> void:
 	if focus == null:
 		focus = _find_dialogue_aim_interactable()
 	if focus == null:
+		focus = _find_ray_target_aim_interactable()
+	if focus == null:
 		_apply_crosshair_ui(false, "")
 		return
 	if focus.has_method("can_interact") and not focus.can_interact():
@@ -363,6 +365,19 @@ func _find_dialogue_aim_interactable() -> Node:
 	return null
 
 
+func _find_ray_target_aim_interactable() -> Node:
+	if camera_3d == null:
+		return null
+	for node in get_tree().get_nodes_in_group("interactable"):
+		if not node.has_method("requires_specific_ray_target") or not node.requires_specific_ray_target():
+			continue
+		if node.has_method("can_interact") and not node.can_interact():
+			continue
+		if node.has_method("is_player_aiming_at_ray_target") and node.is_player_aiming_at_ray_target(camera_3d, interaction_distance):
+			return node
+	return null
+
+
 func _resolve_interactable(collider: Object) -> Node:
 	var n := collider as Node
 	if n == null:
@@ -372,6 +387,9 @@ func _resolve_interactable(collider: Object) -> Node:
 	if candidate == null:
 		candidate = _find_interactable_in_node_family(n)
 	if candidate == null:
+		return null
+
+	if candidate.has_method("is_valid_interaction_hit") and not candidate.is_valid_interaction_hit(collider):
 		return null
 
 	if candidate.has_method("requires_dialogue_focus_aim") and candidate.requires_dialogue_focus_aim():

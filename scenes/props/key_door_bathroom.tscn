@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://bnme0m5nr3eag" path="res://assets/models/props/key.fbx" id="2_key_fbx"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_key"]
-size = Vector3(0.237305, 0.0837402, 0.536233)
+size = Vector3(0.564453, 0.350586, 0.782227)
 
 [node name="key_door_bathroom" type="Node3D"]
 script = ExtResource("1_pickup")
