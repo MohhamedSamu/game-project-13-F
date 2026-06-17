@@ -10,11 +10,11 @@ radius = 0.4
 height = 1.8
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_iof21"]
-radius = 0.521659
+radius = 0.400625
 height = 1.8
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_g2uji"]
-size = Vector3(0.689575, 1, 1.06299)
+size = Vector3(0.689575, 1, 1.15308)
 
 [node name="ProtoController" type="CharacterBody3D" groups=["player"]]
 script = ExtResource("1_ucva2")
@@ -32,7 +32,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_iof21")
 
 [node name="Collider2" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0132446, 0.997503, -0.209229)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0132446, 0.997503, -0.254273)
 shape = SubResource("BoxShape3D_g2uji")
 
 [node name="Head" type="Node3D" parent="."]

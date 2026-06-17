@@ -48,6 +48,10 @@ extends CharacterBody3D
 @export_group("Interacción")
 @export var interaction_enabled: bool = true
 @export var interaction_distance: float = 2.5
+## Pickups: el punto de mira debe caer cerca del centro de pantalla (px).
+@export var pickup_crosshair_radius_px: float = 42.0
+## Solo si el rayo falla: recogibles muy cerca y bajo el retículo.
+@export var pickup_close_aim_distance: float = 1.05
 @export var dialogue_focus_speed: float = 2.5
 @export var dialogue_focus_stop_threshold: float = 0.02
 @export_range(0.0, 1.0) var dialogue_reposition_blend: float = 0.5
@@ -298,28 +302,56 @@ func _interaction_prompt(node: Node) -> String:
 	return ""
 
 
-func _interaction_raycast() -> Dictionary:
-	if camera_3d == null:
-		return {}
-	var dir := -camera_3d.global_basis.z.normalized()
-	var origin := camera_3d.global_position + dir * 0.12
-	var to := origin + dir * interaction_distance
-	var exclude_rids: Array[RID] = [self.get_rid()]
+func _interaction_ray_exclude_rids() -> Array[RID]:
+	var exclude_rids: Array[RID] = [get_rid()]
 	if _held_pickup != null:
 		var rb_h := _held_pickup.find_child("RigidBody3D", true, false)
 		if rb_h is CollisionObject3D:
 			exclude_rids.append(rb_h.get_rid())
-	var pq := PhysicsRayQueryParameters3D.create(origin, to)
-	pq.exclude = exclude_rids
-	pq.collide_with_areas = true
-	pq.collide_with_bodies = true
-	var hit := get_world_3d().direct_space_state.intersect_ray(pq)
-	if hit.is_empty():
+	return exclude_rids
+
+
+func _collision_object_rid(collider: Object) -> RID:
+	if collider is CollisionObject3D:
+		return (collider as CollisionObject3D).get_rid()
+	if collider is Node:
+		var parent := (collider as Node).get_parent()
+		if parent is CollisionObject3D:
+			return (parent as CollisionObject3D).get_rid()
+	return RID()
+
+
+func _interaction_raycast() -> Dictionary:
+	if camera_3d == null:
 		return {}
-	var hit_pos: Vector3 = hit.position
-	if origin.distance_to(hit_pos) > interaction_distance:
-		return {}
-	return hit
+	var dir := -camera_3d.global_basis.z.normalized()
+	var origin := camera_3d.global_position
+	var exclude_rids := _interaction_ray_exclude_rids()
+	var traveled := 0.0
+	const RAY_SKIN := 0.03
+
+	while traveled < interaction_distance:
+		var segment_len := interaction_distance - traveled
+		var to := origin + dir * segment_len
+		var pq := PhysicsRayQueryParameters3D.create(origin, to)
+		pq.exclude = exclude_rids
+		pq.collide_with_areas = true
+		pq.collide_with_bodies = true
+		var hit := get_world_3d().direct_space_state.intersect_ray(pq)
+		if hit.is_empty():
+			return {}
+		var collider: Object = hit.get("collider")
+		if _resolve_interactable(collider) != null:
+			return hit
+		var body_rid := _collision_object_rid(collider)
+		if not body_rid.is_valid():
+			return {}
+		exclude_rids.append(body_rid)
+		var hit_pos: Vector3 = hit.position
+		var step := origin.distance_to(hit_pos) + RAY_SKIN
+		traveled += step
+		origin = hit_pos + dir * RAY_SKIN
+	return {}
 
 
 func _update_interaction_focus() -> void:
@@ -338,9 +370,14 @@ func _update_interaction_focus() -> void:
 	if focus == null:
 		focus = _find_ray_target_aim_interactable()
 	if focus == null:
+		focus = _find_nearby_pickup_aim()
+	if focus == null:
 		_apply_crosshair_ui(false, "")
 		return
 	if focus.has_method("can_interact") and not focus.can_interact():
+		_apply_crosshair_ui(false, "")
+		return
+	if focus.is_in_group("pickup") and not _is_pickup_aimed_at(focus):
 		_apply_crosshair_ui(false, "")
 		return
 	_focus_interactable = focus
@@ -382,6 +419,66 @@ func _find_ray_target_aim_interactable() -> Node:
 		if node.has_method("is_player_aiming_at_ray_target") and node.is_player_aiming_at_ray_target(camera_3d, interaction_distance):
 			return node
 	return null
+
+
+func _pickup_aim_world_position(node: Node) -> Vector3:
+	var target_pos: Vector3 = node.global_position
+	var rb := node.find_child("RigidBody3D", true, false) as Node3D
+	if rb != null:
+		target_pos = rb.global_position
+	var collision := node.find_child("CollisionShape3D", true, false) as CollisionShape3D
+	if collision != null:
+		target_pos = collision.global_position
+	return target_pos
+
+
+func _is_world_point_on_crosshair(world_pos: Vector3, radius_px: float) -> bool:
+	if camera_3d == null:
+		return false
+	if camera_3d.is_position_behind(world_pos):
+		return false
+	var screen_pos: Vector2 = camera_3d.unproject_position(world_pos)
+	var center: Vector2 = get_viewport().get_visible_rect().size * 0.5
+	return screen_pos.distance_to(center) <= radius_px
+
+
+func _is_pickup_aimed_at(node: Node) -> bool:
+	if camera_3d == null:
+		return false
+	var aim_pos: Vector3 = _pickup_aim_world_position(node)
+	if not _is_world_point_on_crosshair(aim_pos, pickup_crosshair_radius_px):
+		return false
+	var cam_pos: Vector3 = camera_3d.global_position
+	var look_dir: Vector3 = -camera_3d.global_basis.z.normalized()
+	var to_target: Vector3 = aim_pos - cam_pos
+	var dist: float = to_target.length()
+	if dist > interaction_distance or dist < 0.02:
+		return false
+	var aim_dot: float = look_dir.dot(to_target / dist)
+	return aim_dot > 0.92
+
+
+func _find_nearby_pickup_aim() -> Node:
+	if camera_3d == null:
+		return null
+	var cam_pos: Vector3 = camera_3d.global_position
+	var best: Node = null
+	var best_dist: float = pickup_close_aim_distance
+	for node in get_tree().get_nodes_in_group("pickup"):
+		if node == _held_pickup or not node.is_in_group("interactable"):
+			continue
+		if node.has_method("can_interact") and not node.can_interact():
+			continue
+		if not _is_pickup_aimed_at(node):
+			continue
+		var aim_pos: Vector3 = _pickup_aim_world_position(node)
+		var dist: float = cam_pos.distance_to(aim_pos)
+		if dist > pickup_close_aim_distance:
+			continue
+		if dist < best_dist:
+			best_dist = dist
+			best = node
+	return best
 
 
 func _resolve_interactable(collider: Object) -> Node:

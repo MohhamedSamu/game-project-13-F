@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
-[ext_resource type="PackedScene" uid="uid://d0hjy01ci6ck2" path="res://scenes/map/iglesia.tscn" id="3_y2gk5"]
+[ext_resource type="PackedScene" uid="uid://duud6tvy4wnso" path="res://scenes/map/iglesia.tscn" id="3_y2gk5"]
 [ext_resource type="PackedScene" uid="uid://bwe7kke14n0cd" path="res://scenes/characters/clown/clown_enemy.tscn" id="4_clown"]
 [ext_resource type="PackedScene" uid="uid://d1vhu4ikpiebu" path="res://scenes/props/flashlight.tscn" id="5_flash"]
 [ext_resource type="PackedScene" uid="uid://baiidha04m3ud" path="res://scenes/ui/ingame_HUD.tscn" id="6_hud"]
@@ -61,7 +61,7 @@ shader_parameter/starmap_flip_u = false
 shader_parameter/starmap_flip_v = false
 shader_parameter/starmap_alignment = Vector3(2.68288, -0.25891, 0.40101)
 shader_parameter/star_rotation_offset = 9.38899
-shader_parameter/star_rotation = -13.872
+shader_parameter/star_rotation = -14.1345
 shader_parameter/star_tilt = -1.29154
 shader_parameter/star_field_color = Color(1, 1, 1, 1)
 shader_parameter/star_field_texture = ExtResource("18_1a10c")
@@ -77,8 +77,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.663452, 0.663452)
-shader_parameter/cirrus_position2 = Vector2(0.663452, 0.663452)
+shader_parameter/cirrus_position1 = Vector2(0.98645, 0.98645)
+shader_parameter/cirrus_position2 = Vector2(0.98645, 0.98645)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -88,7 +88,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(3.31737, 3.31737)
+shader_parameter/cumulus_position = Vector2(4.93318, 4.93318)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -98,7 +98,7 @@ shader_parameter/azimuthal_grid_rotation_offset = 0.03
 shader_parameter/show_equatorial_grid = false
 shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
 shader_parameter/equatorial_grid_rotation_offset = 0.03
-shader_parameter/moon_matrix = Basis(-0.596603, 0.771448, 0.221209, -0.316905, 0.0267771, -0.948079, -0.737317, -0.635729, 0.2285)
+shader_parameter/moon_matrix = Basis(-0.778019, 0.603903, 0.173167, -0.246389, -0.039756, -0.968355, -0.577909, -0.796066, 0.179726)
 
 [sub_resource type="Sky" id="Sky_rvwo1"]
 sky_material = SubResource("ShaderMaterial_wwjag")
@@ -108,7 +108,7 @@ background_mode = 2
 sky = SubResource("Sky_rvwo1")
 ambient_light_source = 3
 ambient_light_color = Color(0.235156, 0.278907, 0.35, 1)
-ambient_light_sky_contribution = 0.7
+ambient_light_sky_contribution = 0.926229
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_white = 6.0
@@ -126,11 +126,11 @@ transform = Transform3D(-100, 3.89414e-05, -2.84217e-12, 0, 5.96046e-06, 100, 3.
 [node name="IceProximitySetup" parent="Gas_station" instance=ExtResource("9_iceprox")]
 transform = Transform3D(100, 0, 0, 0, -1.19209e-05, 100, 0, -100, -1.19209e-05, -1.06007, 1.11659, -13.6583)
 
-[node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
-transform = Transform3D(-0.0150266, 0, -0.999887, 0, 1, 0, 0.999887, 0, -0.0150266, -7.29434, 1.98725e-06, 28.0695)
+[node name="Iglesia" parent="." instance=ExtResource("3_y2gk5")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.222, -0.00352758, 26.2195)
 
-[node name="iglesia_colision" parent="." instance=ExtResource("3_y2gk5")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -131.289, 0.157798, 25.877)
+[node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
+transform = Transform3D(0.512957, 0, 0.858414, 0, 1, 0, -0.858414, 0, 0.512957, 31.832, 0.351264, 28.0695)
 
 [node name="ClownEnemy" parent="." instance=ExtResource("4_clown")]
 transform = Transform3D(-0.742981, 0, -0.669312, 0, 1, 0, 0.669312, 0, -0.742981, 11.3385, 0.0220501, 25.2796)
@@ -138,13 +138,17 @@ transform = Transform3D(-0.742981, 0, -0.669312, 0, 1, 0, 0.669312, 0, -0.742981
 [node name="InGameHUD" parent="." instance=ExtResource("6_hud")]
 
 [node name="flashlight" parent="." instance=ExtResource("5_flash")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.90157, 0.382282, 28.164)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.3039, 0.382282, 28.164)
 
 [node name="camera" parent="." instance=ExtResource("7_cam")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70.0538, 0.0360137, 26.8067)
 
 [node name="iluminacion" type="Node3D" parent="."]
 script = ExtResource("12_seclzone")
+
+[node name="OmniLight3D" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.368, 7.18185, 18.2344)
+omni_range = 10.5357
 
 [node name="SpotLight3D" type="SpotLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 0.000768015, 1, 0, -1, 0.000768015, 0.907625, 6.4551, -0.025121)
@@ -158,6 +162,161 @@ spot_attenuation = 0.8
 spot_angle = 38.0
 script = ExtResource("11_secspot")
 night_light_energy = 5.0
+day_light_energy = 2.0
+
+[node name="SpotLight3D2" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.00153607, 0.999999, 0, -0.999999, 0.00153607, 1.02122, 6.00906, 6.17386)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+day_light_energy = 2.0
+
+[node name="SpotLight3D3" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.00153607, 0.999999, 0, -0.999999, 0.00153607, 1.02122, 6.13078, 11.9541)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+
+[node name="SpotLight3D4" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.000768015, 1, 0, -1, 0.000768015, -4.92946, 6.4551, -0.025121)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+day_light_energy = 2.0
+
+[node name="SpotLight3D5" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.00153607, 0.999999, 0, -0.999999, 0.00153607, -4.81587, 6.00906, 6.17386)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+day_light_energy = 2.0
+
+[node name="SpotLight3D6" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.00153607, 0.999999, 0, -0.999999, 0.00153607, -4.81587, 6.13078, 11.9541)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+
+[node name="SpotLight3D7" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.000768015, 1, 0, -1, 0.000768015, 8.66184, 6.4551, -0.025121)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+day_light_energy = 2.0
+
+[node name="SpotLight3D8" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.00153607, 0.999999, 0, -0.999999, 0.00153607, 8.77544, 6.00906, 6.17386)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+day_light_energy = 2.0
+
+[node name="SpotLight3D9" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.00153607, 0.999999, 0, -0.999999, 0.00153607, 8.77544, 6.13078, 11.9541)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+
+[node name="SpotLight3D10" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.000768015, 1, 0, -1, 0.000768015, 13.9927, 6.4551, -0.025121)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+day_light_energy = 2.0
+
+[node name="SpotLight3D11" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.00153607, 0.999999, 0, -0.999999, 0.00153607, 14.1063, 6.00906, 6.17386)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+day_light_energy = 2.0
+
+[node name="SpotLight3D12" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 0.00153607, 0.999999, 0, -0.999999, 0.00153607, 14.1063, 6.13078, 11.9541)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 3.2
+shadow_enabled = true
+spot_range = 20.0
+spot_attenuation = 0.8
+spot_angle = 38.0
+script = ExtResource("11_secspot")
+night_light_energy = 5.0
+
+[node name="OmniLight3D2" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.16529, 3.66708, -11.876)
+omni_range = 9.37149
 
 [node name="key" parent="." instance=ExtResource("13_tv7cl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.64806, 7.90809e-07, 2.78142)
@@ -168,26 +327,26 @@ camera_attributes = SubResource("CameraAttributesPractical_joiyc")
 script = ExtResource("20_7d3nu")
 editor_time_enabled = false
 game_time_enabled = false
-current_time = 22.0
+current_time = 23.0
 wind_direction = 2.35619
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D"]
-transform = Transform3D(0.328156, -0.840055, -0.431997, 0, 0.457322, -0.889301, 0.944623, 0.29183, 0.150073, -0.431997, -0.889301, 0.150073)
+transform = Transform3D(0.522796, -0.82699, -0.206814, 0, 0.242609, -0.970124, 0.852458, 0.507177, 0.126835, -0.206814, -0.970124, 0.126835)
 light_color = Color(0.98, 0.523, 0.294, 1)
 light_energy = 0.0
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D"]
-transform = Transform3D(0, -0.675547, -0.737317, 0.338245, 0.693858, -0.635729, 0.941058, -0.249394, 0.2285, -0.737317, -0.635729, 0.2285)
+transform = Transform3D(0, -0.816101, -0.577909, 0.220225, 0.56372, -0.796065, 0.975449, -0.12727, 0.179726, -0.577909, -0.796065, 0.179726)
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 
 [node name="SkyDome" type="Node" parent="Sky3D"]
 script = ExtResource("21_r6ket")
-sun_azimuth = -4.37804
-sun_altitude = -2.66661
-moon_azimuth = -4.41187
-moon_altitude = -2.25975
+sun_azimuth = -4.16226
+sun_altitude = -2.89654
+moon_azimuth = -4.41088
+moon_altitude = -2.49156
 wind_direction = 2.35619
 
 [node name="TimeOfDay" type="Node" parent="Sky3D"]
@@ -195,7 +354,7 @@ script = ExtResource("22_xworo")
 editor_time_enabled = false
 game_time_enabled = false
 dome_path = NodePath("../SkyDome")
-current_time = 22.0
+current_time = 23.0
 
 [node name="ProjectProfile" type="Node" parent="Sky3D"]
 script = ExtResource("23_profile")

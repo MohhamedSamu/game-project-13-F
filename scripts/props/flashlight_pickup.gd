@@ -6,10 +6,11 @@ extends Node3D
 @export var pickup_prompt: String = "[E] Recoger linterna"
 
 @export_group("En la mano")
-## Respeta el frente de la cámara: el objeto mira donde -Z local del marcador HandRight (~ mirada FPS).
-@export var hold_offset: Vector3 = Vector3(0.12, -0.12, -0.38)
-## Ajuste de orientación cogida [grados Euler YXZ típico en Godot]. Si el modelo mira mal, retoca aquí o en Godot inspector.
-@export var hold_rotation_deg: Vector3 = Vector3(8.0, 0.0, 0.0)
+## Posición local respecto a HandRight (cámara FPS). Z negativo = adelante.
+@export var hold_offset: Vector3 = Vector3(0.12, -0.08, -0.18)
+## Rotación local al coger [grados]. Ajusta en el Inspector del nodo flashlight o aquí.
+## X = inclinar arriba/abajo, Y = girar izq/der, Z = balancear. Empieza en (0,0,0).
+@export var hold_rotation_deg: Vector3 = Vector3(0.0, 180.0, 0.0)
 
 var _rb: RigidBody3D
 var _collision_shape: CollisionShape3D
