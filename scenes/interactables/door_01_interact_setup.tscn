@@ -14,7 +14,7 @@ size = Vector3(0.002, 0.0105, 0.028)
 [node name="Door01InteractSetup" type="Node3D"]
 
 [node name="DoorPivot" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.00525, 0.00448)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.00077, -0.000335)
 
 [node name="DialogueFocusPoint" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)

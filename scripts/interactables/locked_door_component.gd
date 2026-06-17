@@ -15,10 +15,15 @@ extends Node
 @export_group("Door Motion")
 @export var door_pivot: Node3D
 @export var door_node_path: NodePath = NodePath("../../Door_01")
-@export var hinge_offset: Vector3 = Vector3(0, -0.00525, 0.00448)
+## Centro del panel (mismo offset que InteractionRayTarget).
+@export var door_panel_center: Vector3 = Vector3(0.0, 0.00448, -0.000335)
+## Mitad del ancho del panel en espacio local del setup (InteractionRayTarget size.y / 2).
+@export var door_panel_half_width: float = 0.00525
+## false = bisagra en borde Y negativo; true = borde Y positivo.
+@export var hinge_on_positive_y: bool = false
 @export var open_angle_degrees: float = 90.0
-@export var open_duration: float = 0.8
-@export var open_ease: Tween.EaseType = Tween.EASE_IN_OUT
+@export var open_duration: float = 1.8
+@export var open_ease: Tween.EaseType = Tween.EASE_OUT
 @export var open_transition: Tween.TransitionType = Tween.TRANS_SINE
 ## Eje local del pivot que apunta al mundo vertical en Door01InteractSetup (Z local).
 @export var pivot_rotation_axis: Vector3 = Vector3.FORWARD
@@ -163,8 +168,14 @@ func _setup_door_pivot() -> void:
 		push_warning("LockedDoorComponent: falta DoorPivot.")
 		return
 
-	door_pivot.position = hinge_offset
+	door_pivot.position = _compute_hinge_offset()
+	door_pivot.rotation = Vector3.ZERO
 	call_deferred("_attach_door_to_pivot")
+
+
+func _compute_hinge_offset() -> Vector3:
+	var side := 1.0 if hinge_on_positive_y else -1.0
+	return door_panel_center + Vector3(0.0, side * door_panel_half_width, 0.0)
 
 
 func _attach_door_to_pivot() -> void:
@@ -181,7 +192,9 @@ func _attach_door_to_pivot() -> void:
 		_on_door_attached()
 		return
 
-	door.reparent(door_pivot, true)
+	var door_global := door.global_transform
+	door.reparent(door_pivot, false)
+	door.global_transform = door_global
 	_door_attached = true
 	_on_door_attached()
 
