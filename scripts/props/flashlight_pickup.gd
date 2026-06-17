@@ -1,6 +1,13 @@
 extends Node3D
 
-## Raíz del prop linterna: recogida / soltar / pulsar F para encender-apagar foco.
+## Raíz del prop linterna: recogida / soltar.
+## [b]F[/b] cicla: lejana → cercana → apagado.
+
+enum LightMode {
+	OFF,
+	FAR,
+	NEAR,
+}
 
 @export_group("UI")
 @export var pickup_prompt: String = "[E] Recoger linterna"
@@ -9,14 +16,19 @@ extends Node3D
 ## Posición local respecto a HandRight (cámara FPS). Z negativo = adelante.
 @export var hold_offset: Vector3 = Vector3(0.12, -0.08, -0.18)
 ## Rotación local al coger [grados]. Ajusta en el Inspector del nodo flashlight o aquí.
-## X = inclinar arriba/abajo, Y = girar izq/der, Z = balancear. Empieza en (0,0,0).
 @export var hold_rotation_deg: Vector3 = Vector3(0.0, 180.0, 0.0)
+
+@export_group("Luz")
+@export var start_mode: LightMode = LightMode.FAR
 
 var _rb: RigidBody3D
 var _collision_shape: CollisionShape3D
 var _beam_csg: CSGCylinder3D
 var _saved_layer: int = 1
 var _saved_mask: int = 1
+var _spot_far: SpotLight3D
+var _spot_near: SpotLight3D
+var _mode: LightMode = LightMode.FAR
 
 
 func _ready() -> void:
@@ -30,19 +42,29 @@ func _ready() -> void:
 	_beam_csg = find_child("CSGCylinder3D", true, false) as CSGCylinder3D
 	if _beam_csg:
 		_beam_csg.visible = false
-	_configure_flashlight_beam()
+	_spot_far = find_child("SpotFar", true, false) as SpotLight3D
+	_spot_near = find_child("SpotNear", true, false) as SpotLight3D
+	_mode = start_mode
+	_configure_flashlight_lights()
+	_apply_light_state()
 
 
-func _configure_flashlight_beam() -> void:
-	var light := find_child("SpotLight3D", true, false) as SpotLight3D
-	if light == null:
-		return
-	light.shadow_enabled = true
-	light.shadow_bias = 0.1
-	light.shadow_normal_bias = 2.0
-	light.shadow_opacity = 1.0
-	light.light_volumetric_fog_energy = 2.8
-	light.light_indirect_energy = 0.0
+func _configure_flashlight_lights() -> void:
+	for light in [_spot_far, _spot_near]:
+		if light == null:
+			continue
+		light.shadow_enabled = true
+		light.shadow_bias = 0.1
+		light.shadow_normal_bias = 2.0
+		light.shadow_opacity = 1.0
+		light.light_indirect_energy = 0.0
+
+
+func _apply_light_state() -> void:
+	if _spot_far != null:
+		_spot_far.visible = _mode == LightMode.FAR
+	if _spot_near != null:
+		_spot_near.visible = _mode == LightMode.NEAR
 
 
 func get_interaction_prompt() -> String:
@@ -96,7 +118,21 @@ func drop_soft(forward_dir: Vector3, drop_parent: Node) -> void:
 
 
 func toggle_spotlight() -> void:
-	var light := find_child("SpotLight3D", true, false) as SpotLight3D
-	if light == null:
-		return
-	light.visible = not light.visible
+	match _mode:
+		LightMode.FAR:
+			_mode = LightMode.NEAR
+		LightMode.NEAR:
+			_mode = LightMode.OFF
+		_:
+			_mode = LightMode.FAR
+	_apply_light_state()
+
+
+func get_light_mode_label() -> String:
+	match _mode:
+		LightMode.FAR:
+			return "Lejana"
+		LightMode.NEAR:
+			return "Cercana"
+		_:
+			return "Apagada"

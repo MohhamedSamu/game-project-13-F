@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://duud6tvy4wnso"]
 
-[ext_resource type="PackedScene" uid="uid://cg7woxwj0ajst" path="res://scenes/map/iglesia_inherited.tscn" id="1_gosdm"]
+[ext_resource type="PackedScene" uid="uid://ynpif7otlghr" path="res://scenes/map/iglesia_inherited.tscn" id="1_gosdm"]
 
 [node name="Iglesia" type="Node3D"]
 
