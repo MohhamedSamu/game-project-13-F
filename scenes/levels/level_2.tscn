@@ -77,8 +77,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.98645, 0.98645)
-shader_parameter/cirrus_position2 = Vector2(0.98645, 0.98645)
+shader_parameter/cirrus_position1 = Vector2(0.76011, 0.76011)
+shader_parameter/cirrus_position2 = Vector2(0.76011, 0.76011)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -88,7 +88,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(4.93318, 4.93318)
+shader_parameter/cumulus_position = Vector2(8.80357, 8.80357)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -108,7 +108,7 @@ background_mode = 2
 sky = SubResource("Sky_rvwo1")
 ambient_light_source = 3
 ambient_light_color = Color(0.235156, 0.278907, 0.35, 1)
-ambient_light_sky_contribution = 0.926229
+ambient_light_sky_contribution = 0.7
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_white = 6.0
@@ -138,7 +138,7 @@ transform = Transform3D(-0.742981, 0, -0.669312, 0, 1, 0, 0.669312, 0, -0.742981
 [node name="InGameHUD" parent="." instance=ExtResource("6_hud")]
 
 [node name="flashlight" parent="." instance=ExtResource("5_flash")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.3039, 0.382282, 28.164)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.3039, 0.382282, 26.5943)
 
 [node name="camera" parent="." instance=ExtResource("7_cam")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70.0538, 0.0360137, 26.8067)
@@ -302,7 +302,7 @@ night_light_energy = 5.0
 day_light_energy = 2.0
 
 [node name="SpotLight3D12" type="SpotLight3D" parent="iluminacion"]
-transform = Transform3D(1, 0, 0, 0, 0.00153607, 0.999999, 0, -0.999999, 0.00153607, 14.1063, 6.13078, 11.9541)
+transform = Transform3D(1, 0, 0, 0, 0.00153607, 0.999999, 0, -0.999999, 0.00153607, 14.126, 6.13501, 11.9642)
 light_color = Color(1, 0.94, 0.82, 1)
 light_energy = 5.0
 light_indirect_energy = 0.0
@@ -317,6 +317,18 @@ night_light_energy = 5.0
 [node name="OmniLight3D2" type="OmniLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.16529, 3.66708, -11.876)
 omni_range = 9.37149
+
+[node name="OmniLight3D3" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.86712, 3.29084, 5.89729)
+omni_range = 15.3476
+
+[node name="OmniLight3D4" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.1774, 3.29084, 5.89729)
+omni_range = 10.7454
+
+[node name="OmniLight3D5" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.62887, 3.29084, 5.89729)
+omni_range = 10.5896
 
 [node name="key" parent="." instance=ExtResource("13_tv7cl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.64806, 7.90809e-07, 2.78142)
