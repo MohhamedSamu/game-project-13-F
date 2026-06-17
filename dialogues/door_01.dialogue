@@ -1,3 +1,7 @@
 ~ locked
 Player: Está cerrada. Mejor busco la llave antes de seguir metiéndome aquí.
 => END
+
+~ unlocked
+Player: La llave encaja.
+=> END

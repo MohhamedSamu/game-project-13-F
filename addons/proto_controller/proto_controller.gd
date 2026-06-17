@@ -490,6 +490,26 @@ func _try_toggle_held_flashlight() -> void:
 		_held_pickup.toggle_spotlight()
 
 
+func is_holding_item(item_id: StringName) -> bool:
+	if _held_pickup == null or item_id == StringName():
+		return false
+	if _held_pickup.has_method("get_item_id"):
+		return _held_pickup.get_item_id() == item_id
+	if "item_id" in _held_pickup:
+		return _held_pickup.item_id == item_id
+	return false
+
+
+func consume_held_item(item_id: StringName) -> bool:
+	if not is_holding_item(item_id):
+		return false
+	var item := _held_pickup
+	_held_pickup = null
+	if is_instance_valid(item):
+		item.queue_free()
+	return true
+
+
 func _load_footstep_library() -> void:
 	_footstep_streams.clear()
 	var root := footsteps_root

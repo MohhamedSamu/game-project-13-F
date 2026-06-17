@@ -5,6 +5,9 @@ extends Node3D
 @export_group("UI")
 @export var pickup_prompt: String = "[E] Recoger objeto"
 
+@export_group("Identity")
+@export var item_id: StringName = &""
+
 @export_group("En la mano")
 @export var hold_offset: Vector3 = Vector3(0.12, -0.12, -0.38)
 @export var hold_rotation_deg: Vector3 = Vector3(-90.0, 180.0, 0.0)
@@ -37,6 +40,10 @@ func _ready() -> void:
 
 func get_interaction_prompt() -> String:
 	return pickup_prompt
+
+
+func get_item_id() -> StringName:
+	return item_id
 
 
 func pickup_to_hand(hand: Node3D) -> void:

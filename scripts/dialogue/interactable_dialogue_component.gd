@@ -16,6 +16,9 @@ extends Area3D
 @export var ray_target_group: String = "interactable_ray_target"
 @export var proximity_radius: float = 2.5
 
+@export_group("Interaction")
+@export var interaction_handler: Node
+
 @export_group("Camera Focus")
 @export var use_camera_focus: bool = true
 @export var focus_target: Node3D
@@ -72,6 +75,10 @@ func can_interact() -> bool:
 		return false
 	if trigger_once and already_triggered:
 		return false
+	if interaction_handler != null:
+		if interaction_handler.has_method("can_handle_interaction"):
+			return interaction_handler.can_handle_interaction()
+		return true
 	if dialogue_resource == null:
 		return false
 	return true
@@ -79,6 +86,9 @@ func can_interact() -> bool:
 
 func interact() -> void:
 	if not can_interact():
+		return
+	if interaction_handler != null and interaction_handler.has_method("handle_interaction"):
+		interaction_handler.handle_interaction()
 		return
 	if trigger_once:
 		already_triggered = true
@@ -96,6 +106,10 @@ func _on_dialogue_finished_apply_flag() -> void:
 
 
 func get_interaction_prompt() -> String:
+	if interaction_handler != null and interaction_handler.has_method("get_interaction_prompt"):
+		var custom_prompt: Variant = interaction_handler.get_interaction_prompt()
+		if custom_prompt is String:
+			return custom_prompt as String
 	return prompt_text
 
 
