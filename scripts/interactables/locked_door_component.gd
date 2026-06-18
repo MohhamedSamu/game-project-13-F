@@ -38,12 +38,21 @@ extends Node
 @export var interactable_component: InteractableDialogueComponent
 
 @export_group("Audio")
+@export var knock_sound: AudioStream = preload("res://assets/audio/SFX/door/Car_door_shutting.wav")
+@export var unlock_sound: AudioStream = preload("res://assets/audio/SFX/door/lock_unlock.wav")
 @export var open_sound: AudioStream = preload("res://assets/audio/SFX/door/Creaking_Door_7.mp3")
+@export var knock_sound_volume_db: float = 0.0
+@export var unlock_sound_volume_db: float = 0.0
 @export var open_sound_volume_db: float = 0.0
+@export var knock_sound_pitch_scale: float = 1.0
+@export var unlock_sound_pitch_scale: float = 1.0
 @export var open_sound_pitch_scale: float = 1.0
+@export var unlock_sound_delay: float = 0.81
 @export var use_3d_audio: bool = true
 @export var open_audio_max_distance: float = 18.0
 @export var open_audio_unit_size: float = 3.0
+@export var knock_audio_player: AudioStreamPlayer3D
+@export var unlock_audio_player: AudioStreamPlayer3D
 @export var open_audio_player: AudioStreamPlayer3D
 
 var waiting_for_unlock_dialogue: bool = false
@@ -126,7 +135,7 @@ func unlock_and_open() -> void:
 		DialogueController.dialogue_finished.connect(_on_unlock_dialogue_finished, CONNECT_ONE_SHOT)
 		DialogueController.start_dialogue(dialogue_resource, unlock_dialogue_title, focus_target)
 	else:
-		open_door()
+		_finish_unlock_sequence()
 
 
 func open_door() -> void:
@@ -162,6 +171,7 @@ func can_unlock() -> bool:
 func _start_locked_dialogue() -> void:
 	if dialogue_resource == null:
 		return
+	_play_knock_sound()
 	DialogueController.start_dialogue(dialogue_resource, locked_dialogue_title, focus_target)
 
 
@@ -169,6 +179,13 @@ func _on_unlock_dialogue_finished() -> void:
 	if not waiting_for_unlock_dialogue:
 		return
 	waiting_for_unlock_dialogue = false
+	_finish_unlock_sequence()
+
+
+func _finish_unlock_sequence() -> void:
+	if opened:
+		return
+	await _play_unlock_sound_and_wait()
 	open_door()
 
 
@@ -181,6 +198,10 @@ func _setup_door_pivot() -> void:
 
 	door_pivot.position = _compute_hinge_offset()
 	door_pivot.rotation = Vector3.ZERO
+	if knock_audio_player == null:
+		knock_audio_player = door_pivot.get_node_or_null("DoorKnockAudio") as AudioStreamPlayer3D
+	if unlock_audio_player == null:
+		unlock_audio_player = door_pivot.get_node_or_null("DoorUnlockAudio") as AudioStreamPlayer3D
 	if open_audio_player == null:
 		open_audio_player = door_pivot.get_node_or_null("DoorOpenAudio") as AudioStreamPlayer3D
 	call_deferred("_attach_door_to_pivot")
@@ -241,17 +262,19 @@ func _set_pivot_axis_rotation(value: float) -> void:
 		door_pivot.rotation.y = value
 
 
-func _ensure_audio_player() -> void:
-	if open_audio_player != null:
-		return
+func _ensure_named_audio_player(existing: AudioStreamPlayer3D, node_name: String) -> AudioStreamPlayer3D:
+	if existing != null:
+		return existing
 	if not use_3d_audio:
-		return
+		return null
+
+	if door_pivot != null:
+		var found := door_pivot.get_node_or_null(node_name) as AudioStreamPlayer3D
+		if found != null:
+			return found
 
 	var player := AudioStreamPlayer3D.new()
-	player.name = "DoorOpenAudio"
-	player.stream = open_sound
-	player.volume_db = open_sound_volume_db
-	player.pitch_scale = open_sound_pitch_scale
+	player.name = node_name
 	player.unit_size = open_audio_unit_size
 	player.max_distance = open_audio_max_distance
 
@@ -260,20 +283,64 @@ func _ensure_audio_player() -> void:
 	else:
 		add_child(player)
 
-	open_audio_player = player
+	return player
+
+
+func _play_3d_sound(
+	stream: AudioStream,
+	volume_db: float,
+	pitch_scale: float,
+	existing_player: AudioStreamPlayer3D,
+	node_name: String
+) -> AudioStreamPlayer3D:
+	if stream == null or not use_3d_audio:
+		return existing_player
+
+	var player := _ensure_named_audio_player(existing_player, node_name)
+	if player == null:
+		return existing_player
+
+	player.stream = stream
+	player.volume_db = volume_db
+	player.pitch_scale = pitch_scale
+	player.max_distance = open_audio_max_distance
+	player.unit_size = open_audio_unit_size
+	player.play()
+	return player
+
+
+func _play_knock_sound() -> void:
+	knock_audio_player = _play_3d_sound(
+		knock_sound,
+		knock_sound_volume_db,
+		knock_sound_pitch_scale,
+		knock_audio_player,
+		"DoorKnockAudio"
+	)
+
+
+func _play_unlock_sound() -> void:
+	unlock_audio_player = _play_3d_sound(
+		unlock_sound,
+		unlock_sound_volume_db,
+		unlock_sound_pitch_scale,
+		unlock_audio_player,
+		"DoorUnlockAudio"
+	)
+
+
+func _play_unlock_sound_and_wait() -> void:
+	_play_unlock_sound()
+	if unlock_sound == null or unlock_sound_delay <= 0.0:
+		return
+	await get_tree().create_timer(unlock_sound_delay).timeout
 
 
 func _play_open_sound() -> void:
-	if open_sound == null:
-		return
-
-	if use_3d_audio:
-		_ensure_audio_player()
-		if open_audio_player == null:
-			return
-		open_audio_player.stream = open_sound
-		open_audio_player.volume_db = open_sound_volume_db
-		open_audio_player.pitch_scale = open_sound_pitch_scale
-		open_audio_player.max_distance = open_audio_max_distance
-		open_audio_player.unit_size = open_audio_unit_size
-		open_audio_player.play()
+	open_audio_player = _play_3d_sound(
+		open_sound,
+		open_sound_volume_db,
+		open_sound_pitch_scale,
+		open_audio_player,
+		"DoorOpenAudio"
+	)

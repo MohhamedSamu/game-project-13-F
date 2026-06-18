@@ -1,0 +1,24 @@
+[remap]
+
+importer="wav"
+type="AudioStreamWAV"
+uid="uid://bq57dnwlxvtla"
+path="res://.godot/imported/Flashlight off.wav-33bd7f31e7d09cfed0f47345181eb26d.sample"
+
+[deps]
+
+source_file="res://assets/audio/SFX/flashlight/Flashlight off.wav"
+dest_files=["res://.godot/imported/Flashlight off.wav-33bd7f31e7d09cfed0f47345181eb26d.sample"]
+
+[params]
+
+force/8_bit=false
+force/mono=false
+force/max_rate=false
+force/max_rate_hz=44100
+edit/trim=false
+edit/normalize=false
+edit/loop_mode=0
+edit/loop_begin=0
+edit/loop_end=-1
+compress/mode=2
