@@ -22,7 +22,7 @@
 [ext_resource type="Script" uid="uid://deo0gxkmk2ahd" path="res://addons/sky_3d/src/Sky3D.gd" id="20_7d3nu"]
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="21_r6ket"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="22_xworo"]
-[ext_resource type="Script" uid="uid://b0vsytimkedpu" path="res://scripts/environment/sky3d_project_profile.gd" id="23_profile"]
+[ext_resource type="Script" path="res://scripts/environment/sky3d_project_profile.gd" id="23_profile"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wwjag"]
 shader = ExtResource("12_lkn2k")

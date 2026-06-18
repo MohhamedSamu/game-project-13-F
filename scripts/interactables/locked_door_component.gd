@@ -37,6 +37,15 @@ extends Node
 @export_group("References")
 @export var interactable_component: InteractableDialogueComponent
 
+@export_group("Audio")
+@export var open_sound: AudioStream = preload("res://assets/audio/SFX/door/Creaking_Door_7.mp3")
+@export var open_sound_volume_db: float = 0.0
+@export var open_sound_pitch_scale: float = 1.0
+@export var use_3d_audio: bool = true
+@export var open_audio_max_distance: float = 18.0
+@export var open_audio_unit_size: float = 3.0
+@export var open_audio_player: AudioStreamPlayer3D
+
 var waiting_for_unlock_dialogue: bool = false
 var _door_attached: bool = false
 
@@ -128,6 +137,8 @@ func open_door() -> void:
 		return
 
 	opened = true
+	_play_open_sound()
+
 	var start_angle := _get_pivot_axis_rotation()
 	var target_angle := start_angle + deg_to_rad(open_angle_degrees)
 
@@ -170,6 +181,8 @@ func _setup_door_pivot() -> void:
 
 	door_pivot.position = _compute_hinge_offset()
 	door_pivot.rotation = Vector3.ZERO
+	if open_audio_player == null:
+		open_audio_player = door_pivot.get_node_or_null("DoorOpenAudio") as AudioStreamPlayer3D
 	call_deferred("_attach_door_to_pivot")
 
 
@@ -226,3 +239,41 @@ func _set_pivot_axis_rotation(value: float) -> void:
 		door_pivot.rotation.z = value
 	else:
 		door_pivot.rotation.y = value
+
+
+func _ensure_audio_player() -> void:
+	if open_audio_player != null:
+		return
+	if not use_3d_audio:
+		return
+
+	var player := AudioStreamPlayer3D.new()
+	player.name = "DoorOpenAudio"
+	player.stream = open_sound
+	player.volume_db = open_sound_volume_db
+	player.pitch_scale = open_sound_pitch_scale
+	player.unit_size = open_audio_unit_size
+	player.max_distance = open_audio_max_distance
+
+	if door_pivot != null:
+		door_pivot.add_child(player)
+	else:
+		add_child(player)
+
+	open_audio_player = player
+
+
+func _play_open_sound() -> void:
+	if open_sound == null:
+		return
+
+	if use_3d_audio:
+		_ensure_audio_player()
+		if open_audio_player == null:
+			return
+		open_audio_player.stream = open_sound
+		open_audio_player.volume_db = open_sound_volume_db
+		open_audio_player.pitch_scale = open_sound_pitch_scale
+		open_audio_player.max_distance = open_audio_max_distance
+		open_audio_player.unit_size = open_audio_unit_size
+		open_audio_player.play()
