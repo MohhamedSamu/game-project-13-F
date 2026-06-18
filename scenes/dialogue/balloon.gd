@@ -70,6 +70,14 @@ var mutation_cooldown: Timer = Timer.new()
 ## Fuente del título del menú (Jackwrite). Asignar en Inspector si cambia.
 @export var dialogue_font: Font = preload("res://assets/fonts/jackwrite/Jackwrite.ttf")
 
+@export_group("Dialogue Option Audio")
+@export var option_hover_sound: AudioStream = preload("res://assets/audio/menu/back.ogg")
+@export var option_select_sound: AudioStream = preload("res://assets/audio/menu/enter.ogg")
+@export var option_hover_volume_db: float = 0.0
+@export var option_select_volume_db: float = 0.0
+@export var option_hover_pitch_scale: float = 1.0
+@export var option_select_pitch_scale: float = 1.0
+
 ## Bloque inferior (20% márgenes laterales, sin panel visible).
 @onready var dialogue_anchor: MarginContainer = %DialogueAnchor
 
@@ -90,6 +98,11 @@ var mutation_cooldown: Timer = Timer.new()
 const ANCHOR_TOP_NO_RESPONSES: float = 0.73
 const ANCHOR_TOP_WITH_RESPONSES: float = 0.62
 const ANCHOR_BOTTOM: float = 0.96
+
+var option_hover_audio: AudioStreamPlayer
+var option_select_audio: AudioStreamPlayer
+var last_hovered_response_index: int = -1
+var _skip_next_response_hover_sound: bool = false
 
 
 func _ready() -> void:
@@ -194,6 +207,8 @@ func _navigate_responses(direction: int) -> void:
 		return
 
 	index = wrapi(index + direction, 0, items.size())
+	if index == last_hovered_response_index:
+		return
 	(items[index] as Control).grab_focus()
 
 
@@ -202,7 +217,18 @@ func _select_focused_response() -> void:
 	if focused == null or focused not in responses_menu.get_menu_items():
 		return
 	if focused.has_meta("response"):
-		next(focused.get_meta("response").next_id)
+		_confirm_response(focused.get_meta("response"))
+
+
+func _confirm_response(response: DialogueResponse) -> void:
+	if response == null:
+		return
+	_play_option_select_sound()
+	next(response.next_id)
+
+
+func _get_response_index(response_control: Control) -> int:
+	return responses_menu.get_menu_items().find(response_control)
 
 
 ## Start some dialogue
@@ -258,6 +284,8 @@ func apply_dialogue_line() -> void:
 		next(dialogue_line.next_id)
 	elif dialogue_line.responses.size() > 0:
 		balloon.focus_mode = Control.FOCUS_NONE
+		last_hovered_response_index = -1
+		_skip_next_response_hover_sound = true
 		responses_menu.show()
 		_update_response_labels()
 	elif dialogue_line.time != "":
@@ -316,11 +344,28 @@ func _on_balloon_gui_input(event: InputEvent) -> void:
 
 
 func _on_responses_menu_response_selected(response: DialogueResponse) -> void:
-	next(response.next_id)
+	_confirm_response(response)
 
 
-func _on_responses_menu_response_focused(_response_control: Control) -> void:
+func _on_responses_menu_response_focused(response_control: Control) -> void:
 	_update_response_labels()
+	if not responses_menu.visible:
+		return
+
+	var index := _get_response_index(response_control)
+	if index < 0:
+		return
+
+	if _skip_next_response_hover_sound:
+		_skip_next_response_hover_sound = false
+		last_hovered_response_index = index
+		return
+
+	if index == last_hovered_response_index:
+		return
+
+	last_hovered_response_index = index
+	_play_option_hover_sound()
 
 
 func _apply_dialogue_fonts() -> void:
@@ -363,6 +408,44 @@ func _fade_in_dialogue_panel() -> void:
 	tween.set_parallel(true)
 	tween.tween_property(dialogue_anchor, "modulate:a", 1.0, 0.16)
 	tween.tween_property(dialogue_anchor, "offset_top", rest_offset_top, 0.16).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+
+
+func _ensure_option_audio_players() -> void:
+	if option_hover_audio == null:
+		option_hover_audio = AudioStreamPlayer.new()
+		option_hover_audio.name = "OptionHoverAudio"
+		option_hover_audio.bus = "SFX"
+		add_child(option_hover_audio)
+
+	if option_select_audio == null:
+		option_select_audio = AudioStreamPlayer.new()
+		option_select_audio.name = "OptionSelectAudio"
+		option_select_audio.bus = "SFX"
+		add_child(option_select_audio)
+
+	option_hover_audio.stream = option_hover_sound
+	option_hover_audio.volume_db = option_hover_volume_db
+	option_hover_audio.pitch_scale = option_hover_pitch_scale
+
+	option_select_audio.stream = option_select_sound
+	option_select_audio.volume_db = option_select_volume_db
+	option_select_audio.pitch_scale = option_select_pitch_scale
+
+
+func _play_option_hover_sound() -> void:
+	if option_hover_sound == null:
+		return
+	_ensure_option_audio_players()
+	option_hover_audio.stop()
+	option_hover_audio.play()
+
+
+func _play_option_select_sound() -> void:
+	if option_select_sound == null:
+		return
+	_ensure_option_audio_players()
+	option_select_audio.stop()
+	option_select_audio.play()
 
 
 #endregion
