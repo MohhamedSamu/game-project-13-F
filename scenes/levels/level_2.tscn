@@ -81,8 +81,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.0329509, 0.0329508)
-shader_parameter/cirrus_position2 = Vector2(0.0329509, 0.0329508)
+shader_parameter/cirrus_position1 = Vector2(0.0475503, 0.04755)
+shader_parameter/cirrus_position2 = Vector2(0.0475503, 0.04755)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -92,7 +92,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.164758, 0.164757)
+shader_parameter/cumulus_position = Vector2(15.2667, 15.2667)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -130,14 +130,29 @@ transform = Transform3D(-100, 3.89414e-05, -2.84217e-12, 0, 5.96046e-06, 100, 3.
 [node name="IceProximitySetup" parent="Gas_station" instance=ExtResource("9_iceprox")]
 transform = Transform3D(100, 0, 0, 0, -1.19209e-05, 100, 0, -100, -1.19209e-05, -1.06007, 1.11659, -13.6583)
 
+[node name="SpotFar" type="SpotLight3D" parent="Gas_station"]
+transform = Transform3D(-0.999652, -0.0218894, -0.0147293, -0.0241808, 0.983442, 0.179604, 0.010554, 0.179897, -0.983629, 12.0905, 1.55424, 15.751)
+visible = false
+light_energy = 50.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 2.8
+light_specular = 0.25
+shadow_enabled = true
+shadow_bias = 0.1
+shadow_normal_bias = 2.0
+shadow_blur = 0.75
+spot_range = 75.0
+spot_attenuation = 1.6
+spot_angle = 7.0
+
 [node name="Iglesia" parent="." instance=ExtResource("3_y2gk5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.222, -0.00352758, 26.2195)
 
 [node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
-transform = Transform3D(0.512957, 0, 0.858414, 0, 1, 0, -0.858414, 0, 0.512957, 31.832, 0.351264, 28.0695)
+transform = Transform3D(-0.999669, 0, -0.0257058, 0, 1, 0, 0.0257058, 0, -0.999669, 11.8376, -0.0760314, 17.6551)
 
 [node name="ClownEnemy" parent="." instance=ExtResource("4_clown")]
-transform = Transform3D(-0.742981, 0, -0.669312, 0, 1, 0, 0.669312, 0, -0.742981, 11.3385, 0.0220501, 25.2796)
+transform = Transform3D(-0.371491, 0, -0.334656, 0, 0.5, 0, 0.334656, 0, -0.371491, 11.3385, 0.0220501, 25.2796)
 
 [node name="ClownEnemy2" parent="." instance=ExtResource("4_clown")]
 transform = Transform3D(0.607611, 0, -0.794234, 0, 1, 0, 0.794234, 0, 0.607611, 17.1424, 0.0220501, -24.6422)
@@ -145,7 +160,7 @@ transform = Transform3D(0.607611, 0, -0.794234, 0, 1, 0, 0.794234, 0, 0.607611, 
 [node name="InGameHUD" parent="." instance=ExtResource("6_hud")]
 
 [node name="flashlight" parent="." instance=ExtResource("5_flash")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 28.3039, 0.382282, 26.5943)
+transform = Transform3D(0.999872, 0, -0.0159865, 0, 1, 0, 0.0159865, 0, 0.999872, 9.49075, 0.382282, 17.1042)
 
 [node name="camera" parent="." instance=ExtResource("7_cam")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70.0538, 0.0360137, 26.8067)
