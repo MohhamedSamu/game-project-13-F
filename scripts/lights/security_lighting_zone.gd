@@ -154,7 +154,10 @@ func _try_spawn_spot_at_mesh(mesh: MeshInstance3D) -> void:
 			beam_dir = Vector3.DOWN
 		if beam_dir.dot(Vector3.DOWN) < 0.25:
 			beam_dir = Vector3.DOWN
-		spot.look_at(spot.global_position + beam_dir, Vector3.FORWARD)
+		var up_hint := Vector3.UP
+		if absf(beam_dir.dot(up_hint)) > 0.92:
+			up_hint = Vector3.FORWARD
+		spot.global_basis = Basis.looking_at(beam_dir, up_hint)
 		_fixture_spots.append(spot)
 
 func _spawn_fixture_omnis() -> void:

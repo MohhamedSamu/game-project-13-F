@@ -16,8 +16,8 @@ extends SpotLight3D
 
 @export_group("Sombras (occlusión)")
 @export var cast_shadows: bool = true
-@export_range(0.0, 2.0, 0.01) var shadow_bias_setting: float = 0.1
-@export_range(0.0, 8.0, 0.1) var shadow_normal_bias_setting: float = 2.0
+@export_range(0.0, 2.0, 0.01) var shadow_bias_setting: float = 0.05
+@export_range(0.0, 8.0, 0.1) var shadow_normal_bias_setting: float = 0.8
 
 func _ready() -> void:
 	add_to_group("security_lights")
