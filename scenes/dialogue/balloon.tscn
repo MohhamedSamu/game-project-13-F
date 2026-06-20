@@ -114,6 +114,8 @@ theme_override_constants/outline_size = 4
 theme_override_fonts/normal_font = ExtResource("2_jackwrite")
 theme_override_font_sizes/normal_font_size = 32
 text = "Dialogue..."
+seconds_per_step = 0.05
+seconds_per_pause_step = 0.35
 
 [node name="ProgressRow" type="HBoxContainer" parent="Balloon/DialogueAnchor/DialogueContent"]
 layout_mode = 2

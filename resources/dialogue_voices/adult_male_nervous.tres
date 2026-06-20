@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="DialogueVoiceProfile" load_steps=7 format=3 uid="uid://cvoicenervous01"]
+
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_voice_profile.gd" id="1_profile"]
+[ext_resource type="AudioStream" uid="uid://c8qdtnrmv3s4y" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_nervous_01.wav" id="2_clip"]
+[ext_resource type="AudioStream" uid="uid://b11qbwv3klmjl" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_nervous_02.wav" id="3_clip"]
+[ext_resource type="AudioStream" uid="uid://da04r0bbpfim8" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_nervous_03.wav" id="4_clip"]
+[ext_resource type="AudioStream" uid="uid://bsojo5o1ecwpr" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_nervous_04.wav" id="5_clip"]
+[ext_resource type="AudioStream" uid="uid://bcmyvqfu22yar" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_nervous_05.wav" id="6_clip"]
+
+[resource]
+script = ExtResource("1_profile")
+enabled = true
+clips = Array[AudioStream]([ExtResource("2_clip"), ExtResource("3_clip"), ExtResource("4_clip"), ExtResource("5_clip"), ExtResource("6_clip")])
+volume_db = -11.0
+pitch_min = 1.0
+pitch_max = 1.25
+characters_per_blip = 1
+min_time_between_blips = 0.035
+skip_spaces = true
+skip_punctuation = true

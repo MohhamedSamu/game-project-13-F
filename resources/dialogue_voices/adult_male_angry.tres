@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="DialogueVoiceProfile" load_steps=7 format=3 uid="uid://cvoiceangry001"]
+
+[ext_resource type="Script" path="res://scripts/dialogue/dialogue_voice_profile.gd" id="1_profile"]
+[ext_resource type="AudioStream" uid="uid://bkcpsk425dfpd" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_angry_01.wav" id="2_clip"]
+[ext_resource type="AudioStream" uid="uid://pi45rd2a5p77" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_angry_02.wav" id="3_clip"]
+[ext_resource type="AudioStream" uid="uid://bnth1vn5acp6p" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_angry_03.wav" id="4_clip"]
+[ext_resource type="AudioStream" uid="uid://c2dw2swauyh4m" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_angry_04.wav" id="5_clip"]
+[ext_resource type="AudioStream" uid="uid://do3esjadcfpfa" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_angry_05.wav" id="6_clip"]
+
+[resource]
+script = ExtResource("1_profile")
+enabled = true
+clips = Array[AudioStream]([ExtResource("2_clip"), ExtResource("3_clip"), ExtResource("4_clip"), ExtResource("5_clip"), ExtResource("6_clip")])
+volume_db = -9.0
+pitch_min = 0.75
+pitch_max = 0.95
+characters_per_blip = 2
+min_time_between_blips = 0.04
+skip_spaces = true
+skip_punctuation = true

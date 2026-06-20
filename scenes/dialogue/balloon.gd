@@ -54,6 +54,7 @@ var dialogue_line: DialogueLine:
 			apply_dialogue_line()
 		else:
 			# The dialogue has finished so close the balloon
+			_stop_voice_blip_player()
 			if owner == null:
 				queue_free()
 			else:
@@ -77,6 +78,20 @@ var mutation_cooldown: Timer = Timer.new()
 @export var option_select_volume_db: float = 0.0
 @export var option_hover_pitch_scale: float = 1.0
 @export var option_select_pitch_scale: float = 1.0
+
+@export_group("Voice Blips")
+@export var enable_voice_blips: bool = true
+@export var default_voice_profile: DialogueVoiceProfile
+@export var adult_male_neutral_profile: DialogueVoiceProfile = preload("res://resources/dialogue_voices/adult_male_neutral.tres")
+@export var adult_male_nervous_profile: DialogueVoiceProfile = preload("res://resources/dialogue_voices/adult_male_nervous.tres")
+@export var adult_male_angry_profile: DialogueVoiceProfile = preload("res://resources/dialogue_voices/adult_male_angry.tres")
+@export var muted_character_names: PackedStringArray = ["PLAYER", "Player", "player"]
+
+@export_group("Dialogue Typing")
+## Segundos entre cada carácter revelado. Más alto = typewriter más lento (addon: 0.02).
+@export_range(0.01, 0.2, 0.005) var typing_seconds_per_step: float = 0.05
+## Pausa extra tras . ? ! mientras se escribe.
+@export_range(0.1, 1.0, 0.05) var typing_seconds_per_pause: float = 0.35
 
 ## Bloque inferior (20% márgenes laterales, sin panel visible).
 @onready var dialogue_anchor: MarginContainer = %DialogueAnchor
@@ -104,12 +119,19 @@ var option_select_audio: AudioStreamPlayer
 var last_hovered_response_index: int = -1
 var _skip_next_response_hover_sound: bool = false
 
+var voice_blip_player: AudioStreamPlayer
+var current_voice_profile: DialogueVoiceProfile
+var last_voice_blip_time: float = 0.0
+var revealed_character_count: int = 0
+var _voice_blips_active: bool = false
+
 
 func _ready() -> void:
 	balloon.hide()
 	progress.hide()
 	continue_dots.hide()
 	_apply_dialogue_fonts()
+	_apply_dialogue_typing_speed()
 	Engine.get_singleton("DialogueManager").mutated.connect(_on_mutated)
 
 	# If the responses menu doesn't have a next action set, use this one
@@ -118,6 +140,9 @@ func _ready() -> void:
 
 	mutation_cooldown.timeout.connect(_on_mutation_cooldown_timeout)
 	add_child(mutation_cooldown)
+
+	dialogue_label.spoke.connect(_on_dialogue_label_spoke)
+	dialogue_label.skipped_typing.connect(_on_dialogue_label_skipped_typing)
 
 	if auto_start:
 		if not is_instance_valid(dialogue_resource):
@@ -273,8 +298,10 @@ func apply_dialogue_line() -> void:
 
 	dialogue_label.show()
 	if not dialogue_line.text.is_empty():
+		_reset_voice_blips_for_line(dialogue_line.character)
 		dialogue_label.type_out()
 		await dialogue_label.finished_typing
+		_stop_voice_blip_player()
 
 	# Wait for next line
 	if dialogue_line.has_tag("voice"):
@@ -309,6 +336,7 @@ func next(next_id: String) -> void:
 func _on_mutation_cooldown_timeout() -> void:
 	if will_hide_balloon:
 		will_hide_balloon = false
+		_stop_voice_blip_player()
 		balloon.hide()
 
 
@@ -316,6 +344,7 @@ func _on_mutated(mutation: Dictionary) -> void:
 	if not mutation.is_inline:
 		is_waiting_for_input = false
 		will_hide_balloon = true
+		_stop_voice_blip_player()
 		mutation_cooldown.start(0.1)
 
 
@@ -374,6 +403,11 @@ func _apply_dialogue_fonts() -> void:
 	character_label.add_theme_font_override(&"normal_font", dialogue_font)
 	dialogue_label.add_theme_font_override(&"normal_font", dialogue_font)
 	continue_dots.add_theme_font_override(&"font", dialogue_font)
+
+
+func _apply_dialogue_typing_speed() -> void:
+	dialogue_label.seconds_per_step = typing_seconds_per_step
+	dialogue_label.seconds_per_pause_step = typing_seconds_per_pause
 
 
 func _set_dialogue_anchor_for_responses(has_responses: bool) -> void:
@@ -446,6 +480,103 @@ func _play_option_select_sound() -> void:
 	_ensure_option_audio_players()
 	option_select_audio.stop()
 	option_select_audio.play()
+
+
+func _get_voice_profile_for_character(character_name: String) -> DialogueVoiceProfile:
+	if not enable_voice_blips:
+		return null
+
+	var upper_name := character_name.strip_edges().to_upper()
+	if upper_name.is_empty():
+		return null
+
+	for muted_name in muted_character_names:
+		if upper_name == String(muted_name).to_upper():
+			return null
+
+	if upper_name == "PLAYER":
+		return null
+
+	if upper_name == "NATHAN":
+		return adult_male_neutral_profile
+
+	return default_voice_profile
+
+
+func _reset_voice_blips_for_line(character_name: String) -> void:
+	_stop_voice_blip_player()
+	revealed_character_count = 0
+	last_voice_blip_time = 0.0
+
+	if is_instance_valid(dialogue_line) and dialogue_line.has_tag("voice"):
+		current_voice_profile = null
+		_voice_blips_active = false
+		return
+
+	current_voice_profile = _get_voice_profile_for_character(character_name)
+	_voice_blips_active = current_voice_profile != null and current_voice_profile.is_valid()
+
+
+func _on_dialogue_label_spoke(letter: String, _letter_index: int, _speed: float) -> void:
+	_maybe_play_voice_blip(letter)
+
+
+func _on_dialogue_label_skipped_typing() -> void:
+	_stop_voice_blip_player()
+
+
+func _maybe_play_voice_blip(character: String) -> void:
+	if not _voice_blips_active or current_voice_profile == null:
+		return
+
+	if current_voice_profile.should_skip_character(character):
+		return
+
+	revealed_character_count += 1
+
+	if current_voice_profile.characters_per_blip > 1:
+		if revealed_character_count % current_voice_profile.characters_per_blip != 0:
+			return
+
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - last_voice_blip_time < current_voice_profile.min_time_between_blips:
+		return
+
+	last_voice_blip_time = now
+	_play_voice_blip(current_voice_profile)
+
+
+func _ensure_voice_blip_player() -> void:
+	if voice_blip_player != null:
+		return
+
+	voice_blip_player = AudioStreamPlayer.new()
+	voice_blip_player.name = "VoiceBlipPlayer"
+	voice_blip_player.bus = "SFX"
+	add_child(voice_blip_player)
+
+
+func _play_voice_blip(profile: DialogueVoiceProfile) -> void:
+	if profile == null or profile.clips.is_empty():
+		return
+
+	_ensure_voice_blip_player()
+
+	var clip: AudioStream = profile.clips.pick_random()
+	if clip == null:
+		return
+
+	voice_blip_player.stop()
+	voice_blip_player.stream = clip
+	voice_blip_player.volume_db = profile.volume_db
+	voice_blip_player.pitch_scale = randf_range(profile.pitch_min, profile.pitch_max)
+	voice_blip_player.play()
+
+
+func _stop_voice_blip_player() -> void:
+	_voice_blips_active = false
+	if voice_blip_player != null:
+		voice_blip_player.stop()
 
 
 #endregion
