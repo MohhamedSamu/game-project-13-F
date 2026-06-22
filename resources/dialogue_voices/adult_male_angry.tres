@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="DialogueVoiceProfile" load_steps=7 format=3 uid="uid://cvoiceangry001"]
+[gd_resource type="Resource" script_class="DialogueVoiceProfile" load_steps=7 format=3 uid="uid://r4bsyinscvlg"]
 
-[ext_resource type="Script" path="res://scripts/dialogue/dialogue_voice_profile.gd" id="1_profile"]
+[ext_resource type="Script" uid="uid://byucxfl22x1qc" path="res://scripts/dialogue/dialogue_voice_profile.gd" id="1_profile"]
 [ext_resource type="AudioStream" uid="uid://bkcpsk425dfpd" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_angry_01.wav" id="2_clip"]
 [ext_resource type="AudioStream" uid="uid://pi45rd2a5p77" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_angry_02.wav" id="3_clip"]
 [ext_resource type="AudioStream" uid="uid://bnth1vn5acp6p" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_angry_03.wav" id="4_clip"]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=30 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -23,6 +23,8 @@
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="21_r6ket"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="22_xworo"]
 [ext_resource type="Script" path="res://scripts/environment/sky3d_project_profile.gd" id="23_profile"]
+[ext_resource type="PackedScene" uid="uid://6m0myua5kt2w" path="res://scenes/props/streetlamp/streetlamp.tscn" id="24_wikm6"]
+[ext_resource type="Script" uid="uid://bbxw6d4w417sj" path="res://scripts/lights/ceiling_omni_light.gd" id="25_ceilomni"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wwjag"]
 shader = ExtResource("12_lkn2k")
@@ -77,8 +79,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.76011, 0.76011)
-shader_parameter/cirrus_position2 = Vector2(0.76011, 0.76011)
+shader_parameter/cirrus_position1 = Vector2(0.479852, 0.479852)
+shader_parameter/cirrus_position2 = Vector2(0.479852, 0.479852)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -88,7 +90,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(8.80357, 8.80357)
+shader_parameter/cumulus_position = Vector2(22.455, 22.455)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -330,6 +332,41 @@ omni_range = 10.7454
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.62887, 3.29084, 5.89729)
 omni_range = 10.5896
 
+[node name="SpotLight3DStreetLamp1" type="SpotLight3D" parent="iluminacion"]
+transform = Transform3D(0.993608, -0.107407, -0.034734, 0, 0.307694, -0.951485, 0.112884, 0.945404, 0.305728, 12.6689, 10.05, 29.3029)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 10.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 4.0
+shadow_enabled = true
+spot_range = 26.0
+spot_attenuation = 0.6
+spot_angle = 48.0
+script = ExtResource("11_secspot")
+night_light_energy = 10.0
+night_spot_range = 26.0
+night_spot_angle = 48.0
+night_spot_attenuation = 0.6
+night_volumetric_fog_energy = 4.0
+shadow_bias_setting = 0.08
+
+[node name="OmniLight3DStreetLamp1" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.6689, 10.05, 29.3029)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.1
+light_volumetric_fog_energy = 2.5
+light_specular = 0.3
+omni_range = 14.0
+omni_attenuation = 0.55
+script = ExtResource("25_ceilomni")
+night_light_energy = 5.0
+night_omni_range = 14.0
+night_omni_attenuation = 0.55
+night_volumetric_fog_energy = 2.5
+night_light_color = Color(1, 0.94, 0.82, 1)
+cast_shadows = false
+
 [node name="key" parent="." instance=ExtResource("13_tv7cl")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.64806, 7.90809e-07, 2.78142)
 
@@ -370,3 +407,6 @@ current_time = 23.0
 
 [node name="ProjectProfile" type="Node" parent="Sky3D"]
 script = ExtResource("23_profile")
+
+[node name="StreetLamp" parent="." instance=ExtResource("24_wikm6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.6689, 3.98536e-07, 31.8529)

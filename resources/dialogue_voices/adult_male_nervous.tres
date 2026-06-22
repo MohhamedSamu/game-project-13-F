@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="DialogueVoiceProfile" load_steps=7 format=3 uid="uid://cvoicenervous01"]
+[gd_resource type="Resource" script_class="DialogueVoiceProfile" load_steps=7 format=3 uid="uid://cnocy1bvrwvey"]
 
-[ext_resource type="Script" path="res://scripts/dialogue/dialogue_voice_profile.gd" id="1_profile"]
+[ext_resource type="Script" uid="uid://byucxfl22x1qc" path="res://scripts/dialogue/dialogue_voice_profile.gd" id="1_profile"]
 [ext_resource type="AudioStream" uid="uid://c8qdtnrmv3s4y" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_nervous_01.wav" id="2_clip"]
 [ext_resource type="AudioStream" uid="uid://b11qbwv3klmjl" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_nervous_02.wav" id="3_clip"]
 [ext_resource type="AudioStream" uid="uid://da04r0bbpfim8" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_nervous_03.wav" id="4_clip"]

@@ -1,6 +1,6 @@
-[gd_resource type="Resource" script_class="DialogueVoiceProfile" load_steps=6 format=3 uid="uid://cvoiceneutral01"]
+[gd_resource type="Resource" script_class="DialogueVoiceProfile" load_steps=6 format=3 uid="uid://cnocy1etucoey"]
 
-[ext_resource type="Script" path="res://scripts/dialogue/dialogue_voice_profile.gd" id="1_profile"]
+[ext_resource type="Script" uid="uid://byucxfl22x1qc" path="res://scripts/dialogue/dialogue_voice_profile.gd" id="1_profile"]
 [ext_resource type="AudioStream" uid="uid://c3gj2dg83v10s" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_neutral_01.wav" id="2_clip"]
 [ext_resource type="AudioStream" uid="uid://ja4hy3rt1lau" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_neutral_02.wav" id="3_clip"]
 [ext_resource type="AudioStream" uid="uid://pbhgn26kt7m8" path="res://assets/audio/SFX/dialogue_voices/adult_male/adult_male_neutral_03.wav" id="4_clip"]
