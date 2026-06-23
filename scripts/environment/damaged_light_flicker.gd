@@ -1,33 +1,27 @@
 class_name DamagedLightFlicker
 extends Node
-## Parpadeo intermitente para luces asignadas manualmente (p. ej. bajo `iluminacion` en el nivel).
+## Parpadeo intermitente para luces bajo `iluminacion` + foco visual de lámpara dañada.
 
 const _BULB_MATERIAL_NAME := &"Light"
 const _BULB_NODE_HINTS: Array[StringName] = [&"LampHead", &"Light"]
 
+@export_group("Mode")
+@export var flicker_enabled: bool = true
+@export var start_on_ready: bool = true
+@export var randomize_on_start: bool = true
+
 @export_group("Lights")
 @export var controlled_lights: Array[Light3D] = []
-@export var controlled_light_paths: Array[NodePath] = []
-@export var start_enabled: bool = true
 
-@export_group("Auto Find")
+@export_group("Auto Find (Level Setup)")
 @export var auto_find_lights: bool = true
+@export var controlled_light_paths: Array[NodePath] = []
 @export var iluminacion_path: NodePath = ^"../../iluminacion"
 @export var spot_light_name: StringName = &"SpotLight3DStreetLampDamaged1"
 @export var omni_light_name: StringName = &"OmniLight3DStreetLampDamaged1"
 @export var street_lamp_model_path: NodePath = ^"../StreetLamp/Model/StreetLampModel"
 
-@export_group("Visual Bulb")
-@export var bulb_meshes: Array[MeshInstance3D] = []
-@export var bulb_surface_indices: Array[int] = []
-@export var auto_find_bulb_meshes: bool = true
-@export var control_bulb_material: bool = true
-@export var bulb_on_color: Color = Color(1.0, 1.0, 0.85, 1.0)
-@export var bulb_off_color: Color = Color(0.03, 0.03, 0.035, 1.0)
-@export var bulb_on_emission_energy: float = 1.0
-@export var bulb_off_emission_energy: float = 0.0
-
-@export_group("Flicker Timing")
+@export_group("Terror Flicker Timing")
 @export var min_on_time: float = 0.45
 @export var max_on_time: float = 0.75
 @export var min_off_time: float = 0.35
@@ -35,6 +29,11 @@ const _BULB_NODE_HINTS: Array[StringName] = [&"LampHead", &"Light"]
 @export var long_off_chance: float = 0.18
 @export var min_long_off_time: float = 1.0
 @export var max_long_off_time: float = 2.0
+@export var micro_flicker_chance: float = 0.38
+@export var micro_flicker_count_min: int = 2
+@export var micro_flicker_count_max: int = 5
+@export var micro_flicker_min_time: float = 0.025
+@export var micro_flicker_max_time: float = 0.08
 
 @export_group("Light Intensity")
 @export var min_energy_multiplier: float = 0.2
@@ -42,11 +41,19 @@ const _BULB_NODE_HINTS: Array[StringName] = [&"LampHead", &"Light"]
 @export var off_energy_multiplier: float = 0.0
 @export var use_hard_off: bool = true
 
-@export_group("Randomness")
-@export var randomize_on_start: bool = true
+@export_group("Visual Bulb")
+@export var control_bulb_material: bool = true
+@export var bulb_meshes: Array[MeshInstance3D] = []
+@export var bulb_surface_indices: Array[int] = []
+@export var auto_find_bulb_meshes: bool = true
+@export var bulb_on_color: Color = Color(1.0, 1.0, 0.85, 1.0)
+@export var bulb_off_color: Color = Color(0.03, 0.03, 0.035, 1.0)
+@export var bulb_on_emission_energy: float = 1.0
+@export var bulb_off_emission_energy: float = 0.0
 
 var _original_energies: Dictionary = {}
 var _flicker_running: bool = false
+var _initialized: bool = false
 var _bulb_mesh_targets: Array[MeshInstance3D] = []
 var _bulb_surface_targets: Array[int] = []
 var _bulb_materials: Array[StandardMaterial3D] = []
@@ -65,7 +72,7 @@ func _begin() -> void:
 
 	if not _has_valid_lights():
 		push_warning(
-			"DamagedLightFlicker sin luces en %s. Revisa Auto Find o controlled_light_paths."
+			"DamagedLightFlicker sin luces en %s. Asigna controlled_lights o Auto Find."
 			% get_path()
 		)
 		return
@@ -74,8 +81,48 @@ func _begin() -> void:
 	await get_tree().process_frame
 	_cache_original_energies()
 	_mark_lights_flicker_managed()
-	if start_enabled:
+	_initialized = true
+
+	if start_on_ready and flicker_enabled:
 		start_flicker()
+
+
+func set_flicker_enabled(value: bool) -> void:
+	flicker_enabled = value
+	if not _initialized:
+		return
+	if flicker_enabled:
+		start_flicker()
+	else:
+		stop_flicker(true)
+
+
+func start_flicker() -> void:
+	if not flicker_enabled or _flicker_running or not _has_valid_lights():
+		return
+	_flicker_running = true
+	_flicker_loop()
+
+
+func stop_flicker(restore_lights := true) -> void:
+	_flicker_running = false
+	if restore_lights:
+		_restore_lights()
+
+
+func force_on() -> void:
+	if not _has_valid_lights():
+		return
+	for light in controlled_lights:
+		if light == null:
+			continue
+		light.visible = true
+		light.light_energy = _get_original_energy(light)
+	_set_bulb_visual_on(1.0)
+
+
+func force_off() -> void:
+	_set_light_off()
 
 
 func _mark_lights_flicker_managed() -> void:
@@ -85,6 +132,9 @@ func _mark_lights_flicker_managed() -> void:
 
 
 func _resolve_controlled_lights() -> void:
+	if not controlled_lights.is_empty() and _has_valid_lights():
+		return
+
 	controlled_lights.clear()
 
 	for path in controlled_light_paths:
@@ -213,7 +263,7 @@ func _prepare_bulb_materials() -> void:
 		mesh.set_surface_override_material(surface_index, local_mat)
 		_bulb_materials.append(local_mat)
 
-	if _bulb_materials.is_empty() and control_bulb_material:
+	if _bulb_materials.is_empty():
 		push_warning(
 			"DamagedLightFlicker: no se encontró material de foco en %s."
 			% get_path()
@@ -277,19 +327,6 @@ func _find_descendant_by_name(root: Node, target_name: StringName) -> Node:
 	return null
 
 
-func start_flicker() -> void:
-	if _flicker_running or not _has_valid_lights():
-		return
-	_flicker_running = true
-	_flicker_loop()
-
-
-func stop_flicker(restore := true) -> void:
-	_flicker_running = false
-	if restore:
-		_restore_lights()
-
-
 func _has_valid_lights() -> bool:
 	for light in controlled_lights:
 		if light != null:
@@ -343,20 +380,30 @@ func _set_light_off() -> void:
 	_set_bulb_visual_off()
 
 
-func _flicker_loop() -> void:
-	while _flicker_running:
+func _run_micro_flicker_burst() -> void:
+	var burst_count := randi_range(micro_flicker_count_min, micro_flicker_count_max)
+	for _i in burst_count:
+		_set_light_off()
+		if not await _wait_while_running(randf_range(micro_flicker_min_time, micro_flicker_max_time)):
+			return
 		_set_light_on_random_strength()
-		await get_tree().create_timer(randf_range(min_on_time, max_on_time)).timeout
-		if not _flicker_running:
+		if not await _wait_while_running(randf_range(micro_flicker_min_time, micro_flicker_max_time)):
+			return
+
+
+func _wait_while_running(duration: float) -> bool:
+	await get_tree().create_timer(duration).timeout
+	return _flicker_running
+
+
+func _flicker_loop() -> void:
+	while _flicker_running and flicker_enabled:
+		_set_light_on_random_strength()
+		if not await _wait_while_running(randf_range(min_on_time, max_on_time)):
 			break
 
-		if randf() < 0.38:
-			_set_light_off()
-			await get_tree().create_timer(randf_range(0.04, 0.12)).timeout
-			if not _flicker_running:
-				break
-			_set_light_on_random_strength()
-			await get_tree().create_timer(randf_range(0.03, 0.09)).timeout
+		if randf() < micro_flicker_chance:
+			await _run_micro_flicker_burst()
 			if not _flicker_running:
 				break
 
@@ -364,4 +411,7 @@ func _flicker_loop() -> void:
 		var off_duration := randf_range(min_off_time, max_off_time)
 		if randf() < long_off_chance:
 			off_duration = randf_range(min_long_off_time, max_long_off_time)
-		await get_tree().create_timer(off_duration).timeout
+		if not await _wait_while_running(off_duration):
+			break
+
+	_flicker_running = false
