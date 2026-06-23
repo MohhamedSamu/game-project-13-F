@@ -2,6 +2,9 @@ class_name DamagedLightFlicker
 extends Node
 ## Parpadeo intermitente para luces asignadas manualmente (p. ej. bajo `iluminacion` en el nivel).
 
+const _BULB_MATERIAL_NAME := &"Light"
+const _BULB_NODE_HINTS: Array[StringName] = [&"LampHead", &"Light"]
+
 @export_group("Lights")
 @export var controlled_lights: Array[Light3D] = []
 @export var controlled_light_paths: Array[NodePath] = []
@@ -12,6 +15,17 @@ extends Node
 @export var iluminacion_path: NodePath = ^"../../iluminacion"
 @export var spot_light_name: StringName = &"SpotLight3DStreetLampDamaged1"
 @export var omni_light_name: StringName = &"OmniLight3DStreetLampDamaged1"
+@export var street_lamp_model_path: NodePath = ^"../StreetLamp/Model/StreetLampModel"
+
+@export_group("Visual Bulb")
+@export var bulb_meshes: Array[MeshInstance3D] = []
+@export var bulb_surface_indices: Array[int] = []
+@export var auto_find_bulb_meshes: bool = true
+@export var control_bulb_material: bool = true
+@export var bulb_on_color: Color = Color(1.0, 1.0, 0.85, 1.0)
+@export var bulb_off_color: Color = Color(0.03, 0.03, 0.035, 1.0)
+@export var bulb_on_emission_energy: float = 1.0
+@export var bulb_off_emission_energy: float = 0.0
 
 @export_group("Flicker Timing")
 @export var min_on_time: float = 0.45
@@ -31,15 +45,11 @@ extends Node
 @export_group("Randomness")
 @export var randomize_on_start: bool = true
 
-@export_group("Optional Visual")
-@export var emissive_meshes: Array[MeshInstance3D] = []
-@export var control_emission: bool = false
-@export var emission_on_multiplier: float = 1.0
-@export var emission_off_multiplier: float = 0.12
-
 var _original_energies: Dictionary = {}
-var _emission_base: Dictionary = {}
 var _flicker_running: bool = false
+var _bulb_mesh_targets: Array[MeshInstance3D] = []
+var _bulb_surface_targets: Array[int] = []
+var _bulb_materials: Array[StandardMaterial3D] = []
 
 
 func _ready() -> void:
@@ -50,6 +60,9 @@ func _ready() -> void:
 
 func _begin() -> void:
 	_resolve_controlled_lights()
+	_resolve_bulb_targets()
+	_prepare_bulb_materials()
+
 	if not _has_valid_lights():
 		push_warning(
 			"DamagedLightFlicker sin luces en %s. Revisa Auto Find o controlled_light_paths."
@@ -57,11 +70,9 @@ func _begin() -> void:
 		)
 		return
 
-	# Esperar perfil nocturno / boost de luces del nivel antes de cachear energías.
 	await get_tree().process_frame
 	await get_tree().process_frame
 	_cache_original_energies()
-	_cache_emission_base()
 	_mark_lights_flicker_managed()
 	if start_enabled:
 		start_flicker()
@@ -101,6 +112,145 @@ func _resolve_controlled_lights() -> void:
 			controlled_lights.append(node as Light3D)
 
 
+func _resolve_bulb_targets() -> void:
+	_bulb_mesh_targets.clear()
+	_bulb_surface_targets.clear()
+
+	if not control_bulb_material:
+		return
+
+	if not bulb_meshes.is_empty():
+		for i in bulb_meshes.size():
+			var mesh := bulb_meshes[i]
+			if mesh == null:
+				continue
+			var surface_index := _surface_index_for_manual_entry(i, mesh)
+			if surface_index < 0:
+				continue
+			_bulb_mesh_targets.append(mesh)
+			_bulb_surface_targets.append(surface_index)
+		return
+
+	if not auto_find_bulb_meshes:
+		return
+
+	var model_root := get_node_or_null(street_lamp_model_path) as Node
+	if model_root == null:
+		model_root = _find_descendant_by_name(get_parent(), &"StreetLampModel")
+
+	if model_root == null:
+		return
+
+	_collect_bulb_surfaces_recursive(model_root)
+
+
+func _surface_index_for_manual_entry(index: int, mesh: MeshInstance3D) -> int:
+	if index < bulb_surface_indices.size():
+		return bulb_surface_indices[index]
+	return _find_emissive_surface_index(mesh)
+
+
+func _collect_bulb_surfaces_recursive(node: Node) -> void:
+	if node is MeshInstance3D:
+		var mesh := node as MeshInstance3D
+		var surface_index := _find_emissive_surface_index(mesh)
+		if surface_index >= 0:
+			_bulb_mesh_targets.append(mesh)
+			_bulb_surface_targets.append(surface_index)
+
+	for child in node.get_children():
+		_collect_bulb_surfaces_recursive(child)
+
+
+func _find_emissive_surface_index(mesh: MeshInstance3D) -> int:
+	if mesh.mesh == null:
+		return -1
+
+	var named_light_surface := -1
+	var emissive_surface := -1
+
+	for surface_index in mesh.mesh.get_surface_count():
+		var mat := mesh.get_active_material(surface_index)
+		if mat == null:
+			continue
+		if mat.resource_name == String(_BULB_MATERIAL_NAME):
+			named_light_surface = surface_index
+		if mat is StandardMaterial3D:
+			var std := mat as StandardMaterial3D
+			if std.emission_enabled and std.emission.get_luminance() > 0.05:
+				emissive_surface = surface_index
+
+	if named_light_surface >= 0:
+		return named_light_surface
+	if emissive_surface >= 0:
+		return emissive_surface
+
+	for hint in _BULB_NODE_HINTS:
+		if String(hint) in mesh.name and mesh.mesh.get_surface_count() > 0:
+			return mini(1, mesh.mesh.get_surface_count() - 1)
+
+	return -1
+
+
+func _prepare_bulb_materials() -> void:
+	_bulb_materials.clear()
+	if not control_bulb_material:
+		return
+
+	for i in _bulb_mesh_targets.size():
+		var mesh := _bulb_mesh_targets[i]
+		if mesh == null:
+			_bulb_materials.append(null)
+			continue
+
+		var surface_index := _bulb_surface_targets[i]
+		var source := mesh.get_active_material(surface_index)
+		if source == null:
+			_bulb_materials.append(null)
+			continue
+
+		var local_mat := source.duplicate(true) as StandardMaterial3D
+		mesh.set_surface_override_material(surface_index, local_mat)
+		_bulb_materials.append(local_mat)
+
+	if _bulb_materials.is_empty() and control_bulb_material:
+		push_warning(
+			"DamagedLightFlicker: no se encontró material de foco en %s."
+			% get_path()
+		)
+
+
+func _set_bulb_visual_on(strength: float) -> void:
+	if not control_bulb_material:
+		return
+
+	var blend := clampf(strength, 0.0, 1.0)
+	for mat in _bulb_materials:
+		if mat == null:
+			continue
+		mat.albedo_color = bulb_off_color.lerp(bulb_on_color, blend)
+		mat.emission_enabled = blend > 0.04
+		mat.emission = bulb_on_color * blend
+		mat.emission_energy_multiplier = lerpf(
+			bulb_off_emission_energy,
+			bulb_on_emission_energy,
+			blend
+		)
+
+
+func _set_bulb_visual_off() -> void:
+	if not control_bulb_material:
+		return
+
+	for mat in _bulb_materials:
+		if mat == null:
+			continue
+		mat.albedo_color = bulb_off_color
+		mat.emission_enabled = false
+		mat.emission = Color.BLACK
+		mat.emission_energy_multiplier = bulb_off_emission_energy
+
+
 func _find_light_at_path(path: NodePath) -> Light3D:
 	if path.is_empty():
 		return null
@@ -112,6 +262,18 @@ func _find_light_at_path(path: NodePath) -> Light3D:
 		node = root.get_node_or_null(path)
 		if node is Light3D:
 			return node as Light3D
+	return null
+
+
+func _find_descendant_by_name(root: Node, target_name: StringName) -> Node:
+	if root == null:
+		return null
+	if root.name == String(target_name):
+		return root
+	for child in root.get_children():
+		var found := _find_descendant_by_name(child, target_name)
+		if found != null:
+			return found
 	return null
 
 
@@ -143,18 +305,6 @@ func _cache_original_energies() -> void:
 		_original_energies[light.get_instance_id()] = light.light_energy
 
 
-func _cache_emission_base() -> void:
-	_emission_base.clear()
-	if not control_emission:
-		return
-	for mesh in emissive_meshes:
-		if mesh == null:
-			continue
-		var mat := mesh.get_active_material(0)
-		if mat is StandardMaterial3D:
-			_emission_base[mesh.get_instance_id()] = (mat as StandardMaterial3D).emission
-
-
 func _get_original_energy(light: Light3D) -> float:
 	var id := light.get_instance_id()
 	if not _original_energies.has(id):
@@ -170,8 +320,7 @@ func _restore_lights() -> void:
 		if _original_energies.has(id):
 			light.light_energy = _original_energies[id]
 		light.visible = true
-	if control_emission:
-		_apply_emission_multiplier(emission_on_multiplier)
+	_set_bulb_visual_on(1.0)
 
 
 func _set_light_on_random_strength() -> void:
@@ -181,18 +330,7 @@ func _set_light_on_random_strength() -> void:
 			continue
 		light.visible = true
 		light.light_energy = _get_original_energy(light) * strength
-	if control_emission:
-		var emission_blend := inverse_lerp(
-			min_energy_multiplier,
-			max_energy_multiplier,
-			strength
-		)
-		var emission_mult := lerpf(
-			emission_off_multiplier,
-			emission_on_multiplier,
-			emission_blend
-		)
-		_apply_emission_multiplier(emission_mult)
+	_set_bulb_visual_on(strength)
 
 
 func _set_light_off() -> void:
@@ -202,24 +340,7 @@ func _set_light_off() -> void:
 		light.light_energy = _get_original_energy(light) * off_energy_multiplier
 		if use_hard_off:
 			light.visible = false
-	if control_emission:
-		_apply_emission_multiplier(emission_off_multiplier)
-
-
-func _apply_emission_multiplier(multiplier: float) -> void:
-	for mesh in emissive_meshes:
-		if mesh == null:
-			continue
-		var mat := mesh.get_active_material(0)
-		if not (mat is StandardMaterial3D):
-			continue
-		var std := mat as StandardMaterial3D
-		var id := mesh.get_instance_id()
-		var base: Color = _emission_base.get(id, std.emission)
-		if not _emission_base.has(id):
-			_emission_base[id] = base
-		std.emission = base * multiplier
-		std.emission_enabled = multiplier > 0.01
+	_set_bulb_visual_off()
 
 
 func _flicker_loop() -> void:
