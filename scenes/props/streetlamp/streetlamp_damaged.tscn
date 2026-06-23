@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3 uid="uid://04e323g4f74q"]
+
+[ext_resource type="PackedScene" uid="uid://6m0myua5kt2w" path="res://scenes/props/streetlamp/streetlamp.tscn" id="1_streetlamp"]
+[ext_resource type="Script" uid="uid://41tobxh5jsmw" path="res://scripts/environment/damaged_light_flicker.gd" id="2_flicker"]
+
+[node name="StreetLampDamaged" type="Node3D"]
+
+[node name="StreetLamp" parent="." instance=ExtResource("1_streetlamp")]
+
+[node name="DamagedLightFlicker" type="Node" parent="."]
+script = ExtResource("2_flicker")

@@ -36,15 +36,18 @@ func _apply_shadow_settings() -> void:
 
 func apply_time_profile(day_factor: float, night_factor: float) -> void:
 	var night_blend := clampf(night_factor, 0.0, 1.0)
-	light_energy = lerpf(day_light_energy, night_light_energy, night_blend)
+	light_color = night_light_color
+	spot_range = night_spot_range
+	spot_angle = night_spot_angle
+	spot_attenuation = night_spot_attenuation
 	light_volumetric_fog_energy = lerpf(
 		day_volumetric_fog_energy,
 		night_volumetric_fog_energy,
 		night_blend
 	)
-	light_color = night_light_color
-	spot_range = night_spot_range
-	spot_angle = night_spot_angle
-	spot_attenuation = night_spot_attenuation
+	if is_in_group(&"flicker_managed"):
+		_apply_shadow_settings()
+		return
+	light_energy = lerpf(day_light_energy, night_light_energy, night_blend)
 	visible = light_energy > 0.05
 	_apply_shadow_settings()
