@@ -107,6 +107,10 @@ void fragment() {
 			depth_raw = depth_raw * 2.0 - 1.0;
 		#endif
 	#endif
+
+	// Sin geometría (cielo): no dibujar niebla para evitar línea en el horizonte.
+	float sky_mask = step(0.0001, depth_raw) * step(depth_raw, 0.9999);
+
 	vec3 ndc = vec3(SCREEN_UV * 2.0 - 1.0, depth_raw);
 	vec4 clip_pos = INV_PROJECTION_MATRIX * vec4(ndc, 1.0);
 	vec3 view_pos = clip_pos.xyz / clip_pos.w;
@@ -153,7 +157,7 @@ void fragment() {
 	fog_color.rgb = apply_photo_tonemap(fog_color.rgb, color_correction.y, color_correction.x);
 
 	ALBEDO = fog_color.rgb;
-	ALPHA = fog_color.a;
+	ALPHA = fog_color.a * sky_mask;
 
 	// View depth map
 	//ALPHA = 1.;

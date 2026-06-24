@@ -1,0 +1,53 @@
+[gd_scene load_steps=4 format=3 uid="uid://c8ptjt56kbhg3"]
+
+[ext_resource type="Script" path="res://scripts/camera/found_footage_filter.gd" id="1_script"]
+[ext_resource type="Shader" path="res://assets/shaders/found_footage_filter.gdshader" id="2_shader"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_filter"]
+shader = ExtResource("2_shader")
+shader_parameter/intensity = 0.48
+shader_parameter/grain_amount = 0.12
+shader_parameter/grain_size = 2.4
+shader_parameter/grain_drift = 0.0
+shader_parameter/chromatic_aberration = 0.0022
+shader_parameter/barrel_distortion = 0.05
+shader_parameter/vignette = 0.28
+shader_parameter/scanlines = 0.025
+shader_parameter/saturation = 0.62
+shader_parameter/contrast = 0.98
+shader_parameter/lift = 0.028
+shader_parameter/shadow_crush = 0.22
+shader_parameter/cool_tint = 0.08
+shader_parameter/shadow_coolth = 0.1
+shader_parameter/softness = 0.3
+shader_parameter/bloom = 0.09
+
+[node name="FoundFootageFilter" type="CanvasLayer"]
+layer = -5
+script = ExtResource("1_script")
+filter_enabled = true
+intensity = 0.48
+grain_amount = 0.12
+grain_size = 2.4
+grain_drift = 0.0
+chromatic_aberration = 0.0022
+barrel_distortion = 0.05
+vignette = 0.28
+softness = 0.3
+bloom = 0.09
+scanlines = 0.025
+saturation = 0.62
+contrast = 0.98
+lift = 0.028
+shadow_crush = 0.22
+cool_tint = 0.08
+shadow_coolth = 0.1
+
+[node name="FilterRect" type="ColorRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+material = SubResource("ShaderMaterial_filter")

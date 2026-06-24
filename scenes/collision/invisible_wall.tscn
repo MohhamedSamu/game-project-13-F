@@ -1,0 +1,20 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8inviswall01"]
+
+[ext_resource type="Script" path="res://scripts/collision/invisible_wall.gd" id="1_script"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_wall"]
+size = Vector3(4, 2.5, 0.2)
+
+[node name="InvisibleWall" type="StaticBody3D"]
+script = ExtResource("1_script")
+wall_length = 4.0
+wall_height = 2.5
+wall_thickness = 0.2
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+shape = SubResource("BoxShape3D_wall")
+
+[node name="EditorPreview" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+cast_shadow = 0

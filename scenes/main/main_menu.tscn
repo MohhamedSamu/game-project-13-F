@@ -74,8 +74,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.00850889, 0.00850878)
-shader_parameter/cirrus_position2 = Vector2(0.00850889, 0.00850878)
+shader_parameter/cirrus_position1 = Vector2(0.00398339, 0.00398335)
+shader_parameter/cirrus_position2 = Vector2(0.00398339, 0.00398335)
 shader_parameter/cirrus_texture = ExtResource("4_d4g5q")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -85,7 +85,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.0425446, 0.0425441)
+shader_parameter/cumulus_position = Vector2(0.0199169, 0.0199168)
 shader_parameter/cumulus_texture = ExtResource("5_2srlj")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -478,7 +478,7 @@ render_target_update_mode = 4
 
 [node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport/MenuMapa"]
 transform = Transform3D(-1, 0, -2.53518e-06, 0, 1, 0, 2.53518e-06, 0, -1, -592.313, 902.762, -568.519)
-far = 50000.0
+far = 10000.0
 
 [node name="terreno_juego_13_f" parent="SubViewportContainer/SubViewport/MenuMapa" instance=ExtResource("1_sd5it")]
 
@@ -522,6 +522,10 @@ year = 2026
 [node name="ProjectProfile" type="Node" parent="SubViewportContainer/SubViewport/MenuMapa/Sky3D"]
 script = ExtResource("13_profile")
 profile = 0
+menu_fog_start = 1000.0
+menu_fog_end = 15000.0
+menu_fog_depth_curve = 3.0
+menu_fog_aerial_perspective = 0.55
 
 [node name="UI" type="Control" parent="."]
 layout_mode = 1

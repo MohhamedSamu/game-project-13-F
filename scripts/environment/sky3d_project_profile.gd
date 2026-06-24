@@ -1,5 +1,5 @@
 extends Node
-## Ajustes de ambiente para Sky3D: menú (sin AtmFog, cielo vivo, noche suave) y gameplay nocturno.
+## Ajustes de ambiente para Sky3D: menú (niebla de horizonte lejana) y gameplay nocturno.
 
 enum Profile { MENU, GAMEPLAY }
 
@@ -7,6 +7,16 @@ enum Profile { MENU, GAMEPLAY }
 @export var apply_security_lighting: bool = true
 @export_range(1.0, 3.0, 0.05) var local_light_energy_mul: float = 1.45
 @export_range(0.0, 8.0, 0.1) var local_light_min_volumetric_fog: float = 2.2
+
+@export_group("Menú — niebla de horizonte")
+@export var menu_horizon_fog_enabled: bool = true
+@export_range(1000.0, 15000.0, 50.0) var menu_fog_start: float = 4800.0
+@export_range(1000.0, 15000.0, 50.0) var menu_fog_end: float = 9000.0
+@export_range(0.0, 0.001, 0.000001) var menu_fog_density: float = 0.000042
+@export_range(0.5, 8.0, 0.05) var menu_fog_falloff: float = 1.9
+@export_range(0.0, 0.3, 0.005) var menu_fog_rayleigh_depth: float = 0.11
+@export_range(0.5, 3.0, 0.05) var menu_fog_depth_curve: float = 1.5
+@export_range(0.0, 1.0, 0.05) var menu_fog_aerial_perspective: float = 0.38
 
 const SECURITY_GROUP := &"security_lighting_zones"
 
@@ -48,7 +58,7 @@ func _apply_menu(sky3d: Sky3D) -> void:
 		sky3d.environment.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
 
 	dome.atm_level_params = Vector3(0.72, 0.1, 0.08)
-	_disable_menu_fog(sky3d)
+	_apply_menu_horizon_fog(sky3d)
 	_apply_menu_lighting(sky3d)
 	_sync_menu_shader_ground(sky3d)
 
@@ -83,14 +93,51 @@ func _apply_menu_lighting(sky3d: Sky3D) -> void:
 		sky3d.environment.ambient_light_sky_contribution = lerpf(0.94, 0.86, menu_night)
 
 
-func _disable_menu_fog(sky3d: Sky3D) -> void:
-	sky3d.fog_enabled = false
+func _apply_menu_horizon_fog(sky3d: Sky3D) -> void:
 	if sky3d.sky == null:
 		return
-	sky3d.sky.fog_visible = false
-	sky3d.sky.fog_density = 0.0
-	if sky3d.sky.is_scene_built and sky3d.sky.fog_mesh != null:
-		sky3d.sky.fog_mesh.visible = false
+	var dome: SkyDome = sky3d.sky
+
+	if sky3d.environment == null:
+		return
+
+	var env := sky3d.environment
+	if not menu_horizon_fog_enabled:
+		sky3d.fog_enabled = false
+		dome.fog_visible = false
+		dome.fog_density = 0.0
+		if dome.is_scene_built and dome.fog_mesh != null:
+			dome.fog_mesh.visible = false
+		env.fog_enabled = false
+		return
+
+	# Capa 1: AtmFog (solo geometría; el shader ignora píxeles de cielo).
+	sky3d.fog_enabled = true
+	dome.fog_visible = true
+	dome.fog_density = menu_fog_density
+	dome.fog_start = menu_fog_start
+	dome.fog_end = menu_fog_end
+	dome.fog_falloff = menu_fog_falloff
+	dome.fog_rayleigh_depth = menu_fog_rayleigh_depth
+	dome.fog_mie_depth = 0.00003
+	dome.fog_sea_level = 0.0
+	dome.fog_atm_level_params_offset = Vector3(0.0, 0.0, 0.02)
+	if dome.is_scene_built and dome.fog_mesh != null:
+		dome.fog_mesh.visible = true
+
+	# Capa 2: niebla por profundidad en terreno (sin tocar el cielo).
+	var fog_color := MenuHorizonColor.from_sky3d(sky3d, true)
+	env.fog_enabled = true
+	env.fog_mode = Environment.FOG_MODE_DEPTH
+	env.fog_depth_begin = menu_fog_start
+	env.fog_depth_end = menu_fog_end
+	env.fog_depth_curve = menu_fog_depth_curve
+	env.fog_light_color = fog_color
+	env.fog_light_energy = 1.1
+	env.fog_sun_scatter = 0.3
+	env.fog_aerial_perspective = menu_fog_aerial_perspective
+	env.fog_sky_affect = 0.0
+	env.volumetric_fog_sky_affect = 0.0
 
 
 func _sync_menu_shader_ground(sky3d: Sky3D) -> void:
@@ -103,13 +150,14 @@ func _sync_menu_shader_ground(sky3d: Sky3D) -> void:
 
 func _on_menu_day_night_changed(_is_day: bool) -> void:
 	if _menu_sky3d != null:
-		_disable_menu_fog(_menu_sky3d)
+		_apply_menu_horizon_fog(_menu_sky3d)
 		_apply_menu_lighting(_menu_sky3d)
 		_sync_menu_shader_ground(_menu_sky3d)
 
 
 func _on_menu_time_changed(_time: float) -> void:
 	if _menu_sky3d != null:
+		_apply_menu_horizon_fog(_menu_sky3d)
 		_apply_menu_lighting(_menu_sky3d)
 		_sync_menu_shader_ground(_menu_sky3d)
 
@@ -118,7 +166,7 @@ func _process(_delta: float) -> void:
 	if profile != Profile.MENU or _menu_sky3d == null:
 		set_process(false)
 		return
-	_disable_menu_fog(_menu_sky3d)
+	_apply_menu_horizon_fog(_menu_sky3d)
 
 
 func _apply_gameplay(sky3d: Sky3D) -> void:
@@ -127,6 +175,7 @@ func _apply_gameplay(sky3d: Sky3D) -> void:
 	var dome: SkyDome = sky3d.sky
 	if sky3d.environment:
 		sky3d.environment.background_mode = Environment.BG_SKY
+		sky3d.environment.fog_enabled = false
 	sky3d.fog_enabled = true
 	sky3d.moon_energy = 0.22
 	sky3d.sun_energy = 0.0
