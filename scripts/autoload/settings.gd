@@ -2,27 +2,47 @@ extends Node
 
 const SETTINGS_PATH := "user://settings.json"
 
+const DEFAULT_MOUSE_SENSITIVITY := 0.25
+const DEFAULT_CAMERA_FOV := 75.0
+const MAX_CAMERA_FOV := 90.0
+const REFERENCE_LOOK_SPEED := 0.002
+
+enum MovementProfile { PRODUCTION, DEVELOP }
+
+const DEVELOP_WALK_SPEED := 7.0
+const DEVELOP_SPRINT_SPEED := 10.0
+const DEVELOP_FREEFLY_SPEED := 25.0
+
+const PRODUCTION_WALK_SPEED := 2.5
+const PRODUCTION_SPRINT_SPEED := 4.5
+
 # Defaults
+# "movement_profile": "develop",
 var data := {
-	"mouse_sensitivity": 0.25,  # ajusta a tu gusto (0.1–1.0 típico)
+	"mouse_sensitivity": DEFAULT_MOUSE_SENSITIVITY,
+	"camera_fov": DEFAULT_CAMERA_FOV,
+	"movement_profile": "production",
 	"master_volume": 1.0,
 	"music_volume": 1.0,
-	"sfx_volume": 1.0
+	"sfx_volume": 1.0,
+	"fullscreen": false,
 }
 
 func _ready() -> void:
 	load_settings()
 	apply_audio()
 	_apply_display()
-	
+
 
 func set_value(key: String, value) -> void:
 	data[key] = value
+
 
 func get_value(key: String, default_value = null):
 	if data.has(key):
 		return data[key]
 	return default_value
+
 
 func save_settings() -> void:
 	var f := FileAccess.open(SETTINGS_PATH, FileAccess.WRITE)
@@ -31,6 +51,7 @@ func save_settings() -> void:
 		return
 	f.store_string(JSON.stringify(data, "\t"))
 	f.close()
+
 
 func load_settings() -> void:
 	if not FileAccess.file_exists(SETTINGS_PATH):
@@ -47,17 +68,69 @@ func load_settings() -> void:
 
 	var parsed = JSON.parse_string(txt)
 	if typeof(parsed) == TYPE_DICTIONARY:
-		# merge: respeta defaults si faltan keys
 		for k in parsed.keys():
 			data[k] = parsed[k]
 	else:
-		# archivo corrupto: vuelve a defaults
 		save_settings()
+
 
 func apply_audio() -> void:
 	_set_bus_linear("Master", float(data["master_volume"]))
 	_set_bus_linear("Music", float(data["music_volume"]))
 	_set_bus_linear("SFX", float(data["sfx_volume"]))
+
+
+func apply_controls_to_player(player: Node = null) -> void:
+	if player == null:
+		player = GameManager.get_player()
+	if player == null or not is_instance_valid(player):
+		return
+	if not player.has_method("apply_control_settings"):
+		return
+	var sensitivity := float(get_value("mouse_sensitivity", DEFAULT_MOUSE_SENSITIVITY))
+	var fov := clampf(float(get_value("camera_fov", DEFAULT_CAMERA_FOV)), 40.0, MAX_CAMERA_FOV)
+	player.apply_control_settings(sensitivity, fov)
+
+
+func mouse_sensitivity_to_look_speed(mouse_sensitivity: float) -> float:
+	var sens := maxf(mouse_sensitivity, 0.001)
+	return REFERENCE_LOOK_SPEED * (sens / DEFAULT_MOUSE_SENSITIVITY)
+
+
+func get_movement_profile() -> MovementProfile:
+	var raw := str(get_value("movement_profile", "production")).to_lower()
+	if raw in ["develop", "development", "testing", "test", "debug"]:
+		return MovementProfile.DEVELOP
+	return MovementProfile.PRODUCTION
+
+
+func set_movement_profile(profile: MovementProfile) -> void:
+	data["movement_profile"] = "develop" if profile == MovementProfile.DEVELOP else "production"
+
+
+func get_walk_speed() -> float:
+	return DEVELOP_WALK_SPEED if get_movement_profile() == MovementProfile.DEVELOP else PRODUCTION_WALK_SPEED
+
+
+func get_sprint_speed() -> float:
+	return DEVELOP_SPRINT_SPEED if get_movement_profile() == MovementProfile.DEVELOP else PRODUCTION_SPRINT_SPEED
+
+
+func get_freefly_speed() -> float:
+	return DEVELOP_FREEFLY_SPEED if get_movement_profile() == MovementProfile.DEVELOP else 0.0
+
+
+func is_freefly_enabled() -> bool:
+	return get_movement_profile() == MovementProfile.DEVELOP
+
+
+func apply_movement_to_player(player: Node) -> void:
+	if player == null:
+		player = GameManager.get_player()
+	if player == null or not is_instance_valid(player):
+		return
+	if player.has_method("apply_movement_profile"):
+		player.apply_movement_profile()
 
 func _set_bus_linear(bus_name: String, value: float) -> void:
 	var id := AudioServer.get_bus_index(bus_name)
