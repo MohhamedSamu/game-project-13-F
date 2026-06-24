@@ -16,6 +16,23 @@ extends CharacterBody3D
 ## Can we press to enter freefly mode (noclip)?
 @export var can_freefly : bool = false
 
+@export_group("Suelo / rampas")
+## Pegado al suelo (m). Subir ~0.15–0.25 ayuda con bordillos y rampas invisibles.
+@export_range(0.0, 0.5, 0.01) var floor_snap_m: float = 0.15:
+	set(value):
+		floor_snap_m = value
+		floor_snap_length = value
+	get:
+		return floor_snap_length
+
+## Ángulo máximo de suelo caminable (grados). Más alto = rampas/escaleras más empinadas.
+@export_range(0.0, 75.0, 0.5) var floor_max_angle_deg: float = 55.0:
+	set(value):
+		floor_max_angle_deg = value
+		floor_max_angle = deg_to_rad(value)
+	get:
+		return rad_to_deg(floor_max_angle)
+
 @export_group("Speeds")
 ## Look around rotation speed.
 @export var look_speed : float = 0.002
@@ -119,6 +136,8 @@ var _footstep_stride_accum: float = 0.0
 
 func _ready() -> void:
 	check_input_mappings()
+	floor_snap_length = floor_snap_m
+	floor_max_angle = deg_to_rad(floor_max_angle_deg)
 	look_rotation.y = rotation.y
 	look_rotation.x = head.rotation.x
 	

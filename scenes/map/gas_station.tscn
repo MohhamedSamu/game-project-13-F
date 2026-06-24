@@ -44655,7 +44655,7 @@ skeleton = NodePath("")
 shape = SubResource("ConcavePolygonShape3D_7b3kg")
 
 [node name="Backgrounds_01" type="MeshInstance3D" parent="."]
-transform = Transform3D(100, 0, 0, 0, -100, -1.50996e-05, 0, 1.50996e-05, -100, 20.459, 11.1582, 48.2631)
+transform = Transform3D(-100, 7.64274e-13, 8.74228e-06, 0, -100, 8.74228e-06, 8.74228e-06, 8.74228e-06, 100, 20.459, 11.1582, 48.2631)
 mesh = SubResource("ArrayMesh_ywxxj")
 skeleton = NodePath("")
 

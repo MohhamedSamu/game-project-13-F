@@ -119,8 +119,4 @@ func _complete_drop(toss: Vector3) -> void:
 		return
 	_rb.freeze = false
 	_rb.linear_velocity = toss
-	_rb.angular_velocity = Vector3(
-		randf_range(-2.0, 2.0),
-		randf_range(-2.0, 2.0),
-		randf_range(-2.0, 2.0)
-	)
+	_rb.angular_velocity = Vector3.ZERO

@@ -21,6 +21,12 @@ enum LightMode {
 ## Inclinacion local del haz en mano. En 0 apunta exactamente hacia el centro de camara.
 @export_range(-45.0, 45.0, 0.1) var held_light_pitch_deg: float = 0.0
 
+@export_group("Al soltar")
+@export var drop_forward_speed: float = 1.2
+@export var drop_up_speed: float = 0.25
+@export var drop_spawn_forward: float = 0.35
+@export var drop_spawn_lift: float = 0.08
+
 @export_group("Luz")
 @export var start_mode: LightMode = LightMode.FAR
 
@@ -161,22 +167,18 @@ func drop_soft(forward_dir: Vector3, drop_parent: Node) -> void:
 	if _rb == null:
 		return
 	_held_in_hand = false
+	var fwd := forward_dir.normalized()
 	var gp := global_position
-	var hold_basis := Basis.from_euler(Vector3(
-		deg_to_rad(hold_rotation_deg.x),
-		deg_to_rad(hold_rotation_deg.y),
-		deg_to_rad(hold_rotation_deg.z)
-	))
-	# En mano la raiz no lleva hold_rotation (solo Visual). Al soltar, recuperar
-	# la orientacion que tenia antes en la raiz para que caiga apuntando adelante.
-	var drop_basis := (global_basis * hold_basis).orthonormalized()
 	var pr := get_parent()
 	if pr != null:
 		pr.remove_child(self)
 	drop_parent.add_child(self)
-	global_position = gp + forward_dir.normalized() * 0.35 + Vector3(0.0, 0.08, 0.0)
-	global_basis = drop_basis
+	global_position = gp + fwd * drop_spawn_forward + Vector3(0.0, drop_spawn_lift, 0.0)
+	global_basis = _basis_beam_along_forward(fwd)
 	_reset_visual_transform()
+	_rb.transform = Transform3D.IDENTITY
+	_rb.linear_velocity = Vector3.ZERO
+	_rb.angular_velocity = Vector3.ZERO
 	_rb.freeze = false
 	_rb.collision_layer = _saved_layer
 	_rb.collision_mask = _saved_mask
@@ -184,9 +186,17 @@ func drop_soft(forward_dir: Vector3, drop_parent: Node) -> void:
 		_collision_shape.disabled = false
 	if _beam_csg:
 		_beam_csg.visible = false
-	var toss := forward_dir.normalized() * 1.4 + Vector3(0.0, 0.35, 0.0)
-	_rb.linear_velocity = toss
-	_rb.angular_velocity = Vector3(randf_range(-2.0, 2.0), randf_range(-2.0, 2.0), randf_range(-2.0, 2.0))
+	_rb.linear_velocity = fwd * drop_forward_speed + Vector3(0.0, drop_up_speed, 0.0)
+
+
+func _basis_beam_along_forward(fwd: Vector3) -> Basis:
+	var up_ref := Vector3.UP
+	if absf(fwd.dot(up_ref)) > 0.95:
+		up_ref = Vector3.FORWARD
+	var right := up_ref.cross(fwd).normalized()
+	var up := fwd.cross(right).normalized()
+	# El haz de la linterna sale por +Z local del RigidBody.
+	return Basis(right, up, fwd).orthonormalized()
 
 
 func toggle_spotlight() -> void:

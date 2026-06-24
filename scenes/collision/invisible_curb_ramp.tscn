@@ -1,0 +1,17 @@
+[gd_scene load_steps=3 format=3 uid="uid://b7curbramp001"]
+
+[ext_resource type="Script" uid="uid://4h1ma1p0m6m8" path="res://scripts/collision/invisible_curb_ramp.gd" id="1_script"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_ramp"]
+size = Vector3(2.5, 0.12, 0.55)
+
+[node name="InvisibleCurbRamp" type="StaticBody3D"]
+script = ExtResource("1_script")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.977016, 0.213167, 0, -0.213167, 0.977016, 0, 0.06, 0)
+shape = SubResource("BoxShape3D_ramp")
+
+[node name="EditorPreview2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.97437, -0.224951, 0, 0.224951, 0.97437, 0, 0.06, 0)
+cast_shadow = 0

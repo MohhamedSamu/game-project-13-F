@@ -1,6 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://bs72ogkvdd7d6"]
 
 [ext_resource type="Script" uid="uid://c20xlu66w544h" path="res://addons/proto_controller/proto_controller.gd" id="1_ucva2"]
+[ext_resource type="PackedScene" uid="uid://c8ptjt56kbhg3" path="res://scenes/camera/found_footage_filter.tscn" id="2_filter"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iof21"]
 albedo_color = Color(0.91806, 0.575202, 0.222449, 1)
@@ -13,10 +14,9 @@ height = 1.8
 radius = 0.400625
 height = 1.8
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_g2uji"]
-size = Vector3(0.689575, 1, 1.15308)
-
 [node name="ProtoController" type="CharacterBody3D" groups=["player"]]
+floor_max_angle = 0.959931
+floor_snap_length = 0.15
 script = ExtResource("1_ucva2")
 can_sprint = true
 can_freefly = true
@@ -30,10 +30,6 @@ mesh = SubResource("CapsuleMesh_ucva2")
 [node name="Collider" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_iof21")
-
-[node name="Collider2" type="CollisionShape3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0132446, 0.997503, -0.254273)
-shape = SubResource("BoxShape3D_g2uji")
 
 [node name="Head" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
@@ -61,3 +57,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 unit_size = 4.0
 max_distance = 12.0
 bus = &"SFX"
+
+[node name="FoundFootageFilter" parent="." instance=ExtResource("2_filter")]
+intensity = 0.25
+grain_amount = 0.1
+grain_size = 1.5
+softness = 0.2
