@@ -47,6 +47,11 @@ func _ready() -> void:
 		_configure_ray_target()
 
 
+func refresh_ray_target() -> void:
+	if require_specific_ray_target:
+		_configure_ray_target()
+
+
 func _get_focus_target() -> Node3D:
 	return DialogueFocusResolver.resolve_focus_target(
 		use_camera_focus,
@@ -57,19 +62,28 @@ func _get_focus_target() -> Node3D:
 	)
 
 
+func _get_proximity_center() -> Vector3:
+	var target := _get_focus_target()
+	if target != null:
+		return target.global_position
+	return global_position
+
+
 func _is_player_in_range() -> bool:
 	if player_near:
 		return true
 	var player := GameManager.player
 	if player == null:
 		return false
-	return global_position.distance_to(player.global_position) <= proximity_radius
+	return _get_proximity_center().distance_to(player.global_position) <= proximity_radius
 
 
 func can_interact() -> bool:
 	if not enabled:
 		return false
 	if GameManager.dialogue_active:
+		return false
+	if GameManager.minigame_active:
 		return false
 	if not _is_player_in_range():
 		return false
@@ -207,7 +221,9 @@ func get_dialogue_focus_radius() -> float:
 		return 0.85
 	var shape_node := target.get_node_or_null("FocusHitbox/CollisionShape3D") as CollisionShape3D
 	if shape_node != null and shape_node.shape is SphereShape3D:
-		return (shape_node.shape as SphereShape3D).radius
+		var local_radius: float = (shape_node.shape as SphereShape3D).radius
+		var scale := shape_node.global_transform.basis.get_scale()
+		return local_radius * maxf(scale.x, maxf(scale.y, scale.z))
 	return 0.85
 
 
