@@ -959,4 +959,3 @@ skin = SubResource("Skin_a1dix")
 libraries = {
 &"": SubResource("AnimationLibrary_0x1fp")
 }
-autoplay = "scary_clown_idle"

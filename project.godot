@@ -98,4 +98,4 @@ drop_item={
 
 [internationalization]
 
-locale/translations_pot_files=PackedStringArray("res://dialogues/my_dialogue.dialogue", "res://dialogues/door_01.dialogue", "res://dialogues/ice_proximity.dialogue")
+locale/translations_pot_files=PackedStringArray("res://dialogues/my_dialogue.dialogue", "res://dialogues/door_01.dialogue", "res://dialogues/ice_proximity.dialogue", "res://dialogues/gas_station_npc.dialogue")

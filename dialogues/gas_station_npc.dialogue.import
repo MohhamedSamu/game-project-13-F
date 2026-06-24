@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://cg78lqav0lxg2"
+path="res://.godot/imported/gas_station_npc.dialogue-9a2b13a4c4dcf58a548692bf87835b96.tres"
+
+[deps]
+
+source_file="res://dialogues/gas_station_npc.dialogue"
+dest_files=["res://.godot/imported/gas_station_npc.dialogue-9a2b13a4c4dcf58a548692bf87835b96.tres"]
+
+[params]
+
+defaults=true
