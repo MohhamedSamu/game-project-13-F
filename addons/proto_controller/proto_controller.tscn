@@ -19,7 +19,6 @@ floor_max_angle = 0.959931
 floor_snap_length = 0.15
 script = ExtResource("1_ucva2")
 can_sprint = true
-can_freefly = true
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)

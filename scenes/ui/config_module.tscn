@@ -1,10 +1,11 @@
-[gd_scene load_steps=18 format=3 uid="uid://bo3pfobccvpbh"]
+[gd_scene load_steps=19 format=3 uid="uid://bo3pfobccvpbh"]
 
 [ext_resource type="Script" uid="uid://cw77v4d3qhcbl" path="res://scripts/ui/config_module.gd" id="1_6hfwq"]
 [ext_resource type="FontFile" uid="uid://dqt0hrd2fvvrb" path="res://assets/fonts/jackwrite/Jackwrite.ttf" id="1_17eje"]
 [ext_resource type="FontFile" uid="uid://7hsrmtsjdboa" path="res://assets/fonts/roboto/Roboto-Black.ttf" id="2_6hfwq"]
 [ext_resource type="Script" uid="uid://dlhaakrbwdu56" path="res://scripts/utils/audio/master_audio_control.gd" id="3_akes2"]
 [ext_resource type="Script" uid="uid://ca4s6bv28oeaq" path="res://scripts/ui/fullscreen_control.gd" id="4_kbiw7"]
+[ext_resource type="Script" uid="uid://cfovslider01" path="res://scripts/ui/fov_slider.gd" id="5_fov"]
 [ext_resource type="Script" uid="uid://c5yopq6wf6th3" path="res://scripts/ui/mouse_sens_slider.gd" id="5_voqkr"]
 [ext_resource type="FontFile" uid="uid://5drxvkjteadl" path="res://assets/fonts/jackwrite/JackwriteBold.ttf" id="6_4j41y"]
 
@@ -196,23 +197,42 @@ theme_override_styles/separator = SubResource("StyleBoxEmpty_ygj4d")
 
 [node name="lblMouseSens" type="Label" parent="VScrollBar"]
 layout_mode = 2
-offset_top = 336.0
+offset_top = 323.0
 offset_right = 456.0
-offset_bottom = 360.0
+offset_bottom = 347.0
 theme_override_fonts/font = ExtResource("2_6hfwq")
 theme_override_font_sizes/font_size = 20
 text = "Mouse sensitivity"
 
 [node name="MouseSensControl" type="HSlider" parent="VScrollBar"]
 layout_mode = 2
-offset_top = 364.0
+offset_top = 351.0
 offset_right = 456.0
-offset_bottom = 380.0
+offset_bottom = 367.0
 min_value = 0.05
 max_value = 1.0
-step = 0.1
-value = 0.05
+step = 0.05
+value = 0.25
 script = ExtResource("5_voqkr")
+
+[node name="lblFOV" type="Label" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 380.0
+offset_right = 456.0
+offset_bottom = 404.0
+theme_override_fonts/font = ExtResource("2_6hfwq")
+theme_override_font_sizes/font_size = 20
+text = "FOV"
+
+[node name="FovControl" type="HSlider" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 408.0
+offset_right = 456.0
+offset_bottom = 424.0
+min_value = 60.0
+max_value = 90.0
+value = 75.0
+script = ExtResource("5_fov")
 
 [node name="btnBack" type="Button" parent="VScrollBar"]
 custom_minimum_size = Vector2(456, 79)
@@ -242,3 +262,5 @@ text = "Back
 [connection signal="toggled" from="VScrollBar/FullscreenControl" to="VScrollBar/FullscreenControl" method="_on_toggled"]
 [connection signal="drag_ended" from="VScrollBar/MouseSensControl" to="VScrollBar/MouseSensControl" method="_on_drag_ended"]
 [connection signal="value_changed" from="VScrollBar/MouseSensControl" to="VScrollBar/MouseSensControl" method="_on_value_changed"]
+[connection signal="drag_ended" from="VScrollBar/FovControl" to="VScrollBar/FovControl" method="_on_drag_ended"]
+[connection signal="value_changed" from="VScrollBar/FovControl" to="VScrollBar/FovControl" method="_on_value_changed"]

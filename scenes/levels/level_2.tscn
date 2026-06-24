@@ -84,8 +84,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.151404, 0.151404)
-shader_parameter/cirrus_position2 = Vector2(0.151404, 0.151404)
+shader_parameter/cirrus_position1 = Vector2(0.26906, 0.26906)
+shader_parameter/cirrus_position2 = Vector2(0.26906, 0.26906)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -95,7 +95,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.756907, 0.756906)
+shader_parameter/cumulus_position = Vector2(1.34521, 1.34521)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -171,7 +171,8 @@ wall_length = 1.4
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.222, -0.00352758, 26.2195)
 
 [node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
-transform = Transform3D(-0.997706, 0, -0.0676845, 0, 1, 0, 0.0676845, 0, -0.997706, 21.3208, -0.144804, -16.197)
+transform = Transform3D(0.00726061, 0, -0.999973, 0, 1, 0, 0.999973, 0, 0.00726061, 5.6439, -0.144804, 4.1629)
+slide_on_ceiling = false
 
 [node name="ClownEnemy" parent="." instance=ExtResource("4_clown")]
 transform = Transform3D(-0.742982, 0, -0.669312, 0, 1, 0, 0.669312, 0, -0.742982, 11.339, 0, 25.28)

@@ -36,14 +36,20 @@ extends CharacterBody3D
 @export_group("Speeds")
 ## Look around rotation speed.
 @export var look_speed : float = 0.002
-## Normal speed.
-@export var base_speed : float = 7.0
+## Velocidad al caminar (se aplica según [movement_profile] en [code]_ready[/code]).
+var base_speed : float = PRODUCTION_WALK_SPEED
 ## Speed of jump.
 @export var jump_velocity : float = 4.5
-## How fast do we run?
-@export var sprint_speed : float = 10.0
-## How fast do we freefly?
-@export var freefly_speed : float = 25.0
+## Velocidad al correr (se aplica según [movement_profile] en [code]_ready[/code]).
+var sprint_speed : float = PRODUCTION_SPRINT_SPEED
+## Velocidad en freefly (se aplica según [movement_profile] en [code]_ready[/code]).
+var freefly_speed : float = DEVELOP_FREEFLY_SPEED
+
+const PRODUCTION_WALK_SPEED := 2.5
+const PRODUCTION_SPRINT_SPEED := 4.5
+const DEVELOP_WALK_SPEED := 7.0
+const DEVELOP_SPRINT_SPEED := 10.0
+const DEVELOP_FREEFLY_SPEED := 25.0
 
 @export_group("Input Actions")
 ## Name of Input Action to move Left.
@@ -143,7 +149,9 @@ func _ready() -> void:
 	floor_max_angle = deg_to_rad(floor_max_angle_deg)
 	look_rotation.y = rotation.y
 	look_rotation.x = head.rotation.x
-	
+
+	_apply_movement_profile_from_settings()
+
 	GameManager.register_player(self)
 	
 	# 1) quita pausa por si el menú pausaba algo
@@ -922,6 +930,25 @@ func set_input_enabled(value: bool) -> void:
 		velocity.z = 0.0
 		_focus_interactable = null
 		_apply_crosshair_ui(false, "")
+
+
+func apply_control_settings(mouse_sensitivity: float, camera_fov: float) -> void:
+	look_speed = Settings.mouse_sensitivity_to_look_speed(mouse_sensitivity)
+	if camera_3d != null:
+		camera_3d.fov = clampf(camera_fov, 40.0, Settings.MAX_CAMERA_FOV)
+
+
+func apply_movement_profile() -> void:
+	_apply_movement_profile_from_settings()
+
+
+func _apply_movement_profile_from_settings() -> void:
+	base_speed = Settings.get_walk_speed()
+	sprint_speed = Settings.get_sprint_speed()
+	freefly_speed = Settings.get_freefly_speed()
+	can_freefly = Settings.is_freefly_enabled()
+	if not can_freefly and freeflying:
+		disable_freefly()
 
 
 func use_external_camera(external_camera: Camera3D) -> void:

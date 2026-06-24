@@ -19,7 +19,24 @@ func set_dialogue_active(value: bool) -> void:
 	dialogue_active = value
 
 func register_player(player_node: Node) -> void:
+	if player != null and is_instance_valid(player) and player != player_node:
+		if player.tree_exited.is_connected(_on_player_tree_exited):
+			player.tree_exited.disconnect(_on_player_tree_exited)
 	player = player_node
+	if player != null and not player.tree_exited.is_connected(_on_player_tree_exited):
+		player.tree_exited.connect(_on_player_tree_exited)
+	Settings.apply_controls_to_player()
+	Settings.apply_movement_to_player(player)
+
+
+func get_player() -> Node:
+	if player != null and not is_instance_valid(player):
+		player = null
+	return player
+
+
+func _on_player_tree_exited() -> void:
+	player = null
 
 
 func set_flag(flag_name: String, value: bool = true) -> void:
