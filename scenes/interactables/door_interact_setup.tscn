@@ -1,0 +1,41 @@
+[gd_scene load_steps=5 format=3 uid="uid://c33iwiqw6ogfg"]
+
+[ext_resource type="Script" uid="uid://dq8kdoorinteract" path="res://scripts/interactables/door_interact_setup.gd" id="1_setup"]
+[ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]
+[ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="3_dlgfocus"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_proximity"]
+radius = 0.035
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_door_face"]
+size = Vector3(0.002, 0.0105, 0.028)
+
+[node name="DoorInteractSetup" type="Node3D"]
+script = ExtResource("1_setup")
+
+[node name="DoorPivot" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.00077, -0.000335)
+
+[node name="DialogueFocusPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
+script = ExtResource("3_dlgfocus")
+use_stand_position = false
+
+[node name="InteractableDialogueComponent" type="Area3D" parent="." node_paths=PackedStringArray("interaction_handler")]
+script = ExtResource("2_ixdlg")
+require_specific_ray_target = true
+proximity_radius = 3.5
+interaction_handler = NodePath("..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
+shape = SubResource("SphereShape3D_proximity")
+
+[node name="InteractionRayTarget" type="Area3D" parent="."]
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionRayTarget"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
+shape = SubResource("BoxShape3D_door_face")
