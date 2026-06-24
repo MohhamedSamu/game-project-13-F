@@ -1,4 +1,4 @@
-[gd_scene load_steps=33 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=34 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -10,6 +10,7 @@
 [ext_resource type="PackedScene" uid="uid://baoljmaytd3rs" path="res://scenes/props/camera.tscn" id="7_cam"]
 [ext_resource type="PackedScene" uid="uid://c33iwiqw6ogfg" path="res://scenes/interactables/door_interact_setup.tscn" id="8_door"]
 [ext_resource type="PackedScene" uid="uid://dldv3k4ruuhhr" path="res://scenes/interactables/ice_proximity_setup.tscn" id="9_iceprox"]
+[ext_resource type="PackedScene" uid="uid://43jejdyp60mn" path="res://scenes/interactables/toilet_pee_setup.tscn" id="9_pee"]
 [ext_resource type="Resource" uid="uid://du8sfa0irqkv6" path="res://dialogues/door_01.dialogue" id="10_door01dlg"]
 [ext_resource type="Script" uid="uid://bikqe675bud6f" path="res://scripts/lights/security_spot_light.gd" id="11_secspot"]
 [ext_resource type="Shader" uid="uid://cvd0x7lon1ur6" path="res://addons/sky_3d/shaders/SkyMaterial.gdshader" id="12_lkn2k"]
@@ -83,8 +84,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.0482478, 0.0482477)
-shader_parameter/cirrus_position2 = Vector2(0.0482478, 0.0482477)
+shader_parameter/cirrus_position1 = Vector2(0.151404, 0.151404)
+shader_parameter/cirrus_position2 = Vector2(0.151404, 0.151404)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -94,7 +95,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.241245, 0.241244)
+shader_parameter/cumulus_position = Vector2(0.756907, 0.756906)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -139,6 +140,14 @@ door_mesh_path = NodePath("../Toilet_cubicles_Door_001")
 lock_mode = 0
 open_state_flag = "toilet_cubicle_door_001_open"
 
+[node name="ToiletPeeCamera" type="Camera3D" parent="Gas_station"]
+transform = Transform3D(0.0146561, 0.519973, -0.854057, 0.0047239, 0.854103, 0.520082, 0.999881, -0.0116569, 0.0100615, 23.8593, 1.84612, -16.0882)
+
+[node name="ToiletPeeSetup" parent="Gas_station" instance=ExtResource("9_pee")]
+transform = Transform3D(-0.0155328, 0, -0.999879, 0, 1, 0, 0.999879, 0, -0.0155328, 24.76, 0.455526, -16.1152)
+fixed_camera_path = NodePath("../ToiletPeeCamera")
+proximity_radius = 2.5
+
 [node name="invisibleObjects" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3179, 0, -12.0213)
 
@@ -162,7 +171,7 @@ wall_length = 1.4
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.222, -0.00352758, 26.2195)
 
 [node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
-transform = Transform3D(0.998803, 0, -0.048902, 0, 1, 0, 0.048902, 0, 0.998803, 22.7928, -0.144804, -14.0863)
+transform = Transform3D(-0.997706, 0, -0.0676845, 0, 1, 0, 0.0676845, 0, -0.997706, 21.3208, -0.144804, -16.197)
 
 [node name="ClownEnemy" parent="." instance=ExtResource("4_clown")]
 transform = Transform3D(-0.742982, 0, -0.669312, 0, 1, 0, 0.669312, 0, -0.742982, 11.339, 0, 25.28)

@@ -114,6 +114,9 @@ var move_speed : float = 0.0
 var freeflying : bool = false
 
 var input_enabled: bool = true
+var minigame_mode: bool = false
+var _external_camera: Camera3D = null
+var _saved_body_visible: bool = true
 var camera_focus_target: Node3D = null
 var focusing_camera: bool = false
 var repositioning_for_dialogue: bool = false
@@ -158,9 +161,12 @@ func _ready() -> void:
 		land_player.volume_db = land_sfx_volume_db
 
 func _unhandled_input(event: InputEvent) -> void:
+	if minigame_mode:
+		return
 	# Mouse capturing (no recapturar durante diálogo: el ratón debe seguir visible).
 	if (
 		not GameManager.dialogue_active
+		and not minigame_mode
 		and event is InputEventMouseButton
 		and event.button_index == MOUSE_BUTTON_LEFT
 		and event.pressed
@@ -916,3 +922,30 @@ func set_input_enabled(value: bool) -> void:
 		velocity.z = 0.0
 		_focus_interactable = null
 		_apply_crosshair_ui(false, "")
+
+
+func use_external_camera(external_camera: Camera3D) -> void:
+	if external_camera == null:
+		return
+	_external_camera = external_camera
+	camera_3d.current = false
+	external_camera.current = true
+	minigame_mode = true
+	velocity = Vector3.ZERO
+
+
+func set_minigame_body_visible(body_visible: bool) -> void:
+	if body_visible:
+		visible = _saved_body_visible
+	else:
+		_saved_body_visible = visible
+		visible = false
+
+
+func restore_player_camera() -> void:
+	if _external_camera != null and is_instance_valid(_external_camera):
+		_external_camera.current = false
+	_external_camera = null
+	camera_3d.current = true
+	minigame_mode = false
+	visible = _saved_body_visible
