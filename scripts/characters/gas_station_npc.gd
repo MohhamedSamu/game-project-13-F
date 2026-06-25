@@ -41,6 +41,8 @@ enum WorkState {
 @export_group("Arrival")
 @export var snap_to_marker_on_arrival: bool = true
 @export var max_snap_distance: float = 0.30
+@export var arrival_momentum_bleed: float = 0.08
+@export var arrival_turn_decel_rate: float = 7.0
 
 @export_group("Look Target Turn")
 @export var look_target_turn_speed: float = 2.3
@@ -273,11 +275,13 @@ func _process_intro_first_kneel_pause(delta: float) -> void:
 func _process_turning_to_look_target(delta: float) -> void:
 	var look_target := _get_pump_look_target(_current_pump_index)
 	if look_target == null:
+		_halt_horizontal_movement()
 		_begin_look_turn_settle()
 		return
 
 	var direction := _horizontal_direction_to(look_target.global_position)
 	if direction.length_squared() < 0.0001:
+		_halt_horizontal_movement()
 		_begin_look_turn_settle()
 		return
 
@@ -285,8 +289,21 @@ func _process_turning_to_look_target(delta: float) -> void:
 	var angle_err := absf(angle_difference(global_rotation.y, target_yaw))
 	_play_routine_turn_anim(angle_err, BLEND_IDLE_WALK)
 
-	if _rotate_yaw_toward(target_yaw, delta, look_target_turn_speed, look_target_angle_tolerance):
+	global_rotation.y = lerp_angle(
+		global_rotation.y,
+		target_yaw,
+		minf(1.0, look_target_turn_speed * delta)
+	)
+
+	if angle_err <= look_target_angle_tolerance:
+		global_rotation.y = target_yaw
+		_halt_horizontal_movement()
 		_begin_look_turn_settle()
+		return
+
+	var decel := move_speed * arrival_turn_decel_rate * delta
+	velocity.x = move_toward(velocity.x, 0.0, decel)
+	velocity.z = move_toward(velocity.z, 0.0, decel)
 
 
 func _process_look_turn_settle(delta: float) -> void:
@@ -315,8 +332,6 @@ func _begin_look_turn_settle() -> void:
 func _set_work_state(new_state: WorkState) -> void:
 	_work_state = new_state
 	match new_state:
-		WorkState.TURNING_TO_LOOK_TARGET:
-			_halt_horizontal_movement()
 		WorkState.LOOK_TURN_SETTLE:
 			_halt_horizontal_movement()
 			if not _gesture_anim in POST_STANDING_GESTURES:
@@ -376,8 +391,10 @@ func _rotate_yaw_toward(
 
 
 func _arrive_at_marker(marker: Marker3D) -> void:
-	_halt_horizontal_movement()
 	_snap_to_marker_on_arrival(marker)
+	velocity.x *= arrival_momentum_bleed
+	velocity.z *= arrival_momentum_bleed
+	play_walk_in_place(BLEND_IDLE_WALK)
 	_set_work_state(WorkState.TURNING_TO_LOOK_TARGET)
 
 
