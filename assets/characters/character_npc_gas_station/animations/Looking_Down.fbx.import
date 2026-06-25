@@ -32,7 +32,18 @@ animation/trimming=true
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
-_subresources={}
+_subresources={
+"animations": {
+"mixamo.com": {
+"save_to_file/enabled": true,
+"save_to_file/fallback_path": "res://assets/characters/character_npc_gas_station/animations/Looking_Down.res",
+"save_to_file/keep_custom_tracks": "",
+"save_to_file/path": "res://assets/characters/character_npc_gas_station/animations/Looking_Down.res",
+"settings/loop_mode": 0,
+"settings/loops": false
+}
+}
+}
 fbx/importer=0
 fbx/allow_geometry_helper_nodes=false
 fbx/embedded_image_handling=1

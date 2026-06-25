@@ -1,4 +1,4 @@
-[gd_scene load_steps=34 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=35 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -25,7 +25,7 @@
 [ext_resource type="Script" uid="uid://deo0gxkmk2ahd" path="res://addons/sky_3d/src/Sky3D.gd" id="20_7d3nu"]
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="21_r6ket"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="22_xworo"]
-[ext_resource type="Script" path="res://scripts/environment/sky3d_project_profile.gd" id="23_profile"]
+[ext_resource type="Script" uid="uid://b0vsytimkedpu" path="res://scripts/environment/sky3d_project_profile.gd" id="23_profile"]
 [ext_resource type="PackedScene" uid="uid://6m0myua5kt2w" path="res://scenes/props/streetlamp/streetlamp.tscn" id="24_wikm6"]
 [ext_resource type="Script" uid="uid://bbxw6d4w417sj" path="res://scripts/lights/ceiling_omni_light.gd" id="25_ceilomni"]
 [ext_resource type="PackedScene" uid="uid://04e323g4f74q" path="res://scenes/props/streetlamp/streetlamp_damaged.tscn" id="26_1a10c"]
@@ -84,8 +84,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.0076368, 0.00763669)
-shader_parameter/cirrus_position2 = Vector2(0.0076368, 0.00763669)
+shader_parameter/cirrus_position1 = Vector2(0.0724792, 0.0724791)
+shader_parameter/cirrus_position2 = Vector2(0.0724792, 0.0724791)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -95,7 +95,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.038184, 0.0381836)
+shader_parameter/cumulus_position = Vector2(0.362384, 0.362383)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -491,5 +491,23 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.6689, 3.98536e-07, 31.8529
 [node name="StreetLampDamaged" parent="." instance=ExtResource("26_1a10c")]
 transform = Transform3D(-0.695223, 0, 0.718794, 0, 1, 0, -0.718794, 0, -0.695223, 21.3487, -2.63284e-06, -29.3003)
 
-[node name="GasStationNPC" parent="." instance=ExtResource("27_mx6s3")]
-transform = Transform3D(-0.248741, 0, 0.96857, 0, 1, 0, -0.96857, 0, -0.248741, 9.89271, 0.00209159, 3.63321)
+[node name="NPCMarkers" type="Node3D" parent="."]
+
+[node name="GasNPC_Pump1Point" type="Marker3D" parent="NPCMarkers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5429, 0.00209159, 3.3259)
+
+[node name="GasNPC_Pump1LookTarget" type="Marker3D" parent="NPCMarkers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.8379, 1.2, 3.20991)
+
+[node name="GasNPC_Pump2Point" type="Marker3D" parent="NPCMarkers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.7157, 0.00209159, 8.75438)
+
+[node name="GasNPC_Pump2LookTarget" type="Marker3D" parent="NPCMarkers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11.8108, 1.2, 8.63837)
+
+[node name="GasStationNPC" parent="." node_paths=PackedStringArray("pump_1_point", "pump_1_look_target", "pump_2_point", "pump_2_look_target") instance=ExtResource("27_mx6s3")]
+transform = Transform3D(-0.248741, 0, 0.96857, 0, 1, 0, -0.96857, 0, -0.248741, 10.5429, 0.00209159, 3.3259)
+pump_1_point = NodePath("../NPCMarkers/GasNPC_Pump1Point")
+pump_1_look_target = NodePath("../NPCMarkers/GasNPC_Pump1LookTarget")
+pump_2_point = NodePath("../NPCMarkers/GasNPC_Pump2Point")
+pump_2_look_target = NodePath("../NPCMarkers/GasNPC_Pump2LookTarget")

@@ -19,7 +19,7 @@
 [ext_resource type="AudioStream" uid="uid://civ0e3qqykiv1" path="res://assets/audio/menu/audio_test.ogg" id="11_s2sug"]
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="11_wnuh0"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="12_m0ciu"]
-[ext_resource type="Script" path="res://scripts/environment/sky3d_project_profile.gd" id="13_profile"]
+[ext_resource type="Script" uid="uid://b0vsytimkedpu" path="res://scripts/environment/sky3d_project_profile.gd" id="13_profile"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_st2cm"]
 shader = ExtResource("3_eftjy")

@@ -5,7 +5,10 @@
 
 [node name="Door01InteractSetup" instance=ExtResource("1_base")]
 door_mesh_path = NodePath("../Door_01")
-lock_mode = 1
-required_item_id = &"bathroom_key"
-unlocked_flag = "bathroom_door_unlocked"
+dialogue_resource = ExtResource("2_dlg")
+
+[node name="DoorPivot" parent="." index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.00077, -0.000335)
+
+[node name="InteractableDialogueComponent" parent="." index="2"]
 dialogue_resource = ExtResource("2_dlg")

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://dv4qywhyxgic8"
-path="res://.godot/imported/Walking.fbx-5984cabe90ac8e5ab0f518f5705d635d.scn"
+uid="uid://bnbku37r0srod"
+path="res://.godot/imported/Old_Man_Walk.fbx-4e4e2f46c5695445f3972bee7970a0ef.scn"
 
 [deps]
 
-source_file="res://assets/characters/character_npc_gas_station/animations/Walking.fbx"
-dest_files=["res://.godot/imported/Walking.fbx-5984cabe90ac8e5ab0f518f5705d635d.scn"]
+source_file="res://assets/characters/character_npc_gas_station/animations/Old_Man_Walk.fbx"
+dest_files=["res://.godot/imported/Old_Man_Walk.fbx-4e4e2f46c5695445f3972bee7970a0ef.scn"]
 
 [params]
 
@@ -36,9 +36,9 @@ _subresources={
 "animations": {
 "mixamo.com": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://assets/characters/character_npc_gas_station/animations/Walking.res",
+"save_to_file/fallback_path": "res://assets/characters/character_npc_gas_station/animations/Old_Man_Walk.res",
 "save_to_file/keep_custom_tracks": "",
-"save_to_file/path": "res://assets/characters/character_npc_gas_station/animations/Walking.res",
+"save_to_file/path": "res://assets/characters/character_npc_gas_station/animations/Old_Man_Walk.res",
 "settings/loop_mode": 1,
 "settings/loops": true
 }

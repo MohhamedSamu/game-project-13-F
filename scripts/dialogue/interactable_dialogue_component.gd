@@ -30,6 +30,7 @@ extends Area3D
 @export var set_flag_on_finish_value: bool = true
 
 var player_near: bool = false
+var _preparing_dialogue: bool = false
 
 ## Capa física dedicada para InteractionRayTarget (layer 3 = bit 4).
 const RAY_TARGET_COLLISION_LAYER: int = 4
@@ -62,8 +63,18 @@ func _get_focus_target() -> Node3D:
 	)
 
 
+func _get_aim_focus_target() -> Node3D:
+	return DialogueFocusResolver.resolve_focus_target(
+		true,
+		focus_target,
+		auto_find_focus_target,
+		focus_target_node_name,
+		self
+	)
+
+
 func _get_proximity_center() -> Vector3:
-	var target := _get_focus_target()
+	var target := _get_aim_focus_target()
 	if target != null:
 		return target.global_position
 	return global_position
@@ -79,6 +90,8 @@ func _is_player_in_range() -> bool:
 
 
 func can_interact() -> bool:
+	if _preparing_dialogue:
+		return false
 	if not enabled:
 		return false
 	if GameManager.dialogue_active:
@@ -104,6 +117,25 @@ func interact() -> void:
 	if interaction_handler != null and interaction_handler.has_method("handle_interaction"):
 		interaction_handler.handle_interaction()
 		return
+	_begin_dialogue_interaction()
+
+
+func _begin_dialogue_interaction() -> void:
+	_preparing_dialogue = true
+	await _await_dialogue_preparation()
+	_preparing_dialogue = false
+
+	if not enabled:
+		return
+	if GameManager.dialogue_active:
+		return
+	if not _is_player_in_range():
+		return
+	if trigger_once and already_triggered:
+		return
+	if dialogue_resource == null:
+		return
+
 	if trigger_once:
 		already_triggered = true
 	if set_flag_on_finish != "":
@@ -112,6 +144,19 @@ func interact() -> void:
 			CONNECT_ONE_SHOT
 		)
 	DialogueController.start_dialogue(dialogue_resource, dialogue_title, _get_focus_target())
+
+
+func _await_dialogue_preparation() -> void:
+	var player := GameManager.get_player() as Node3D
+	if player == null:
+		return
+	var dialogue_owner := _get_dialogue_owner()
+	if dialogue_owner != null and dialogue_owner.has_method("prepare_dialogue_interaction"):
+		await dialogue_owner.prepare_dialogue_interaction(player)
+
+
+func _get_dialogue_owner() -> Node:
+	return get_parent()
 
 
 func _on_dialogue_finished_apply_flag() -> void:
@@ -216,7 +261,7 @@ func _is_target_under_same_setup(target_node: Node) -> bool:
 
 
 func get_dialogue_focus_radius() -> float:
-	var target := _get_focus_target()
+	var target := _get_aim_focus_target()
 	if target == null:
 		return 0.85
 	var shape_node := target.get_node_or_null("FocusHitbox/CollisionShape3D") as CollisionShape3D
@@ -228,7 +273,7 @@ func get_dialogue_focus_radius() -> float:
 
 
 func is_player_aiming_at_dialogue_focus(camera: Camera3D, max_distance: float = 2.5) -> bool:
-	var target := _get_focus_target()
+	var target := _get_aim_focus_target()
 	if camera == null or target == null:
 		return false
 	var origin := camera.global_position
