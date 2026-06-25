@@ -33,6 +33,8 @@ enum WorkState {
 @export var wait_after_standing_min: float = 0.8
 @export var wait_after_standing_max: float = 1.5
 @export var pause_behavior_during_dialogue: bool = true
+@export var intro_first_kneel_pause: float = 1.0
+@export var intro_first_kneel_down_start_time: float = 1.5
 
 @export_group("Movement Turn")
 @export var pre_walk_turn_speed: float = 2.4
@@ -69,7 +71,8 @@ enum WorkState {
 
 const BLEND_IDLE_WALK := 0.25
 const BLEND_TURN_IN_PLACE := 0.20
-const BLEND_KNEEL_DOWN := 0.15
+const BLEND_KNEEL_DOWN := 0.30
+const BLEND_INTRO_FIRST_KNEEL_DOWN := 0.50
 const BLEND_KNEEL_INSPECT := 0.50
 const BLEND_STAND_UP := 0.50
 const BLEND_ROUTINE := 0.20
@@ -96,6 +99,9 @@ var _work_state: WorkState = WorkState.IDLE
 var _current_pump_index: int = 0
 var _state_timer: float = 0.0
 var _gesture_anim: StringName = &""
+var _pending_intro_first_kneel_entry: bool = false
+var _intro_first_kneel_pause_active: bool = false
+var _use_intro_first_kneel_start_time: bool = false
 var _turn_anchor_position: Vector3 = Vector3.ZERO
 
 
@@ -178,8 +184,19 @@ func start_work_behavior() -> void:
 	behavior_enabled = true
 	_work_behavior_started = true
 	_current_pump_index = 0
-	play_routine_idle(BLEND_ROUTINE)
-	_begin_pump_cycle()
+	if _pending_intro_first_kneel_entry:
+		_pending_intro_first_kneel_entry = false
+		_begin_intro_first_kneel_entry()
+	else:
+		play_routine_idle(BLEND_ROUTINE)
+		_begin_pump_cycle()
+
+
+func _begin_intro_first_kneel_entry() -> void:
+	_halt_horizontal_movement()
+	_intro_first_kneel_pause_active = true
+	_work_state = WorkState.IDLE
+	_state_timer = intro_first_kneel_pause
 
 
 func start_work_behavior_after_intro() -> void:
@@ -200,7 +217,8 @@ func _begin_pump_cycle() -> void:
 func _process_work_behavior(delta: float) -> void:
 	match _work_state:
 		WorkState.IDLE:
-			pass
+			if _intro_first_kneel_pause_active:
+				_process_intro_first_kneel_pause(delta)
 		WorkState.TURNING_TO_MOVE_DIRECTION:
 			_process_turning_to_move_direction(delta)
 		WorkState.WALKING_TO_POINT:
@@ -271,6 +289,15 @@ func _process_walking_to_point(delta: float) -> void:
 
 	velocity.x = direction.x * move_speed
 	velocity.z = direction.z * move_speed
+
+
+func _process_intro_first_kneel_pause(delta: float) -> void:
+	_halt_horizontal_movement()
+	_state_timer -= delta
+	if _state_timer <= 0.0:
+		_intro_first_kneel_pause_active = false
+		_use_intro_first_kneel_start_time = true
+		_set_work_state(WorkState.KNEELING_DOWN)
 
 
 func _process_arrival_settle(delta: float) -> void:
@@ -578,7 +605,24 @@ func play_walk_in_place(blend: float = BLEND_IDLE_WALK) -> void:
 
 
 func play_kneel_down() -> void:
-	_play_anim(&"kneeling_down", BLEND_KNEEL_DOWN)
+	var is_intro_first := _use_intro_first_kneel_start_time
+	var blend := BLEND_INTRO_FIRST_KNEEL_DOWN if is_intro_first else BLEND_KNEEL_DOWN
+	_play_anim(&"kneeling_down", blend)
+	if not is_intro_first:
+		return
+	_use_intro_first_kneel_start_time = false
+	var animation_player := _get_animation_player()
+	if animation_player == null:
+		return
+	var kneel_anim := animation_player.get_animation(&"kneeling_down")
+	if kneel_anim == null:
+		return
+	var start_time := clampf(
+		intro_first_kneel_down_start_time,
+		0.0,
+		maxf(0.0, kneel_anim.length - 0.05)
+	)
+	animation_player.seek(start_time, true)
 
 
 func play_kneeling_inspecting() -> void:
@@ -703,6 +747,7 @@ func _on_dialogue_finished() -> void:
 		await _return_to_pre_dialogue_rotation()
 
 	_has_saved_pre_dialogue_yaw = false
+	_pending_intro_first_kneel_entry = true
 	start_work_behavior_after_intro()
 
 
