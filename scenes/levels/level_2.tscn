@@ -128,17 +128,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 2)
 [node name="BathroomDoorSetup" parent="Gas_station" instance=ExtResource("8_door")]
 transform = Transform3D(-100, 3.89414e-05, -2.84217e-12, 0, 5.96046e-06, 100, 3.89414e-05, 100, -1.19209e-05, 20.8168, 1.24941, -20.9974)
 door_mesh_path = NodePath("../Door_01")
+restore_as_open = true
 dialogue_resource = ExtResource("10_door01dlg")
 open_sound = ExtResource("4_wwjag")
 
 [node name="IceProximitySetup" parent="Gas_station" instance=ExtResource("9_iceprox")]
-transform = Transform3D(100, 0, 0, 0, -1.19209e-05, 100, 0, -100, -1.19209e-05, -1.06007, 1.11659, -13.6583)
+transform = Transform3D(-2.52092, -54.3659, -6.52335e-06, 0, -6.48569e-06, 54.7624, -65.5916, 2.08947, 2.50715e-07, -1.49189, 1.11659, -12.4364)
 
 [node name="ToiletCubicleDoorSetup" parent="Gas_station" instance=ExtResource("8_door")]
 transform = Transform3D(-100, 3.89414e-05, -2.84217e-12, 0, 5.96046e-06, 100, 3.89414e-05, 100, -1.19209e-05, 23.3263, 1.46001, -16.5554)
 door_mesh_path = NodePath("../Toilet_cubicles_Door_001")
 lock_mode = 0
 open_state_flag = "toilet_cubicle_door_001_open"
+restore_as_open = true
 
 [node name="ToiletPeeCamera" type="Camera3D" parent="Gas_station"]
 transform = Transform3D(0.0146561, 0.519973, -0.854057, 0.0047239, 0.854103, 0.520082, 0.999881, -0.0116569, 0.0100615, 23.8593, 1.84612, -16.0882)
@@ -154,6 +156,7 @@ transform = Transform3D(1.31134e-05, 100, 1.19209e-05, 0, -1.19209e-05, 100, 100
 door_mesh_path = NodePath("../Door_03")
 lock_mode = 0
 open_state_flag = "supermarket_door_1_open"
+restore_as_open = true
 
 [node name="SupermarketDoor2InteractSetup" parent="Gas_station" instance=ExtResource("8_door")]
 transform = Transform3D(1.31134e-07, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, -1.31134e-07, -5.73206e-15, 7.94064, 1.42546, -24.5763)
@@ -161,27 +164,84 @@ door_mesh_path = NodePath("../Door")
 lock_mode = 0
 unlocked_flag = "supermarket_2_door_unlocked"
 open_state_flag = "supermarket_2_door_unlocked"
+restore_as_open = true
 hinge_on_positive_y = true
 open_angle_degrees = -90.0
 
 [node name="invisibleObjects" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3179, 0, -12.0213)
 
-[node name="InvisibleWall" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+[node name="InvisibleWallBath1" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 21.9748, 0.131246, -5.04654)
 wall_length = 5.0
 
-[node name="InvisibleWall2" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+[node name="InvisibleWallBath2" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 21.9725, 0.131246, -0.819903)
 wall_length = 1.4
 
-[node name="InvisibleWall3" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+[node name="InvisibleWallBath3" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
 transform = Transform3D(1, 0, 1.06581e-14, 0, 1, 0, -1.06581e-14, 0, 1, 22.7735, 0.131246, -1.40452)
 wall_length = 1.4
 
-[node name="InvisibleWall4" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+[node name="InvisibleWallBath4" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
 transform = Transform3D(1, 0, 1.06581e-14, 0, 1, 0, -1.06581e-14, 0, 1, 22.7768, 0.131246, -2.64758)
 wall_length = 1.4
+
+[node name="InvisibleWallBath5" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(1, 0, 1.06581e-14, 0, 1, 0, -1.06581e-14, 0, 1, 19.9031, 0.131246, -1.52309)
+wall_length = 0.85
+
+[node name="InvisibleWallBath7" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 20.2248, 0.131246, -3.2294)
+wall_length = 3.4
+
+[node name="InvisibleWallBath6" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(1, 0, 1.06581e-14, 0, 1, 0, -1.06581e-14, 0, 1, 19.9031, 0.131246, -5.00419)
+wall_length = 0.85
+
+[node name="InvisibleWallSuper1" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.43464, 0.131246, -0.996346)
+wall_length = 5.0
+
+[node name="InvisibleWallSuper2" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.43464, 0.131246, -3.08572)
+wall_length = 5.0
+
+[node name="InvisibleWallSuper3" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.43464, 0.131246, -4.1683)
+wall_length = 5.0
+
+[node name="InvisibleWallSuper4" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.43464, 0.131246, -6.27344)
+wall_length = 5.0
+
+[node name="InvisibleWallSuper5" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.43464, 0.131246, -7.3994)
+wall_length = 5.0
+
+[node name="InvisibleWallSuper6" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.43464, 0.131246, -9.9157)
+wall_length = 5.0
+
+[node name="InvisibleWallSuper7" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.966056, 0.131246, -6.81742)
+wall_length = 1.0
+
+[node name="InvisibleWallSuper8" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -0.966056, 0.131246, -3.60124)
+wall_length = 1.0
+
+[node name="InvisibleWallSuper9" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.27991, 0.131246, -0.174386)
+wall_length = 5.0
+
+[node name="InvisibleWallSuper10" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 7.45965, 0.131246, -0.167191)
+wall_length = 3.6
+
+[node name="InvisibleWallSuper11" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 9.16086, 0.131246, -1.8693)
+wall_length = 3.6
 
 [node name="Iglesia" parent="." instance=ExtResource("3_y2gk5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.222, -0.00352758, 26.2195)
@@ -384,6 +444,30 @@ omni_range = 10.7454
 [node name="OmniLight3D5" type="OmniLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.62887, 3.29084, 5.89729)
 omni_range = 10.5896
+
+[node name="OmniLight3DSuper1" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1878, 3.32771, -13.6577)
+omni_range = 7.79539
+
+[node name="OmniLight3DSuper2" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1878, 3.32771, -17.1317)
+omni_range = 7.79539
+
+[node name="OmniLight3DSuper3" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1878, 3.32771, -20.1683)
+omni_range = 7.79539
+
+[node name="OmniLight3DSuperStorage" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.20771, 3.32771, -24.6607)
+omni_range = 10.0741
+
+[node name="OmniLight3DSuper4" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.00012, 3.32771, -18.7588)
+omni_range = 7.79539
+
+[node name="OmniLight3DSuper5" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.0393, 2.92036, -15.9113)
+omni_range = 9.56865
 
 [node name="Sky3D" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_yxkvy")

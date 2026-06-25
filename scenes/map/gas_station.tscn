@@ -63,6 +63,7 @@
 [ext_resource type="Texture2D" uid="uid://byckgblqkqlwg" path="res://assets/models/gas_station/Tiles.jpg" id="61_msx0y"]
 [ext_resource type="Texture2D" uid="uid://cyo70h236rg6y" path="res://assets/models/gas_station/Carpet.jpg" id="62_fcxn2"]
 [ext_resource type="Texture2D" uid="uid://dksfnxmxa6qf6" path="res://assets/models/gas_station/Tiles_01.png" id="63_rldvi"]
+[ext_resource type="Script" uid="uid://ciec0dnwd7ba5" path="res://scripts/props/toilet_sign_fixup.gd" id="65_toiletsignfix"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c3ex7"]
 resource_name = "AsphaltDamaged"
@@ -713,9 +714,11 @@ data = PackedVector3Array(0.0055, 0.0009, 0.0104, 0.006, 0.0009, 0.0099, 0.0268,
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hyq4v"]
 resource_name = "Glass"
+transparency = 4
+cull_mode = 2
 vertex_color_use_as_albedo = true
-albedo_color = Color(0.906332, 0.906332, 0.906332, 1)
-emission_enabled = true
+albedo_color = Color(0.82, 0.88, 0.92, 0.22)
+roughness = 0.12
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_ll5m5"]
 _surfaces = [{
@@ -34918,44 +34921,18 @@ shadow_mesh = SubResource("ArrayMesh_j7f51")
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_c8675"]
 data = PackedVector3Array(0.0002, 0.0093, 0.0138, 0.0002, 0.0093, -0.0113, 0.0002, -0.0001, -0.0113, 0.0002, -0.0001, -0.0113, 0.0002, -0.0001, 0.0138, 0.0002, 0.0093, 0.0138, -0.0002, 0.0093, 0.0138, -0.0002, 0.0093, -0.0113, 0.0002, 0.0093, -0.0113, 0.0002, 0.0093, -0.0113, 0.0002, 0.0093, 0.0138, -0.0002, 0.0093, 0.0138, -0.0002, -0.0001, 0.0138, -0.0002, -0.0001, -0.0113, -0.0002, 0.0093, -0.0113, -0.0002, 0.0093, -0.0113, -0.0002, 0.0093, 0.0138, -0.0002, -0.0001, 0.0138, 0.0002, -0.0001, 0.0138, 0.0002, -0.0001, -0.0113, -0.0002, -0.0001, -0.0113, -0.0002, -0.0001, -0.0113, -0.0002, -0.0001, 0.0138, 0.0002, -0.0001, 0.0138, -0.0002, -0.0001, -0.0113, 0.0002, -0.0001, -0.0113, 0.0002, 0.0093, -0.0113, 0.0002, 0.0093, -0.0113, -0.0002, 0.0093, -0.0113, -0.0002, -0.0001, -0.0113, 0.0002, -0.0001, 0.0138, -0.0002, -0.0001, 0.0138, -0.0002, 0.0093, 0.0138, -0.0002, 0.0093, 0.0138, 0.0002, 0.0093, 0.0138, 0.0002, -0.0001, 0.0138)
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_m8p5k"]
-resource_name = "Toilets_Sing"
-transparency = 4
-vertex_color_use_as_albedo = true
+[sub_resource type="QuadMesh" id="QuadMesh_kaepb"]
+size = Vector2(0.00507024, 0.0102542)
+orientation = 0
+metadata/toilet_sign_version = 4
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_skehm"]
+resource_name = "ToiletSign"
+cull_mode = 2
 albedo_texture = ExtResource("54_8ay36")
-emission_enabled = true
-
-[sub_resource type="ArrayMesh" id="ArrayMesh_k1rfe"]
-_surfaces = [{
-"aabb": AABB(-0.000109234, -0.00253512, -0.00514147, 0.000218468, 0.00507024, 0.0102542),
-"format": 34359742465,
-"index_count": 36,
-"index_data": PackedByteArray("AAABAAIAAgADAAAAAQAAAAQABAAAAAMABQACAAEAAwACAAUABAAGAAEAAQAGAAUAAwAHAAQABgAEAAcABQAHAAMABwAFAAYA"),
-"name": "Toilets_Sing",
-"primitive": 3,
-"uv_scale": Vector4(0, 0, 0, 0),
-"vertex_count": 8,
-"vertex_data": PackedByteArray("rxTluEUkJrsXiac7rxTluEUkJjsXiac7rxTluEUkJju9eai7rxTluEUkJru9eai7XxTlOEUkJrsXiac7XxTlOEUkJju9eai7XxTlOEUkJjsXiac7XxTlOEUkJru9eai7")
-}]
-blend_shape_mode = 0
-
-[sub_resource type="ArrayMesh" id="ArrayMesh_nur3t"]
-resource_name = "Toilets_Sing"
-_surfaces = [{
-"aabb": AABB(-0.000109234, -0.00253512, -0.00514147, 0.000218468, 0.00507024, 0.0102542),
-"attribute_data": PackedByteArray("Mj13P4AURDz/LAw9gBREPOcsDD0jo30/Lz13PyGjfT8z4p0+ntwRP8cHEj6e3BE/xgcSPoBlOz8z4p0+gGU7P0KSvT0y8/w+h4G3PjDz/D6Fgbc+uvtFP0KSvT25+0U/njWsPfYNDj+Fg6k+9A0OP4ODqT7h8Us/nzWsPeLxSz+ggbw+0M4zP6CBvD5KcxA/2pGpPUpzED/akak90M4zP9qRqT3QzjM/2pGpPUpzED+ggbw+SnMQP6CBvD7QzjM/"),
-"format": 34359742487,
-"index_count": 36,
-"index_data": PackedByteArray("AAABAAIAAgADAAAABAAFAAYABgAHAAQACAAJAAoACgALAAgADAANAA4ADgAPAAwAEAARABIAEgATABAAFAAVABYAFgAXABQA"),
-"material": SubResource("StandardMaterial3D_m8p5k"),
-"name": "Toilets_Sing",
-"primitive": 3,
-"uv_scale": Vector4(0, 0, 0, 0),
-"vertex_count": 24,
-"vertex_data": PackedByteArray("rxTluEUkJrsXiac7rxTluEUkJjsXiac7rxTluEUkJju9eai7rxTluEUkJru9eai7XxTlOEUkJrsXiac7rxTluEUkJrsXiac7rxTluEUkJru9eai7XxTlOEUkJru9eai7XxTlOEUkJjsXiac7XxTlOEUkJrsXiac7XxTlOEUkJru9eai7XxTlOEUkJju9eai7rxTluEUkJjsXiac7XxTlOEUkJjsXiac7XxTlOEUkJju9eai7rxTluEUkJju9eai7XxTlOEUkJju9eai7XxTlOEUkJru9eai7rxTluEUkJru9eai7rxTluEUkJju9eai7rxTluEUkJjsXiac7rxTluEUkJrsXiac7XxTlOEUkJrsXiac7XxTlOEUkJjsXiac7////f/9//n////9//3/+f////3//f/5/////f/9//n//f///////P/9///////8//3///////z//f///////PwAA/3//fwCAAAD/f/9/AIAAAP9//38AgAAA/3//fwCA/38AAP///7//fwAA////v/9/AAD///+//38AAP///7//f/9/////P/9//3////8//3//f////z//f/9/////P/////////+//////////7//////////v/////////+/")
-}]
-blend_shape_mode = 0
-shadow_mesh = SubResource("ArrayMesh_k1rfe")
+uv1_scale = Vector3(-1, 1, 1)
+uv1_offset = Vector3(1, 0, 0)
+texture_filter = 0
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_r0yur"]
 data = PackedVector3Array(-0.0001, -0.0025, 0.0051, -0.0001, 0.0025, 0.0051, -0.0001, 0.0025, -0.0051, -0.0001, 0.0025, -0.0051, -0.0001, -0.0025, -0.0051, -0.0001, -0.0025, 0.0051, 0.0001, -0.0025, 0.0051, -0.0001, -0.0025, 0.0051, -0.0001, -0.0025, -0.0051, -0.0001, -0.0025, -0.0051, 0.0001, -0.0025, -0.0051, 0.0001, -0.0025, 0.0051, 0.0001, 0.0025, 0.0051, 0.0001, -0.0025, 0.0051, 0.0001, -0.0025, -0.0051, 0.0001, -0.0025, -0.0051, 0.0001, 0.0025, -0.0051, 0.0001, 0.0025, 0.0051, -0.0001, 0.0025, 0.0051, 0.0001, 0.0025, 0.0051, 0.0001, 0.0025, -0.0051, 0.0001, 0.0025, -0.0051, -0.0001, 0.0025, -0.0051, -0.0001, 0.0025, 0.0051, 0.0001, 0.0025, -0.0051, 0.0001, -0.0025, -0.0051, -0.0001, -0.0025, -0.0051, -0.0001, -0.0025, -0.0051, -0.0001, 0.0025, -0.0051, 0.0001, 0.0025, -0.0051, -0.0001, 0.0025, 0.0051, -0.0001, -0.0025, 0.0051, 0.0001, -0.0025, 0.0051, 0.0001, -0.0025, 0.0051, 0.0001, 0.0025, 0.0051, -0.0001, 0.0025, 0.0051)
@@ -45160,9 +45137,11 @@ skeleton = NodePath("")
 shape = SubResource("ConcavePolygonShape3D_c8675")
 
 [node name="Toilets_Sing" type="MeshInstance3D" parent="."]
-transform = Transform3D(100, 0, 0, 0, -1.19209e-05, 100, 0, -100, -1.19209e-05, 20.697, 2.14527, -19.1765)
-mesh = SubResource("ArrayMesh_nur3t")
+transform = Transform3D(100, 0, 0, 0, 100, 7.54976e-06, 0, -7.54976e-06, 100, 20.697, 2.14527, -19.1765)
+mesh = SubResource("QuadMesh_kaepb")
 skeleton = NodePath("")
+surface_material_override/0 = SubResource("StandardMaterial3D_skehm")
+script = ExtResource("65_toiletsignfix")
 
 [node name="StaticBody3D" type="StaticBody3D" parent="Toilets_Sing"]
 

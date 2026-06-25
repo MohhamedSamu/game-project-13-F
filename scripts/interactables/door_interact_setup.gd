@@ -12,8 +12,6 @@ enum LockMode {
 const DEFAULT_PANEL_CENTER := Vector3(0.0, 0.00448, -0.000335)
 const DEFAULT_PANEL_HALF_WIDTH := 0.00525
 const DOOR_REFERENCE_SCALE := 100.0
-const _RAY_TARGET_PREVIEW_COLOR := Color(0.35, 0.78, 1.0, 0.38)
-const _PROXIMITY_PREVIEW_COLOR := Color(0.45, 0.95, 0.55, 0.16)
 
 @export_group("Puerta (mesh)")
 ## Hermano del setup bajo el mismo padre (p. ej. ../Door_01).
@@ -28,9 +26,9 @@ const _PROXIMITY_PREVIEW_COLOR := Color(0.45, 0.95, 0.55, 0.16)
 @export var unlocked_flag: String = "bathroom_door_unlocked"
 
 @export_group("Estado persistente")
-## Si no está vacío, recuerda que la puerta ya se abrió (modo sin llave).
+## Solo el desbloqueo con llave persiste entre visitas al nivel; abierto/cerrado no.
 @export var open_state_flag: String = ""
-@export var restore_as_open: bool = true
+@export var restore_as_open: bool = false
 
 @export_group("Interacción")
 @export_range(0.5, 8.0, 0.1) var proximity_radius: float = 3.5:
@@ -53,6 +51,7 @@ const _PROXIMITY_PREVIEW_COLOR := Color(0.45, 0.95, 0.55, 0.16)
 @export var prompt_locked: String = "Presiona [E] para interactuar"
 @export var prompt_use_key: String = "Presiona [E] para usar la llave"
 @export var prompt_open: String = "Presiona [E] para abrir"
+@export var prompt_close: String = "Presiona [E] para cerrar"
 
 @export_group("Panel / mira")
 ## Centro del panel (bisagra, diálogo y referencia de detección).
@@ -87,12 +86,6 @@ const _PROXIMITY_PREVIEW_COLOR := Color(0.45, 0.95, 0.55, 0.16)
 		ray_target_width = maxf(value, 0.005)
 		_request_rebuild()
 
-@export_group("Editor")
-@export var show_editor_preview: bool = true:
-	set(value):
-		show_editor_preview = value
-		_update_preview_visibility()
-
 @export_group("Apertura")
 @export var hinge_on_positive_y: bool = false
 
@@ -108,7 +101,7 @@ const _PROXIMITY_PREVIEW_COLOR := Color(0.45, 0.95, 0.55, 0.16)
 @export var unlock_dialogue_title: String = "unlocked"
 
 @export_group("Audio")
-## Sonido al abrir la puerta (bus SFX del proyecto). Por defecto Creaking Door 2.
+## Sonido al abrir o cerrar la puerta (bus SFX del proyecto).
 @export var open_sound: AudioStream = preload("res://assets/audio/SFX/door/Creaking_Door_2.mp3")
 
 var opened: bool = false
@@ -122,11 +115,10 @@ var _ray_shape: CollisionShape3D
 var _proximity_shape: CollisionShape3D
 var _door_attached: bool = false
 var _open_player: AudioStreamPlayer3D
-var _editor_ray_preview: MeshInstance3D
-var _editor_proximity_preview: MeshInstance3D
-var _ray_preview_material: StandardMaterial3D
-var _proximity_preview_material: StandardMaterial3D
 var _owns_ray_shape: bool = false
+var _is_animating: bool = false
+var _closed_axis_rotation: float = 0.0
+var _door_tween: Tween
 
 
 func _enter_tree() -> void:
@@ -136,7 +128,6 @@ func _enter_tree() -> void:
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
-		_update_preview_visibility()
 		return
 
 	_load_persistent_state()
@@ -166,12 +157,6 @@ func _cache_child_refs() -> void:
 	if _interactable != null:
 		_proximity_shape = _interactable.get_node_or_null("CollisionShape3D") as CollisionShape3D
 	_open_player = get_node_or_null("Audio/OpenSoundPlayer") as AudioStreamPlayer3D
-	_editor_ray_preview = get_node_or_null("EditorRayTargetPreview") as MeshInstance3D
-	_editor_proximity_preview = get_node_or_null("EditorProximityPreview") as MeshInstance3D
-	if _editor_ray_preview != null:
-		_editor_ray_preview.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	if _editor_proximity_preview != null:
-		_editor_proximity_preview.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
 
 func _rebuild() -> void:
@@ -179,8 +164,6 @@ func _rebuild() -> void:
 		return
 	_cache_child_refs()
 	_apply_configuration()
-	_sync_editor_previews()
-	_update_preview_visibility()
 
 
 func _apply_configuration() -> void:
@@ -216,63 +199,6 @@ func _get_ray_target_center_local() -> Vector3:
 	return _to_reference_space_vec(panel_center + ray_target_center_offset)
 
 
-func _get_proximity_center_local() -> Vector3:
-	return _to_reference_space_vec(panel_center + proximity_center_offset)
-
-
-func _get_proximity_preview_radius_local() -> float:
-	var scale := _get_setup_uniform_scale()
-	if scale < 0.0001:
-		return proximity_radius
-	return proximity_radius / scale
-
-
-func _sync_editor_previews() -> void:
-	if _editor_ray_preview != null:
-		var mesh := _unique_ray_preview_mesh()
-		var size := Vector3(
-			_to_reference_space(ray_target_thickness),
-			_to_reference_space(ray_target_height),
-			_to_reference_space(ray_target_width)
-		)
-		mesh.size = size
-		_editor_ray_preview.position = _get_ray_target_center_local()
-		_ensure_preview_material(_editor_ray_preview, _RAY_TARGET_PREVIEW_COLOR, _ray_preview_material)
-		_ray_preview_material = _editor_ray_preview.material_override as StandardMaterial3D
-
-	if _editor_proximity_preview != null:
-		var mesh := _unique_proximity_preview_mesh()
-		var radius := _get_proximity_preview_radius_local()
-		mesh.radius = radius
-		mesh.height = radius * 2.0
-		_editor_proximity_preview.position = _get_proximity_center_local()
-		_ensure_preview_material(_editor_proximity_preview, _PROXIMITY_PREVIEW_COLOR, _proximity_preview_material)
-		_proximity_preview_material = _editor_proximity_preview.material_override as StandardMaterial3D
-
-
-func _ensure_preview_material(
-	preview: MeshInstance3D,
-	color: Color,
-	existing: StandardMaterial3D
-) -> void:
-	var material := existing
-	if material == null:
-		material = StandardMaterial3D.new()
-		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		material.cull_mode = BaseMaterial3D.CULL_DISABLED
-		preview.material_override = material
-	material.albedo_color = color
-
-
-func _update_preview_visibility() -> void:
-	var visible := Engine.is_editor_hint() and show_editor_preview
-	if _editor_ray_preview != null:
-		_editor_ray_preview.visible = visible
-	if _editor_proximity_preview != null:
-		_editor_proximity_preview.visible = visible
-
-
 func _unique_ray_box() -> BoxShape3D:
 	if not _owns_ray_shape:
 		var shared := _ray_shape.shape as BoxShape3D
@@ -283,49 +209,30 @@ func _unique_ray_box() -> BoxShape3D:
 	return _ray_shape.shape as BoxShape3D
 
 
-func _unique_ray_preview_mesh() -> BoxMesh:
-	if _editor_ray_preview == null:
-		return BoxMesh.new()
-	var mesh := _editor_ray_preview.mesh as BoxMesh
-	if mesh == null:
-		mesh = BoxMesh.new()
-		_editor_ray_preview.mesh = mesh
-	return mesh
-
-
-func _unique_proximity_preview_mesh() -> SphereMesh:
-	if _editor_proximity_preview == null:
-		return SphereMesh.new()
-	var mesh := _editor_proximity_preview.mesh as SphereMesh
-	if mesh == null:
-		mesh = SphereMesh.new()
-		_editor_proximity_preview.mesh = mesh
-	return mesh
-
-
 func _load_persistent_state() -> void:
+	opened = false
 	if lock_mode == LockMode.ITEM_REQUIRED and not unlocked_flag.is_empty():
 		unlocked = GameManager.get_flag(unlocked_flag)
-	elif lock_mode == LockMode.NONE and not open_state_flag.is_empty():
-		if GameManager.get_flag(open_state_flag):
-			opened = true
 
 
 # --- API delegada desde InteractableDialogueComponent ---
 
 func can_handle_interaction() -> bool:
-	return not opened
+	return not _is_animating
 
 
 func get_interaction_prompt() -> String:
-	if opened:
+	if _is_animating:
 		return ""
+	if opened:
+		return prompt_close
 	if lock_mode == LockMode.ITEM_REQUIRED and not unlocked:
 		var player := GameManager.player
 		if player != null and player.has_method("is_holding_item"):
 			if player.is_holding_item(required_item_id):
 				return prompt_use_key
-	return prompt_open if lock_mode == LockMode.NONE else prompt_locked
+		return prompt_locked
+	return prompt_open
 
 
 func handle_interaction() -> void:
@@ -333,28 +240,30 @@ func handle_interaction() -> void:
 
 
 func try_interact() -> void:
-	if GameManager.dialogue_active:
+	if GameManager.dialogue_active or _is_animating:
 		return
 
-	if lock_mode == LockMode.NONE or unlocked:
-		if not opened:
-			_open_or_dialogue()
+	if lock_mode == LockMode.ITEM_REQUIRED and not unlocked:
+		var player := GameManager.player
+		if player == null:
+			return
+
+		if not player.has_method("is_holding_item"):
+			push_warning("DoorInteractSetup: el jugador no expone is_holding_item().")
+			_start_locked_dialogue()
+			return
+
+		if not player.is_holding_item(required_item_id):
+			_start_locked_dialogue()
+			return
+
+		_unlock_and_open()
 		return
 
-	var player := GameManager.player
-	if player == null:
-		return
-
-	if not player.has_method("is_holding_item"):
-		push_warning("DoorInteractSetup: el jugador no expone is_holding_item().")
-		_start_locked_dialogue()
-		return
-
-	if not player.is_holding_item(required_item_id):
-		_start_locked_dialogue()
-		return
-
-	_unlock_and_open()
+	if opened:
+		close_door()
+	else:
+		_open_or_dialogue()
 
 
 func _open_or_dialogue() -> void:
@@ -368,6 +277,9 @@ func _open_or_dialogue() -> void:
 
 func _unlock_and_open() -> void:
 	if unlocked:
+		if opened:
+			return
+		open_door()
 		return
 
 	unlocked = true
@@ -387,25 +299,50 @@ func _unlock_and_open() -> void:
 
 
 func open_door() -> void:
-	if opened or _door_pivot == null:
+	if opened or _door_pivot == null or _is_animating:
 		return
 	if not _door_attached:
 		call_deferred("open_door")
 		return
 
 	opened = true
-	if not open_state_flag.is_empty():
-		GameManager.set_flag(open_state_flag, true)
+	var target_angle := _closed_axis_rotation + deg_to_rad(open_angle_degrees)
+	_animate_door_to(target_angle)
 
+
+func close_door() -> void:
+	if not opened or _door_pivot == null or _is_animating:
+		return
+	if not _door_attached:
+		return
+
+	opened = false
+	_animate_door_to(_closed_axis_rotation)
+
+
+func _animate_door_to(target_angle: float) -> void:
+	_kill_door_tween()
+	_is_animating = true
 	_play_open_sound()
 
 	var start_angle := _get_pivot_axis_rotation()
-	var target_angle := start_angle + deg_to_rad(open_angle_degrees)
+	_door_tween = create_tween()
+	_door_tween.set_trans(open_transition)
+	_door_tween.set_ease(open_ease)
+	_door_tween.tween_method(_set_pivot_axis_rotation, start_angle, target_angle, open_duration)
+	_door_tween.finished.connect(_on_door_animation_finished)
 
-	var tween := create_tween()
-	tween.set_trans(open_transition)
-	tween.set_ease(open_ease)
-	tween.tween_method(_set_pivot_axis_rotation, start_angle, target_angle, open_duration)
+
+func _on_door_animation_finished() -> void:
+	_is_animating = false
+	_door_tween = null
+
+
+func _kill_door_tween() -> void:
+	if _door_tween != null and _door_tween.is_valid() and _door_tween.is_running():
+		_door_tween.kill()
+	_door_tween = null
+	_is_animating = false
 
 
 func _apply_audio_configuration() -> void:
@@ -501,21 +438,9 @@ func _attach_door_to_pivot() -> void:
 
 
 func _on_door_attached() -> void:
-	var should_restore := false
-	if lock_mode == LockMode.ITEM_REQUIRED:
-		should_restore = unlocked and restore_as_open and not opened
-	elif lock_mode == LockMode.NONE and not open_state_flag.is_empty():
-		should_restore = opened and restore_as_open
-
-	if should_restore:
-		_apply_open_state_immediate()
-
-
-func _apply_open_state_immediate() -> void:
-	opened = true
-	if _door_pivot == null:
-		return
-	_set_pivot_axis_rotation(_get_pivot_axis_rotation() + deg_to_rad(open_angle_degrees))
+	_closed_axis_rotation = _get_pivot_axis_rotation()
+	if not opened:
+		_set_pivot_axis_rotation(_closed_axis_rotation)
 
 
 func _get_pivot_axis_rotation() -> float:

@@ -16,7 +16,7 @@ const _BULB_NODE_HINTS: Array[StringName] = [&"LampHead", &"Light"]
 @export_group("Auto Find (Level Setup)")
 @export var auto_find_lights: bool = true
 @export var controlled_light_paths: Array[NodePath] = []
-@export var iluminacion_path: NodePath = ^"../../iluminacion"
+@export var iluminacion_path: NodePath = ^"../../../iluminacion"
 @export var spot_light_name: StringName = &"SpotLight3DStreetLampDamaged1"
 @export var omni_light_name: StringName = &"OmniLight3DStreetLampDamaged1"
 @export var street_lamp_model_path: NodePath = ^"../StreetLamp/Model/StreetLampModel"
