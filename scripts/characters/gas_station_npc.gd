@@ -43,6 +43,10 @@ enum WorkState {
 @export var max_snap_distance: float = 0.30
 @export var arrival_momentum_bleed: float = 0.08
 @export var arrival_turn_decel_rate: float = 7.0
+@export var arrival_look_blend_distance: float = 1.2
+@export var arrival_turn_walk_phase: float = 0.7
+@export var arrival_turn_idle_start: float = 0.9
+@export var arrival_turn_speed_ramp: float = 0.35
 
 @export_group("Look Target Turn")
 @export var look_target_turn_speed: float = 2.3
@@ -99,6 +103,7 @@ var _gesture_anim: StringName = &""
 var _pending_intro_first_kneel_entry: bool = false
 var _intro_first_kneel_pause_active: bool = false
 var _use_intro_first_kneel_start_time: bool = false
+var _arrival_turn_start_angle: float = 0.0
 
 
 func _ready() -> void:
@@ -238,7 +243,19 @@ func _process_walking_to_point(delta: float) -> void:
 		return
 
 	var direction := to_point / distance
-	var target_yaw := atan2(direction.x, direction.z)
+	var walk_yaw := atan2(direction.x, direction.z)
+	var target_yaw := walk_yaw
+	var move_scale := 1.0
+
+	var look_target := _get_pump_look_target(_current_pump_index)
+	if look_target != null and distance <= arrival_look_blend_distance:
+		var look_direction := _horizontal_direction_to(look_target.global_position)
+		if look_direction.length_squared() > 0.0001:
+			var look_yaw := atan2(look_direction.x, look_direction.z)
+			var blend_t := 1.0 - clampf(distance / arrival_look_blend_distance, 0.0, 1.0)
+			target_yaw = lerp_angle(walk_yaw, look_yaw, blend_t)
+			move_scale = lerpf(1.0, 0.45, blend_t)
+
 	var angle_err := absf(angle_difference(global_rotation.y, target_yaw))
 	var turn_speed := (
 		walk_correction_turn_speed
@@ -254,13 +271,13 @@ func _process_walking_to_point(delta: float) -> void:
 
 	if angle_err <= pre_walk_angle_tolerance:
 		play_walk_in_place(BLEND_IDLE_WALK)
-		velocity.x = direction.x * move_speed
-		velocity.z = direction.z * move_speed
-	else:
-		_play_routine_turn_anim(angle_err, BLEND_IDLE_WALK)
-		var move_scale := clampf(1.0 - (angle_err / deg_to_rad(90.0)), 0.2, 1.0)
 		velocity.x = direction.x * move_speed * move_scale
 		velocity.z = direction.z * move_speed * move_scale
+	else:
+		_play_routine_turn_anim(angle_err, BLEND_IDLE_WALK)
+		var turn_move_scale := clampf(1.0 - (angle_err / deg_to_rad(90.0)), 0.2, 1.0)
+		velocity.x = direction.x * move_speed * move_scale * turn_move_scale
+		velocity.z = direction.z * move_speed * move_scale * turn_move_scale
 
 
 func _process_intro_first_kneel_pause(delta: float) -> void:
@@ -287,12 +304,13 @@ func _process_turning_to_look_target(delta: float) -> void:
 
 	var target_yaw := atan2(direction.x, direction.z)
 	var angle_err := absf(angle_difference(global_rotation.y, target_yaw))
-	_play_routine_turn_anim(angle_err, BLEND_IDLE_WALK)
+	var turn_progress := _get_arrival_turn_progress(angle_err)
+	var turn_ease := lerpf(0.45, 1.0, clampf(turn_progress / arrival_turn_speed_ramp, 0.0, 1.0))
 
 	global_rotation.y = lerp_angle(
 		global_rotation.y,
 		target_yaw,
-		minf(1.0, look_target_turn_speed * delta)
+		minf(1.0, look_target_turn_speed * turn_ease * delta)
 	)
 
 	if angle_err <= look_target_angle_tolerance:
@@ -300,6 +318,8 @@ func _process_turning_to_look_target(delta: float) -> void:
 		_halt_horizontal_movement()
 		_begin_look_turn_settle()
 		return
+
+	_play_arrival_turn_visual(angle_err)
 
 	var decel := move_speed * arrival_turn_decel_rate * delta
 	velocity.x = move_toward(velocity.x, 0.0, decel)
@@ -394,8 +414,41 @@ func _arrive_at_marker(marker: Marker3D) -> void:
 	_snap_to_marker_on_arrival(marker)
 	velocity.x *= arrival_momentum_bleed
 	velocity.z *= arrival_momentum_bleed
-	play_walk_in_place(BLEND_IDLE_WALK)
+	_cache_arrival_turn_start_angle()
 	_set_work_state(WorkState.TURNING_TO_LOOK_TARGET)
+
+
+func _cache_arrival_turn_start_angle() -> void:
+	var look_target := _get_pump_look_target(_current_pump_index)
+	if look_target == null:
+		_arrival_turn_start_angle = deg_to_rad(45.0)
+		return
+	var direction := _horizontal_direction_to(look_target.global_position)
+	if direction.length_squared() < 0.0001:
+		_arrival_turn_start_angle = deg_to_rad(45.0)
+		return
+	var target_yaw := atan2(direction.x, direction.z)
+	_arrival_turn_start_angle = maxf(
+		absf(angle_difference(global_rotation.y, target_yaw)),
+		deg_to_rad(5.0)
+	)
+
+
+func _get_arrival_turn_progress(angle_err: float) -> float:
+	return 1.0 - clampf(angle_err / _arrival_turn_start_angle, 0.0, 1.0)
+
+
+func _play_arrival_turn_visual(angle_err: float) -> void:
+	var progress := _get_arrival_turn_progress(angle_err)
+	if progress >= arrival_turn_idle_start:
+		play_routine_idle(BLEND_ROUTINE)
+		return
+	var speed_mult := 1.0
+	if progress >= arrival_turn_walk_phase:
+		var fade_range := maxf(arrival_turn_idle_start - arrival_turn_walk_phase, 0.001)
+		var fade := (progress - arrival_turn_walk_phase) / fade_range
+		speed_mult = lerpf(1.0, 0.15, fade)
+	play_walk_in_place(BLEND_IDLE_WALK, speed_mult)
 
 
 func _snap_to_marker_on_arrival(marker: Marker3D) -> void:
@@ -544,13 +597,13 @@ func play_routine_idle(blend: float = BLEND_ROUTINE) -> void:
 		_play_anim_if_not(&"old_man_idle", blend)
 
 
-func play_walk_in_place(blend: float = BLEND_IDLE_WALK) -> void:
+func play_walk_in_place(blend: float = BLEND_IDLE_WALK, speed_multiplier: float = 1.0) -> void:
 	var anim_name := _resolve_walk_in_place_anim()
 	if anim_name == &"":
 		push_warning("GasStationNPC: no hay animación de caminar para la rutina.")
 		play_routine_idle(blend)
 		return
-	_play_anim_if_not(anim_name, blend, _get_walk_playback_speed())
+	_play_anim_if_not(anim_name, blend, _get_walk_playback_speed() * speed_multiplier)
 
 
 func play_kneel_down() -> void:
