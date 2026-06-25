@@ -7,6 +7,7 @@ enum State { IDLE, ENTERING, ACTIVE, EXITING }
 
 const _FOCUS_PREVIEW_COLOR := Color(0.35, 0.78, 1.0, 0.38)
 const _PROXIMITY_PREVIEW_COLOR := Color(0.45, 0.95, 0.55, 0.16)
+const _BLADDER_EMPTY_EPSILON := 0.01
 
 @export_group("Cámara")
 ## Cámara fija colocada en el nivel padre (configurable desde el inspector).
@@ -22,12 +23,12 @@ const _PROXIMITY_PREVIEW_COLOR := Color(0.45, 0.95, 0.55, 0.16)
 		focus_offset = value
 		_request_rebuild()
 ## Radio de la cúpula donde la mira activa el raycast (como FocusHitbox del payaso).
-@export_range(0.2, 3.0, 0.05) var focus_radius: float = 0.9:
+@export_range(0.2, 3.0, 0.05) var focus_radius: float = 0.675:
 	set(value):
 		focus_radius = maxf(value, 0.1)
 		_request_rebuild()
 ## Radio de proximidad para poder interactuar (cúpula exterior).
-@export_range(0.5, 6.0, 0.05) var proximity_radius: float = 2.2:
+@export_range(0.5, 6.0, 0.05) var proximity_radius: float = 1.65:
 	set(value):
 		proximity_radius = maxf(value, 0.2)
 		_request_rebuild()
@@ -54,9 +55,16 @@ const _PROXIMITY_PREVIEW_COLOR := Color(0.45, 0.95, 0.55, 0.16)
 @export_range(2.0, 16.0, 0.25) var particle_speed_max: float = 8.5
 @export_range(0.0, 20.0, 0.5) var particle_gravity: float = 5.5
 
-@export_group("Vejiga (futuro)")
+@export_group("Acceso")
+## Puerta principal del baño; el inodoro solo es usable cuando esa puerta está abierta.
+@export var bathroom_door_path: NodePath
+
+@export_group("Vejiga")
 @export var bladder_capacity: float = 100.0
+## Segundos de chorro continuo para vaciar la vejiga al 100%.
+@export var bladder_drain_duration: float = 60.0
 @export var show_bladder_ui: bool = true
+@export var empty_bladder_thought: String = "ya no tenía deseos de usar el inodoro"
 
 @export_group("Audio")
 @export_subgroup("Zipper")
@@ -74,6 +82,7 @@ var _nozzle_yaw_deg: float = 0.0
 var _nozzle_pitch_deg: float = 0.0
 var _bladder_remaining: float = 100.0
 var _spraying: bool = false
+var _was_in_empty_proximity: bool = false
 
 var _interactable: InteractableDialogueComponent
 var _ray_target: Area3D
@@ -91,6 +100,7 @@ var _particles: GPUParticles3D
 var _overlay: CanvasLayer
 var _fade_rect: ColorRect
 var _bladder_label: Label
+var _bladder_bar: ProgressBar
 var _aim_label: Label
 var _zipper_down_player: AudioStreamPlayer
 var _zipper_up_player: AudioStreamPlayer
@@ -109,12 +119,34 @@ func _ready() -> void:
 	_rebuild()
 	if _interactable != null:
 		_interactable.refresh_ray_target()
-	_bladder_remaining = bladder_capacity
+	_load_bladder_state()
 	_reset_nozzle_angles()
 	_set_particles_emitting(false)
 	_set_overlay_visible(false)
 	if _stream_player != null:
 		_stream_player.finished.connect(_on_stream_player_finished)
+
+
+func _process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+	if _state == State.ACTIVE:
+		if _spraying:
+			if _is_bladder_empty():
+				_bladder_remaining = 0.0
+				_save_bladder_state()
+				_update_bladder_ui()
+				_stop_spray()
+			else:
+				var drain_rate := _get_bladder_drain_rate()
+				_bladder_remaining = maxf(_bladder_remaining - drain_rate * delta, 0.0)
+				if _is_bladder_empty():
+					_bladder_remaining = 0.0
+				_save_bladder_state()
+				_update_bladder_ui()
+				if _is_bladder_empty():
+					_stop_spray()
+	_update_empty_bladder_thought()
 
 
 func _notification(what: int) -> void:
@@ -135,7 +167,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
-			_start_spray()
+			if not _is_bladder_empty():
+				_start_spray()
 		else:
 			_stop_spray()
 		get_viewport().set_input_as_handled()
@@ -165,6 +198,7 @@ func _cache_child_refs() -> void:
 	if _overlay != null:
 		_fade_rect = _overlay.get_node_or_null("FadeRect") as ColorRect
 		_bladder_label = _overlay.get_node_or_null("BladderLabel") as Label
+		_bladder_bar = _overlay.get_node_or_null("BladderBar") as ProgressBar
 		_aim_label = _overlay.get_node_or_null("AimLabel") as Label
 	if _interactable != null:
 		_proximity_shape = _interactable.get_node_or_null("CollisionShape3D") as CollisionShape3D
@@ -183,7 +217,7 @@ func _rebuild() -> void:
 	_update_preview_visibility()
 	_apply_audio_configuration()
 	_apply_particle_configuration()
-	_update_bladder_label()
+	_update_bladder_ui()
 
 
 func _apply_interaction_configuration() -> void:
@@ -336,20 +370,34 @@ func _unique_proximity_preview_mesh() -> SphereMesh:
 
 
 func can_handle_interaction() -> bool:
-	return _state == State.IDLE
+	if _state != State.IDLE:
+		return false
+	if not _is_bathroom_accessible():
+		return false
+	return not _is_bladder_empty()
+
+
+func _is_bathroom_accessible() -> bool:
+	if bathroom_door_path.is_empty():
+		return true
+	var door := get_node_or_null(bathroom_door_path) as DoorInteractSetup
+	if door == null:
+		return true
+	return door.opened
 
 
 func get_interaction_prompt() -> String:
 	if _state == State.ACTIVE:
 		return prompt_exit
-	if _state == State.IDLE:
+	if _state == State.IDLE and _is_bathroom_accessible() and not _is_bladder_empty():
 		return prompt_enter
 	return ""
 
 
 func handle_interaction() -> void:
-	if _state == State.IDLE:
-		_begin_sequence()
+	if _state != State.IDLE or _is_bladder_empty():
+		return
+	_begin_sequence()
 
 
 func _begin_sequence() -> void:
@@ -365,6 +413,8 @@ func _begin_sequence() -> void:
 		return
 
 	_state = State.ENTERING
+	_load_bladder_state()
+	_update_bladder_ui()
 	GameManager.lock_player_minigame()
 	if player.has_method("set_minigame_body_visible"):
 		player.set_minigame_body_visible(false)
@@ -411,6 +461,7 @@ func _run_exit_sequence() -> void:
 
 	_set_overlay_visible(false)
 	_update_hud_labels(false)
+	_save_bladder_state()
 	GameManager.unlock_player_minigame()
 
 
@@ -453,16 +504,62 @@ func _update_hud_labels(active: bool) -> void:
 		_aim_label.text = aim_hint
 	if _bladder_label != null:
 		_bladder_label.visible = active and show_bladder_ui
-		_update_bladder_label()
+	if _bladder_bar != null:
+		_bladder_bar.visible = active and show_bladder_ui
+	_update_bladder_ui()
 
 
-func _update_bladder_label() -> void:
-	if _bladder_label == null:
+func _load_bladder_state() -> void:
+	_bladder_remaining = GameManager.get_toilet_bladder_remaining(bladder_capacity)
+
+
+func _save_bladder_state() -> void:
+	GameManager.set_toilet_bladder_remaining(_bladder_remaining, bladder_capacity)
+
+
+func _is_bladder_empty() -> bool:
+	return _bladder_remaining <= _BLADDER_EMPTY_EPSILON
+
+
+func _update_empty_bladder_thought() -> void:
+	if _state != State.IDLE or not _is_bathroom_accessible():
+		if _was_in_empty_proximity:
+			_was_in_empty_proximity = false
 		return
-	var pct := 0.0
-	if bladder_capacity > 0.0:
-		pct = clampf(_bladder_remaining / bladder_capacity * 100.0, 0.0, 100.0)
-	_bladder_label.text = "Vejiga: %d%%" % int(round(pct))
+	if not _is_bladder_empty():
+		if _was_in_empty_proximity:
+			_was_in_empty_proximity = false
+		return
+	if _interactable == null:
+		return
+	var in_proximity := _interactable.is_player_in_proximity()
+	if in_proximity and not _was_in_empty_proximity:
+		_was_in_empty_proximity = true
+		InnerThoughts.show_thought(empty_bladder_thought)
+	elif not in_proximity and _was_in_empty_proximity:
+		_was_in_empty_proximity = false
+		InnerThoughts.hide_thought()
+
+
+func _get_bladder_drain_rate() -> float:
+	if bladder_drain_duration <= 0.0:
+		return bladder_capacity
+	return bladder_capacity / bladder_drain_duration
+
+
+func _get_bladder_percent() -> float:
+	if bladder_capacity <= 0.0:
+		return 0.0
+	return clampf(_bladder_remaining / bladder_capacity * 100.0, 0.0, 100.0)
+
+
+func _update_bladder_ui() -> void:
+	var pct := _get_bladder_percent()
+	if _bladder_label != null:
+		_bladder_label.text = "Vejiga: %d%%" % int(round(pct))
+	if _bladder_bar != null:
+		_bladder_bar.max_value = 100.0
+		_bladder_bar.value = pct
 
 
 func _reset_nozzle_angles() -> void:
@@ -491,7 +588,7 @@ func _apply_nozzle_rotation() -> void:
 
 
 func _start_spray() -> void:
-	if _state != State.ACTIVE:
+	if _state != State.ACTIVE or _is_bladder_empty():
 		return
 	_spraying = true
 	_set_particles_emitting(true)
@@ -529,5 +626,5 @@ func _play_audio_once(player: AudioStreamPlayer) -> void:
 
 
 func _on_stream_player_finished() -> void:
-	if _spraying and _stream_player != null:
+	if _spraying and not _is_bladder_empty() and _stream_player != null:
 		_stream_player.play()

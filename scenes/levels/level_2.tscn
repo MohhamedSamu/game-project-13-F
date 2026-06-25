@@ -1,10 +1,11 @@
-[gd_scene load_steps=33 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=34 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
 [ext_resource type="PackedScene" uid="uid://duud6tvy4wnso" path="res://scenes/map/iglesia.tscn" id="3_y2gk5"]
 [ext_resource type="PackedScene" uid="uid://bwe7kke14n0cd" path="res://scenes/characters/clown/clown_enemy.tscn" id="4_clown"]
 [ext_resource type="PackedScene" uid="uid://c8inviswall01" path="res://scenes/collision/invisible_wall.tscn" id="4_wikm6"]
+[ext_resource type="AudioStream" uid="uid://bjhqstyl7ynj0" path="res://assets/audio/SFX/door/Creaking_Door_7.mp3" id="4_wwjag"]
 [ext_resource type="PackedScene" uid="uid://d1vhu4ikpiebu" path="res://scenes/props/flashlight.tscn" id="5_flash"]
 [ext_resource type="PackedScene" uid="uid://baiidha04m3ud" path="res://scenes/ui/ingame_HUD.tscn" id="6_hud"]
 [ext_resource type="PackedScene" uid="uid://baoljmaytd3rs" path="res://scenes/props/camera.tscn" id="7_cam"]
@@ -128,6 +129,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 2)
 transform = Transform3D(-100, 3.89414e-05, -2.84217e-12, 0, 5.96046e-06, 100, 3.89414e-05, 100, -1.19209e-05, 20.8168, 1.24941, -20.9974)
 door_mesh_path = NodePath("../Door_01")
 dialogue_resource = ExtResource("10_door01dlg")
+open_sound = ExtResource("4_wwjag")
 
 [node name="IceProximitySetup" parent="Gas_station" instance=ExtResource("9_iceprox")]
 transform = Transform3D(100, 0, 0, 0, -1.19209e-05, 100, 0, -100, -1.19209e-05, -1.06007, 1.11659, -13.6583)
@@ -144,7 +146,23 @@ transform = Transform3D(0.0146561, 0.519973, -0.854057, 0.0047239, 0.854103, 0.5
 [node name="ToiletPeeSetup" parent="Gas_station" instance=ExtResource("9_pee")]
 transform = Transform3D(-0.0155328, 0, -0.999879, 0, 1, 0, 0.999879, 0, -0.0155328, 24.76, 0.455526, -16.1152)
 fixed_camera_path = NodePath("../ToiletPeeCamera")
-proximity_radius = 2.5
+proximity_radius = 1.875
+bathroom_door_path = NodePath("../BathroomDoorSetup")
+
+[node name="SupermarketDoor1InteractSetup" parent="Gas_station" instance=ExtResource("8_door")]
+transform = Transform3D(1.31134e-05, 100, 1.19209e-05, 0, -1.19209e-05, 100, 100, -1.31134e-05, -1.56324e-12, 5.73212, 1.36876, -14.3515)
+door_mesh_path = NodePath("../Door_03")
+lock_mode = 0
+open_state_flag = "supermarket_door_1_open"
+
+[node name="SupermarketDoor2InteractSetup" parent="Gas_station" instance=ExtResource("8_door")]
+transform = Transform3D(1.31134e-07, 1, 4.37114e-08, 0, -4.37114e-08, 1, 1, -1.31134e-07, -5.73206e-15, 7.94064, 1.42546, -24.5763)
+door_mesh_path = NodePath("../Door")
+lock_mode = 0
+unlocked_flag = "supermarket_2_door_unlocked"
+open_state_flag = "supermarket_2_door_unlocked"
+hinge_on_positive_y = true
+open_angle_degrees = -90.0
 
 [node name="invisibleObjects" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3179, 0, -12.0213)

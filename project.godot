@@ -22,6 +22,7 @@ UISFX="*res://scripts/autoload/ui_sfx.gd"
 DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 GameManager="*res://scripts/autoload/game_manager.gd"
 DialogueController="*res://scripts/autoload/dialogue_controller.gd"
+InnerThoughts="*res://scenes/ui/inner_thoughts_overlay.tscn"
 
 [dialogue_manager]
 

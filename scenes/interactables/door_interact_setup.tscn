@@ -1,14 +1,22 @@
-[gd_scene load_steps=5 format=3 uid="uid://c33iwiqw6ogfg"]
+[gd_scene load_steps=8 format=3 uid="uid://c33iwiqw6ogfg"]
 
 [ext_resource type="Script" uid="uid://dq8kdoorinteract" path="res://scripts/interactables/door_interact_setup.gd" id="1_setup"]
 [ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]
 [ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="3_dlgfocus"]
+[ext_resource type="AudioStream" uid="uid://dr5vj16ki367j" path="res://assets/audio/SFX/door/Creaking_Door_2.mp3" id="4_open"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_proximity"]
 radius = 0.035
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_door_face"]
 size = Vector3(0.002, 0.0105, 0.028)
+
+[sub_resource type="BoxMesh" id="BoxMesh_ray_preview"]
+size = Vector3(0.2, 1.05, 2.8)
+
+[sub_resource type="SphereMesh" id="SphereMesh_prox_preview"]
+radius = 0.035
+height = 0.07
 
 [node name="DoorInteractSetup" type="Node3D"]
 script = ExtResource("1_setup")
@@ -39,3 +47,22 @@ monitoring = false
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionRayTarget"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
 shape = SubResource("BoxShape3D_door_face")
+
+[node name="EditorRayTargetPreview" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_ray_preview")
+
+[node name="EditorProximityPreview" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
+cast_shadow = 0
+mesh = SubResource("SphereMesh_prox_preview")
+
+[node name="Audio" type="Node3D" parent="."]
+
+[node name="OpenSoundPlayer" type="AudioStreamPlayer3D" parent="Audio"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.00448, -0.000335)
+stream = ExtResource("4_open")
+unit_size = 4.0
+max_distance = 14.0
+bus = &"SFX"

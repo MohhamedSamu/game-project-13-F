@@ -17,7 +17,7 @@ const PRODUCTION_WALK_SPEED := 2.5
 const PRODUCTION_SPRINT_SPEED := 4.5
 
 # Defaults
-# "movement_profile": "develop",
+# "movement_profile": "develop" production,
 var data := {
 	"mouse_sensitivity": DEFAULT_MOUSE_SENSITIVITY,
 	"camera_fov": DEFAULT_CAMERA_FOV,

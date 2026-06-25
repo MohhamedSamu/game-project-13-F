@@ -6,6 +6,9 @@ var player: Node = null
 var has_met_clown: bool = false
 var flags: Dictionary = {}
 
+const TOILET_BLADDER_UNSET := -1.0
+var toilet_bladder_remaining: float = TOILET_BLADDER_UNSET
+
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	pass # Replace with function body.
@@ -46,6 +49,16 @@ func set_flag(flag_name: String, value: bool = true) -> void:
 func get_flag(flag_name: String) -> bool:
 	return flags.get(flag_name, false)
 
+
+func get_toilet_bladder_remaining(default_capacity: float) -> float:
+	if toilet_bladder_remaining < 0.0:
+		return default_capacity
+	return clampf(toilet_bladder_remaining, 0.0, default_capacity)
+
+
+func set_toilet_bladder_remaining(value: float, capacity: float) -> void:
+	toilet_bladder_remaining = clampf(value, 0.0, capacity)
+
 func _set_crosshair_dialogue_hidden(hidden: bool) -> void:
 	var crosshair := get_tree().get_first_node_in_group("interaction_crosshair") as Control
 	if crosshair and crosshair.has_method("set_dialogue_hidden"):
@@ -55,6 +68,7 @@ func _set_crosshair_dialogue_hidden(hidden: bool) -> void:
 func lock_player() -> void:
 	dialogue_active = true
 	_set_crosshair_dialogue_hidden(true)
+	InnerThoughts.hide_thought()
 
 	if player and player.has_method("set_input_enabled"):
 		player.set_input_enabled(false)
@@ -83,6 +97,7 @@ func unlock_player() -> void:
 func lock_player_minigame() -> void:
 	minigame_active = true
 	_set_crosshair_dialogue_hidden(true)
+	InnerThoughts.hide_thought()
 
 	if player and player.has_method("set_input_enabled"):
 		player.set_input_enabled(false)

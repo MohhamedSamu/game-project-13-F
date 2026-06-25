@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=4 uid="uid://c02jtkmk56p72"]
 
-[ext_resource type="Script" uid="uid://d83wvsouetx5" path="res://scenes/characters/clown/clown.gd" id="1_clown_script"]
+[ext_resource type="Script" path="res://scenes/characters/clown/clown.gd" id="1_clown_script"]
 [ext_resource type="Texture2D" uid="uid://cgrsyk3kur1k" path="res://assets/characters/clown/Clown.png" id="1_fy3k6"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bg6gl"]

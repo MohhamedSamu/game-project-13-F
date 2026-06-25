@@ -18,6 +18,9 @@ extends Area3D
 
 @export_group("Interaction")
 @export var interaction_handler: Node
+@export var proximity_center_offset: Vector3 = Vector3.ZERO
+@export var require_line_of_sight: bool = true
+@export_range(0.0, 2.0, 0.05) var line_of_sight_margin: float = 0.25
 
 @export_group("Camera Focus")
 @export var use_camera_focus: bool = true
@@ -75,18 +78,33 @@ func _get_aim_focus_target() -> Node3D:
 
 func _get_proximity_center() -> Vector3:
 	var target := _get_aim_focus_target()
+	var base: Vector3
 	if target != null:
-		return target.global_position
-	return global_position
+		base = target.global_position
+	else:
+		base = global_position
+	if proximity_center_offset != Vector3.ZERO:
+		var setup := get_parent() as Node3D
+		if setup != null:
+			base += setup.global_transform.basis * proximity_center_offset
+	return base
 
 
 func _is_player_in_range() -> bool:
-	if player_near:
-		return true
 	var player := GameManager.player
 	if player == null:
 		return false
-	return _get_proximity_center().distance_to(player.global_position) <= proximity_radius
+	var center := _get_proximity_center()
+	if player.global_position.distance_to(center) > proximity_radius:
+		player_near = false
+		return false
+	if require_specific_ray_target and require_line_of_sight and not _has_clear_line_of_sight(_get_line_of_sight_origin(player), center):
+		return false
+	return true
+
+
+func is_player_in_proximity() -> bool:
+	return enabled and _is_player_in_range()
 
 
 func can_interact() -> bool:
@@ -216,7 +234,34 @@ func is_player_aiming_at_ray_target(camera: Camera3D, max_distance: float = 2.5)
 	var hit := space.intersect_ray(pq)
 	if hit.is_empty():
 		return false
-	return _collider_belongs_to_ray_target(hit.get("collider"))
+	if not _collider_belongs_to_ray_target(hit.get("collider")):
+		return false
+	if not require_line_of_sight:
+		return true
+	return _has_clear_line_of_sight(origin, hit.get("position"))
+
+
+func _get_line_of_sight_origin(player: Node3D) -> Vector3:
+	return player.global_position + Vector3(0.0, 1.4, 0.0)
+
+
+func _has_clear_line_of_sight(from: Vector3, to: Vector3) -> bool:
+	var space := get_world_3d().direct_space_state
+	if space == null:
+		return true
+	var pq := PhysicsRayQueryParameters3D.create(from, to)
+	pq.collide_with_areas = false
+	pq.collide_with_bodies = true
+	pq.hit_from_inside = true
+	var player := GameManager.player
+	if player is CollisionObject3D:
+		pq.exclude = [(player as CollisionObject3D).get_rid()]
+	var block_hit := space.intersect_ray(pq)
+	if block_hit.is_empty():
+		return true
+	var hit_dist: float = from.distance_to(block_hit.get("position"))
+	var target_dist: float = from.distance_to(to)
+	return hit_dist >= target_dist - line_of_sight_margin
 
 
 func _get_ray_target_area() -> Area3D:

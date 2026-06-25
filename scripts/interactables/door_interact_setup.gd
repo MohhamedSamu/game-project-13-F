@@ -11,6 +11,9 @@ enum LockMode {
 
 const DEFAULT_PANEL_CENTER := Vector3(0.0, 0.00448, -0.000335)
 const DEFAULT_PANEL_HALF_WIDTH := 0.00525
+const DOOR_REFERENCE_SCALE := 100.0
+const _RAY_TARGET_PREVIEW_COLOR := Color(0.35, 0.78, 1.0, 0.38)
+const _PROXIMITY_PREVIEW_COLOR := Color(0.45, 0.95, 0.55, 0.16)
 
 @export_group("Puerta (mesh)")
 ## Hermano del setup bajo el mismo padre (p. ej. ../Door_01).
@@ -30,19 +33,65 @@ const DEFAULT_PANEL_HALF_WIDTH := 0.00525
 @export var restore_as_open: bool = true
 
 @export_group("Interacción")
-@export var proximity_radius: float = 3.5
-@export var require_ray_target: bool = true
+@export_range(0.5, 8.0, 0.1) var proximity_radius: float = 3.5:
+	set(value):
+		proximity_radius = maxf(value, 0.5)
+		_request_rebuild()
+@export var require_ray_target: bool = true:
+	set(value):
+		require_ray_target = value
+		_request_rebuild()
+@export var require_line_of_sight: bool = true:
+	set(value):
+		require_line_of_sight = value
+		_request_rebuild()
+@export_range(0.0, 2.0, 0.05) var line_of_sight_margin: float = 0.25:
+	set(value):
+		line_of_sight_margin = maxf(value, 0.0)
+		_request_rebuild()
 
 @export var prompt_locked: String = "Presiona [E] para interactuar"
 @export var prompt_use_key: String = "Presiona [E] para usar la llave"
 @export var prompt_open: String = "Presiona [E] para abrir"
 
 @export_group("Panel / mira")
-@export var panel_center: Vector3 = DEFAULT_PANEL_CENTER
-@export var panel_half_width: float = DEFAULT_PANEL_HALF_WIDTH
-@export var ray_target_thickness: float = 0.002
-@export var ray_target_height: float = 0.0105
-@export var ray_target_width: float = 0.028
+## Centro del panel (bisagra, diálogo y referencia de detección).
+@export var panel_center: Vector3 = DEFAULT_PANEL_CENTER:
+	set(value):
+		panel_center = value
+		_request_rebuild()
+@export var panel_half_width: float = DEFAULT_PANEL_HALF_WIDTH:
+	set(value):
+		panel_half_width = maxf(value, 0.0001)
+		_request_rebuild()
+## Desplazamiento extra del centro de proximidad respecto a panel_center.
+@export var proximity_center_offset: Vector3 = Vector3.ZERO:
+	set(value):
+		proximity_center_offset = value
+		_request_rebuild()
+## Desplazamiento extra del hitbox de mira respecto a panel_center.
+@export var ray_target_center_offset: Vector3 = Vector3.ZERO:
+	set(value):
+		ray_target_center_offset = value
+		_request_rebuild()
+@export_range(0.0005, 0.02, 0.0005) var ray_target_thickness: float = 0.002:
+	set(value):
+		ray_target_thickness = maxf(value, 0.0005)
+		_request_rebuild()
+@export_range(0.002, 0.05, 0.0005) var ray_target_height: float = 0.0105:
+	set(value):
+		ray_target_height = maxf(value, 0.002)
+		_request_rebuild()
+@export_range(0.005, 0.08, 0.001) var ray_target_width: float = 0.028:
+	set(value):
+		ray_target_width = maxf(value, 0.005)
+		_request_rebuild()
+
+@export_group("Editor")
+@export var show_editor_preview: bool = true:
+	set(value):
+		show_editor_preview = value
+		_update_preview_visibility()
 
 @export_group("Apertura")
 @export var hinge_on_positive_y: bool = false
@@ -58,6 +107,10 @@ const DEFAULT_PANEL_HALF_WIDTH := 0.00525
 @export var locked_dialogue_title: String = "locked"
 @export var unlock_dialogue_title: String = "unlocked"
 
+@export_group("Audio")
+## Sonido al abrir la puerta (bus SFX del proyecto). Por defecto Creaking Door 2.
+@export var open_sound: AudioStream = preload("res://assets/audio/SFX/door/Creaking_Door_2.mp3")
+
 var opened: bool = false
 var waiting_for_unlock_dialogue: bool = false
 
@@ -68,19 +121,39 @@ var _ray_target: Area3D
 var _ray_shape: CollisionShape3D
 var _proximity_shape: CollisionShape3D
 var _door_attached: bool = false
+var _open_player: AudioStreamPlayer3D
+var _editor_ray_preview: MeshInstance3D
+var _editor_proximity_preview: MeshInstance3D
+var _ray_preview_material: StandardMaterial3D
+var _proximity_preview_material: StandardMaterial3D
+var _owns_ray_shape: bool = false
 
 
 func _enter_tree() -> void:
 	_cache_child_refs()
-	_apply_configuration()
+	_rebuild()
 
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
+		_update_preview_visibility()
 		return
 
 	_load_persistent_state()
 	_setup_door_pivot()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_ENTER_TREE or what == NOTIFICATION_TRANSFORM_CHANGED:
+		if Engine.is_editor_hint():
+			_rebuild()
+
+
+func _request_rebuild() -> void:
+	if is_inside_tree():
+		_rebuild()
+	elif Engine.is_editor_hint():
+		call_deferred("_rebuild")
 
 
 func _cache_child_refs() -> void:
@@ -92,31 +165,142 @@ func _cache_child_refs() -> void:
 		_ray_shape = _ray_target.get_node_or_null("CollisionShape3D") as CollisionShape3D
 	if _interactable != null:
 		_proximity_shape = _interactable.get_node_or_null("CollisionShape3D") as CollisionShape3D
+	_open_player = get_node_or_null("Audio/OpenSoundPlayer") as AudioStreamPlayer3D
+	_editor_ray_preview = get_node_or_null("EditorRayTargetPreview") as MeshInstance3D
+	_editor_proximity_preview = get_node_or_null("EditorProximityPreview") as MeshInstance3D
+	if _editor_ray_preview != null:
+		_editor_ray_preview.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	if _editor_proximity_preview != null:
+		_editor_proximity_preview.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+
+
+func _rebuild() -> void:
+	if not is_inside_tree():
+		return
+	_cache_child_refs()
+	_apply_configuration()
+	_sync_editor_previews()
+	_update_preview_visibility()
 
 
 func _apply_configuration() -> void:
 	if _interactable != null:
 		_interactable.proximity_radius = proximity_radius
 		_interactable.require_specific_ray_target = require_ray_target
+		_interactable.require_line_of_sight = require_line_of_sight
+		_interactable.line_of_sight_margin = line_of_sight_margin
+		_interactable.proximity_center_offset = _to_reference_space_vec(proximity_center_offset)
 		_interactable.dialogue_resource = dialogue_resource
 
-	var focus_offset := panel_center
+	var focus_offset := _to_reference_space_vec(panel_center)
 	if _focus_target != null:
 		_focus_target.position = focus_offset
 
-	if _proximity_shape != null:
-		_proximity_shape.position = focus_offset
-
+	var ray_offset := _get_ray_target_center_local()
 	if _ray_shape != null:
-		_ray_shape.position = focus_offset
-		var box := _ray_shape.shape as BoxShape3D
-		if box == null:
-			box = BoxShape3D.new()
-			_ray_shape.shape = box
-		box.size = Vector3(ray_target_thickness, ray_target_height, ray_target_width)
+		_ray_shape.position = ray_offset
+		var box := _unique_ray_box()
+		box.size = Vector3(
+			_to_reference_space(ray_target_thickness),
+			_to_reference_space(ray_target_height),
+			_to_reference_space(ray_target_width)
+		)
 
 	if _door_pivot != null and Engine.is_editor_hint():
 		_door_pivot.position = _compute_hinge_offset()
+
+	_apply_audio_configuration()
+
+
+func _get_ray_target_center_local() -> Vector3:
+	return _to_reference_space_vec(panel_center + ray_target_center_offset)
+
+
+func _get_proximity_center_local() -> Vector3:
+	return _to_reference_space_vec(panel_center + proximity_center_offset)
+
+
+func _get_proximity_preview_radius_local() -> float:
+	var scale := _get_setup_uniform_scale()
+	if scale < 0.0001:
+		return proximity_radius
+	return proximity_radius / scale
+
+
+func _sync_editor_previews() -> void:
+	if _editor_ray_preview != null:
+		var mesh := _unique_ray_preview_mesh()
+		var size := Vector3(
+			_to_reference_space(ray_target_thickness),
+			_to_reference_space(ray_target_height),
+			_to_reference_space(ray_target_width)
+		)
+		mesh.size = size
+		_editor_ray_preview.position = _get_ray_target_center_local()
+		_ensure_preview_material(_editor_ray_preview, _RAY_TARGET_PREVIEW_COLOR, _ray_preview_material)
+		_ray_preview_material = _editor_ray_preview.material_override as StandardMaterial3D
+
+	if _editor_proximity_preview != null:
+		var mesh := _unique_proximity_preview_mesh()
+		var radius := _get_proximity_preview_radius_local()
+		mesh.radius = radius
+		mesh.height = radius * 2.0
+		_editor_proximity_preview.position = _get_proximity_center_local()
+		_ensure_preview_material(_editor_proximity_preview, _PROXIMITY_PREVIEW_COLOR, _proximity_preview_material)
+		_proximity_preview_material = _editor_proximity_preview.material_override as StandardMaterial3D
+
+
+func _ensure_preview_material(
+	preview: MeshInstance3D,
+	color: Color,
+	existing: StandardMaterial3D
+) -> void:
+	var material := existing
+	if material == null:
+		material = StandardMaterial3D.new()
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		material.cull_mode = BaseMaterial3D.CULL_DISABLED
+		preview.material_override = material
+	material.albedo_color = color
+
+
+func _update_preview_visibility() -> void:
+	var visible := Engine.is_editor_hint() and show_editor_preview
+	if _editor_ray_preview != null:
+		_editor_ray_preview.visible = visible
+	if _editor_proximity_preview != null:
+		_editor_proximity_preview.visible = visible
+
+
+func _unique_ray_box() -> BoxShape3D:
+	if not _owns_ray_shape:
+		var shared := _ray_shape.shape as BoxShape3D
+		var box := shared.duplicate() if shared else BoxShape3D.new()
+		_ray_shape.shape = box
+		_owns_ray_shape = true
+		return box
+	return _ray_shape.shape as BoxShape3D
+
+
+func _unique_ray_preview_mesh() -> BoxMesh:
+	if _editor_ray_preview == null:
+		return BoxMesh.new()
+	var mesh := _editor_ray_preview.mesh as BoxMesh
+	if mesh == null:
+		mesh = BoxMesh.new()
+		_editor_ray_preview.mesh = mesh
+	return mesh
+
+
+func _unique_proximity_preview_mesh() -> SphereMesh:
+	if _editor_proximity_preview == null:
+		return SphereMesh.new()
+	var mesh := _editor_proximity_preview.mesh as SphereMesh
+	if mesh == null:
+		mesh = SphereMesh.new()
+		_editor_proximity_preview.mesh = mesh
+	return mesh
 
 
 func _load_persistent_state() -> void:
@@ -213,6 +397,8 @@ func open_door() -> void:
 	if not open_state_flag.is_empty():
 		GameManager.set_flag(open_state_flag, true)
 
+	_play_open_sound()
+
 	var start_angle := _get_pivot_axis_rotation()
 	var target_angle := start_angle + deg_to_rad(open_angle_degrees)
 
@@ -220,6 +406,43 @@ func open_door() -> void:
 	tween.set_trans(open_transition)
 	tween.set_ease(open_ease)
 	tween.tween_method(_set_pivot_axis_rotation, start_angle, target_angle, open_duration)
+
+
+func _apply_audio_configuration() -> void:
+	if _open_player == null:
+		return
+	_open_player.position = _to_reference_space_vec(panel_center)
+	_open_player.bus = &"SFX"
+	if open_sound != null:
+		_open_player.stream = open_sound
+
+
+func _get_setup_uniform_scale() -> float:
+	var s := global_transform.basis.get_scale()
+	return maxf(abs(s.x), maxf(abs(s.y), abs(s.z)))
+
+
+func _reference_space_factor() -> float:
+	var scale := _get_setup_uniform_scale()
+	if scale < 0.0001:
+		return 1.0
+	return DOOR_REFERENCE_SCALE / scale
+
+
+func _to_reference_space(value: float) -> float:
+	return value * _reference_space_factor()
+
+
+func _to_reference_space_vec(value: Vector3) -> Vector3:
+	return value * _reference_space_factor()
+
+
+func _play_open_sound() -> void:
+	if open_sound == null or _open_player == null:
+		return
+	_apply_audio_configuration()
+	_open_player.stop()
+	_open_player.play()
 
 
 func _start_locked_dialogue() -> void:
@@ -246,8 +469,10 @@ func _setup_door_pivot() -> void:
 
 
 func _compute_hinge_offset() -> Vector3:
+	var panel := _to_reference_space_vec(panel_center)
+	var half_w := _to_reference_space(panel_half_width)
 	var side := 1.0 if hinge_on_positive_y else -1.0
-	return panel_center + Vector3(0.0, side * panel_half_width, 0.0)
+	return panel + Vector3(0.0, side * half_w, 0.0)
 
 
 func _attach_door_to_pivot() -> void:
