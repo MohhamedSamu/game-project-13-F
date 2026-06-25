@@ -5,6 +5,7 @@ extends Node3D
 const MODEL_TEXTURE := "res://assets/characters/character_npc_gas_station/Character_09.png"
 const ANIM_LIBRARY_PATH := "res://scenes/characters/gas_station_npc/character_09_animations.tres"
 const SKELETON_PATH := "Skeleton3D"
+const Bake := preload("res://scripts/characters/character_09_bake.gd")
 
 const ROOT_MOTION_BONE_HINTS: PackedStringArray = [
 	"mixamorig_Hips",
@@ -14,8 +15,6 @@ const ROOT_MOTION_BONE_HINTS: PackedStringArray = [
 
 func _ready() -> void:
 	_apply_character_texture()
-	if Engine.is_editor_hint():
-		return
 	_ensure_derived_animations_if_needed()
 
 
@@ -27,6 +26,7 @@ func _ensure_derived_animations_if_needed() -> void:
 	if library == null:
 		push_warning("Character09: no hay biblioteca de animaciones en el AnimationPlayer.")
 		return
+	Bake.bake_animation_into_library(library, "idle")
 	_ensure_standing_up_short(library)
 	_ensure_walking_in_place(library)
 
@@ -84,6 +84,7 @@ func _get_walking_in_place_reference_hips(library: AnimationLibrary) -> Vector3:
 	var reference := Vector3.ZERO
 	var xz_source: Variant = _read_hips_from_animations(library, [
 		"standing_up_short",
+		"idle",
 		"male_standing_pose",
 		"talking",
 	])
@@ -91,6 +92,7 @@ func _get_walking_in_place_reference_hips(library: AnimationLibrary) -> Vector3:
 		reference.x = xz_source.x
 		reference.z = xz_source.z
 	var y_source: Variant = _read_hips_from_animations(library, [
+		"idle",
 		"male_standing_pose",
 		"talking",
 		"old_man_idle",

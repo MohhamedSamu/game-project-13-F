@@ -56,6 +56,11 @@ const ANIMATION_SOURCES: Dictionary = {
 		"loop": true,
 		"lock_hips": false,
 	},
+	"idle": {
+		"fbx": "res://assets/characters/character_npc_gas_station/animations/Idle.fbx",
+		"loop": true,
+		"lock_hips": true,
+	},
 	"male_standing_pose": {
 		"fbx": "res://assets/characters/character_npc_gas_station/animations/Male_Standing_Pose.fbx",
 		"loop": true,
@@ -72,20 +77,29 @@ const ROOT_MOTION_BONE_HINTS: PackedStringArray = [
 static func build_animation_library() -> AnimationLibrary:
 	var library := AnimationLibrary.new()
 	for anim_name in ANIMATION_SOURCES:
-		var config: Dictionary = ANIMATION_SOURCES[anim_name]
-		var anim := _load_mixamo_animation(config)
-		if anim == null:
-			push_warning("Character09Bake: no se pudo cargar '%s'." % anim_name)
-			continue
-		anim.resource_name = anim_name
-		anim.loop_mode = Animation.LOOP_LINEAR if config.get("loop", false) else Animation.LOOP_NONE
-		if config.get("lock_hips", false):
-			_lock_hips_position(anim)
-		library.add_animation(anim_name, anim)
-
+		bake_animation_into_library(library, anim_name)
 	_ensure_standing_up_short(library)
 	_ensure_walking_in_place(library)
 	return library
+
+
+static func bake_animation_into_library(library: AnimationLibrary, anim_name: String) -> bool:
+	if library.has_animation(anim_name):
+		return true
+	if not ANIMATION_SOURCES.has(anim_name):
+		push_warning("Character09Bake: animación desconocida '%s'." % anim_name)
+		return false
+	var config: Dictionary = ANIMATION_SOURCES[anim_name]
+	var anim := _load_mixamo_animation(config)
+	if anim == null:
+		push_warning("Character09Bake: no se pudo cargar '%s'." % anim_name)
+		return false
+	anim.resource_name = anim_name
+	anim.loop_mode = Animation.LOOP_LINEAR if config.get("loop", false) else Animation.LOOP_NONE
+	if config.get("lock_hips", false):
+		_lock_hips_position(anim)
+	library.add_animation(anim_name, anim)
+	return true
 
 
 static func _load_mixamo_animation(config: Dictionary) -> Animation:
@@ -187,6 +201,7 @@ static func _get_walking_in_place_reference_hips(library: AnimationLibrary) -> V
 	var reference := Vector3.ZERO
 	var xz_source: Variant = _read_hips_from_animations(library, [
 		"standing_up_short",
+		"idle",
 		"male_standing_pose",
 		"talking",
 	])
@@ -194,6 +209,7 @@ static func _get_walking_in_place_reference_hips(library: AnimationLibrary) -> V
 		reference.x = xz_source.x
 		reference.z = xz_source.z
 	var y_source: Variant = _read_hips_from_animations(library, [
+		"idle",
 		"male_standing_pose",
 		"talking",
 		"old_man_idle",

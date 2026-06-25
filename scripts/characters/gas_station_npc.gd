@@ -64,17 +64,26 @@ enum WorkState {
 @export var walking_target_duration: float = 5.0
 @export var use_slow_walking: bool = true
 @export var turn_walk_angle_threshold_deg: float = 25.0
+@export var kneeling_inspect_playback_speed: float = 0.72
+@export var stand_up_playback_speed: float = 0.7
 
 const BLEND_IDLE_WALK := 0.25
 const BLEND_TURN_IN_PLACE := 0.20
 const BLEND_KNEEL_DOWN := 0.15
-const BLEND_KNEEL_INSPECT := 0.20
-const BLEND_STAND_UP := 0.15
+const BLEND_KNEEL_INSPECT := 0.50
+const BLEND_STAND_UP := 0.50
 const BLEND_ROUTINE := 0.20
-const BLEND_OLD_MAN_TURN := 0.25
+const BLEND_OLD_MAN_TURN := 0.6
+
+const POST_STANDING_GESTURES: Array[StringName] = [
+	&"head_nod_yes",
+	&"pointing_forward",
+	&"searching_pockets",
+]
 
 const WALK_IN_PLACE_ANIM := &"walking_in_place"
 const WALK_ANIM := &"walking"
+const ROUTINE_IDLE_ANIM := &"idle"
 
 var _dialogue_turn_active: bool = false
 var _turn_visual_active: bool = false
@@ -86,6 +95,7 @@ var _work_behavior_started: bool = false
 var _work_state: WorkState = WorkState.IDLE
 var _current_pump_index: int = 0
 var _state_timer: float = 0.0
+var _gesture_anim: StringName = &""
 var _turn_anchor_position: Vector3 = Vector3.ZERO
 
 
@@ -293,6 +303,8 @@ func _process_turning_to_look_target(delta: float) -> void:
 
 func _process_look_turn_settle(delta: float) -> void:
 	_halt_horizontal_movement()
+	if _gesture_anim in POST_STANDING_GESTURES:
+		return
 	_state_timer -= delta
 	if _state_timer <= 0.0:
 		_set_work_state(WorkState.KNEELING_DOWN)
@@ -305,15 +317,16 @@ func _process_inspecting(delta: float) -> void:
 
 
 func _process_waiting(delta: float) -> void:
+	if _gesture_anim in POST_STANDING_GESTURES:
+		return
 	_state_timer -= delta
 	if _state_timer <= 0.0:
-		_current_pump_index = 1 - _current_pump_index
-		_begin_pump_cycle()
+		_continue_after_waiting()
 
 
 func _begin_look_turn_settle() -> void:
 	_halt_horizontal_movement()
-	play_routine_idle(BLEND_ROUTINE)
+	_gesture_anim = _play_random_post_standing_gesture(BLEND_ROUTINE)
 	_set_work_state(WorkState.LOOK_TURN_SETTLE)
 
 
@@ -329,7 +342,8 @@ func _set_work_state(new_state: WorkState) -> void:
 			_state_timer = arrival_settle_time
 		WorkState.LOOK_TURN_SETTLE:
 			_halt_horizontal_movement()
-			_state_timer = look_turn_settle_time
+			if not _gesture_anim in POST_STANDING_GESTURES:
+				_state_timer = look_turn_settle_time
 		WorkState.KNEELING_DOWN:
 			play_kneel_down()
 		WorkState.INSPECTING:
@@ -338,8 +352,9 @@ func _set_work_state(new_state: WorkState) -> void:
 		WorkState.STANDING_UP:
 			play_standing_up_short()
 		WorkState.WAITING:
-			play_routine_idle(BLEND_ROUTINE)
-			_state_timer = randf_range(wait_after_standing_min, wait_after_standing_max)
+			_gesture_anim = _play_random_post_standing_gesture(BLEND_ROUTINE)
+			if not _gesture_anim in POST_STANDING_GESTURES:
+				_state_timer = randf_range(wait_after_standing_min, wait_after_standing_max)
 		WorkState.WALKING_TO_POINT:
 			play_walk_in_place(BLEND_IDLE_WALK)
 
@@ -478,8 +493,11 @@ func _on_animation_finished(anim_name: StringName) -> void:
 				_set_work_state(WorkState.INSPECTING)
 		WorkState.STANDING_UP:
 			if anim_name == &"standing_up_short" or anim_name == &"standing_up":
-				play_routine_idle(BLEND_ROUTINE)
 				_set_work_state(WorkState.WAITING)
+		WorkState.WAITING:
+			_on_gesture_animation_finished(anim_name)
+		WorkState.LOOK_TURN_SETTLE:
+			_on_gesture_animation_finished(anim_name)
 
 
 func _get_animation_player() -> AnimationPlayer:
@@ -537,12 +555,15 @@ func _uses_old_man_style() -> bool:
 func play_routine_idle(blend: float = BLEND_ROUTINE) -> void:
 	if not _work_behavior_started:
 		return
+	if _has_animation(ROUTINE_IDLE_ANIM):
+		_play_anim_if_not(ROUTINE_IDLE_ANIM, blend)
+		return
+	push_warning(
+		"GasStationNPC: 'idle' no disponible; usando fallback de idle de rutina."
+	)
 	if _has_animation(&"male_standing_pose"):
 		_play_anim_if_not(&"male_standing_pose", blend)
 		return
-	push_warning(
-		"GasStationNPC: 'male_standing_pose' no disponible; usando fallback de idle."
-	)
 	if _has_animation(&"old_man_idle"):
 		_play_anim_if_not(&"old_man_idle", blend)
 
@@ -561,20 +582,59 @@ func play_kneel_down() -> void:
 
 
 func play_kneeling_inspecting() -> void:
-	_play_anim_if_not(&"kneeling_inspecting", BLEND_KNEEL_INSPECT)
+	_play_anim_if_not(&"kneeling_inspecting", BLEND_KNEEL_INSPECT, kneeling_inspect_playback_speed)
 
 
 func play_standing_up_short() -> void:
 	if _has_animation(&"standing_up_short"):
-		_play_anim(&"standing_up_short", BLEND_STAND_UP)
+		_play_anim(&"standing_up_short", BLEND_STAND_UP, stand_up_playback_speed)
 		return
 	if _has_animation(&"standing_up"):
 		push_warning(
 			"GasStationNPC: 'standing_up_short' no disponible; usando 'standing_up'."
 		)
-		_play_anim(&"standing_up", BLEND_STAND_UP)
+		_play_anim(&"standing_up", BLEND_STAND_UP, stand_up_playback_speed)
 		return
 	push_warning("GasStationNPC: no hay animación de levantarse disponible.")
+
+
+func _continue_after_waiting() -> void:
+	if _work_state != WorkState.WAITING:
+		return
+	_gesture_anim = &""
+	_current_pump_index = 1 - _current_pump_index
+	_begin_pump_cycle()
+
+
+func _on_gesture_animation_finished(anim_name: StringName) -> void:
+	if anim_name != _gesture_anim or not _gesture_anim in POST_STANDING_GESTURES:
+		return
+	match _work_state:
+		WorkState.WAITING:
+			_continue_after_waiting()
+		WorkState.LOOK_TURN_SETTLE:
+			_gesture_anim = &""
+			_set_work_state(WorkState.KNEELING_DOWN)
+
+
+func _play_random_post_standing_gesture(blend: float = BLEND_ROUTINE) -> StringName:
+	var available: Array[StringName] = []
+	for anim_name in POST_STANDING_GESTURES:
+		if _has_animation(anim_name):
+			available.append(anim_name)
+	if available.is_empty():
+		push_warning(
+			"GasStationNPC: no hay gestos post-levantarse; usando idle de rutina."
+		)
+		play_routine_idle(blend)
+		if _has_animation(ROUTINE_IDLE_ANIM):
+			return ROUTINE_IDLE_ANIM
+		if _has_animation(&"male_standing_pose"):
+			return &"male_standing_pose"
+		return &""
+	var chosen := available[randi() % available.size()]
+	_play_anim(chosen, blend)
+	return chosen
 
 
 func play_idle() -> void:
@@ -599,7 +659,7 @@ func play_walking() -> void:
 
 func play_old_man_walk() -> void:
 	if _has_animation(&"old_man_walk"):
-		_play_anim_if_not(&"old_man_walk", BLEND_IDLE_WALK)
+		_play_anim_if_not(&"old_man_walk", BLEND_OLD_MAN_TURN)
 	else:
 		play_idle()
 
@@ -652,7 +712,7 @@ func _play_turn_animation(angle: float) -> void:
 		play_idle()
 		_turn_visual_active = false
 	elif _uses_old_man_style() and _has_animation(&"old_man_walk"):
-		_play_anim_if_not(&"old_man_walk", BLEND_IDLE_WALK)
+		_play_anim_if_not(&"old_man_walk", BLEND_OLD_MAN_TURN)
 		_turn_visual_active = true
 	elif _resolve_walk_in_place_anim() != &"":
 		_play_anim_if_not(_resolve_walk_in_place_anim(), BLEND_TURN_IN_PLACE, 1.0)
