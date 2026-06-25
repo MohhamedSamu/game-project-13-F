@@ -23,7 +23,7 @@ const ANIMATION_SOURCES: Dictionary = {
 	},
 	"kneeling_inspecting": {
 		"fbx": "res://assets/characters/character_npc_gas_station/animations/Kneeling_Inspecting.fbx",
-		"loop": true,
+		"loop": false,
 		"lock_hips": true,
 	},
 	"standing_up": {
