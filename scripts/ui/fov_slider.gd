@@ -16,11 +16,11 @@ func _load_saved_value() -> void:
 	set_block_signals(false)
 
 
-func _on_value_changed(v: float) -> void:
+func _on_slider_value_changed(v: float) -> void:
 	Settings.set_value("camera_fov", v)
 	Settings.apply_controls_to_player()
 
 
-func _on_drag_ended(value_changed: bool) -> void:
-	if value_changed:
+func _on_drag_ended(did_change: bool) -> void:
+	if did_change:
 		Settings.save_settings()

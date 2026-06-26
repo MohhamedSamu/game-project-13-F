@@ -462,7 +462,7 @@ func _snap_to_marker_on_arrival(marker: Marker3D) -> void:
 	global_position.z = marker.global_position.z
 
 
-func _play_routine_turn_anim(abs_angle: float, blend: float = BLEND_TURN_IN_PLACE) -> void:
+func _play_routine_turn_anim(_abs_angle: float, blend: float = BLEND_TURN_IN_PLACE) -> void:
 	if use_walking_in_place_while_turning and _resolve_walk_in_place_anim() != &"":
 		play_walk_in_place(blend)
 	else:

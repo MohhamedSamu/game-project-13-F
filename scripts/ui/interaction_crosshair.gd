@@ -29,22 +29,22 @@ func _ready() -> void:
 	queue_redraw()
 
 
-func set_dialogue_hidden(hidden: bool) -> void:
-	if _dialogue_hidden == hidden:
+func set_dialogue_hidden(is_hidden: bool) -> void:
+	if _dialogue_hidden == is_hidden:
 		return
-	_dialogue_hidden = hidden
+	_dialogue_hidden = is_hidden
 	_apply_visibility()
-	if hidden:
+	if is_hidden:
 		set_highlight(false)
 		set_prompt("")
 
 
-func set_pause_hidden(hidden: bool) -> void:
-	if _pause_hidden == hidden:
+func set_pause_hidden(is_hidden: bool) -> void:
+	if _pause_hidden == is_hidden:
 		return
-	_pause_hidden = hidden
+	_pause_hidden = is_hidden
 	_apply_visibility()
-	if hidden:
+	if is_hidden:
 		set_highlight(false)
 		set_prompt("")
 
@@ -77,11 +77,11 @@ func _notification(what: int) -> void:
 
 
 func _apply_visibility() -> void:
-	var hidden := _is_suppressed()
-	visible = not hidden
-	if hidden and prompt_label:
+	var suppressed := _is_suppressed()
+	visible = not suppressed
+	if suppressed and prompt_label:
 		prompt_label.visible = false
-	elif not hidden:
+	elif not suppressed:
 		queue_redraw()
 
 

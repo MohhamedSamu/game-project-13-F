@@ -322,11 +322,11 @@ func _ensure_preview_material(
 
 
 func _update_preview_visibility() -> void:
-	var visible := Engine.is_editor_hint() and show_editor_preview
+	var preview_visible := Engine.is_editor_hint() and show_editor_preview
 	if _editor_focus_preview != null:
-		_editor_focus_preview.visible = visible
+		_editor_focus_preview.visible = preview_visible
 	if _editor_proximity_preview != null:
-		_editor_proximity_preview.visible = visible
+		_editor_proximity_preview.visible = preview_visible
 
 
 func _unique_ray_sphere() -> SphereShape3D:
@@ -491,10 +491,10 @@ func _set_fade_alpha(alpha: float) -> void:
 	_fade_rect.color = c
 
 
-func _set_overlay_visible(visible: bool) -> void:
+func _set_overlay_visible(is_visible: bool) -> void:
 	if _overlay != null:
-		_overlay.visible = visible
-	if not visible and _fade_rect != null:
+		_overlay.visible = is_visible
+	if not is_visible and _fade_rect != null:
 		_set_fade_alpha(0.0)
 
 

@@ -1,0 +1,28 @@
+[gd_resource type="Resource" script_class="LevelSceneProfile" load_steps=6 format=3 uid="uid://7wctwyi0bbxw"]
+
+[ext_resource type="Script" uid="uid://bix0cu8cbauj6" path="res://scripts/narrative/level_scene_profile.gd" id="1_profile"]
+[ext_resource type="Script" uid="uid://bp7ahl0fhnlus" path="res://scripts/narrative/level_scene_definition.gd" id="2_scene_def"]
+
+[sub_resource type="Resource" id="scene_arrival"]
+script = ExtResource("2_scene_def")
+scene_id = "arrival"
+display_name = "Llegada a la gasolinera"
+objective_ids = PackedStringArray("gas_npc_intro_done")
+
+[sub_resource type="Resource" id="scene_explore"]
+script = ExtResource("2_scene_def")
+scene_id = "explore_gas_station"
+display_name = "Exploración de la estación"
+objective_ids = PackedStringArray("visited_bathroom", "found_supermarket_key")
+
+[sub_resource type="Resource" id="scene_supernatural"]
+script = ExtResource("2_scene_def")
+scene_id = "supernatural_hint"
+display_name = "Algo no encaja"
+objective_ids = PackedStringArray("clown_proximity_dialogue_played")
+
+[resource]
+script = ExtResource("1_profile")
+level_id = "level_2"
+initial_scene_id = "arrival"
+scenes = Array[ExtResource("2_scene_def")]([SubResource("scene_arrival"), SubResource("scene_explore"), SubResource("scene_supernatural")])

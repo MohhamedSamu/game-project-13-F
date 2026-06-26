@@ -32,8 +32,13 @@ extends Area3D
 @export var set_flag_on_finish: String = ""
 @export var set_flag_on_finish_value: bool = true
 
+@export_group("Scene Dialogue")
+@export var npc_id: String = ""
+@export var dialogue_profile: NpcDialogueProfile
+
 var player_near: bool = false
 var _preparing_dialogue: bool = false
+var _pending_dialogue_beat: NpcDialogueBeat = null
 
 ## Capa física dedicada para InteractionRayTarget (layer 3 = bit 4).
 const RAY_TARGET_COLLISION_LAYER: int = 4
@@ -126,6 +131,8 @@ func can_interact() -> bool:
 		return true
 	if dialogue_resource == null:
 		return false
+	if dialogue_profile != null:
+		return _resolve_dialogue_title() != ""
 	return true
 
 
@@ -159,12 +166,19 @@ func _begin_dialogue_interaction() -> void:
 
 	if trigger_once:
 		already_triggered = true
-	if set_flag_on_finish != "":
+
+	_pending_dialogue_beat = null
+	var title := dialogue_title
+	if dialogue_profile != null:
+		_pending_dialogue_beat = GameManager.resolve_npc_dialogue_beat(dialogue_profile, npc_id)
+		title = _resolve_dialogue_title()
+
+	if set_flag_on_finish != "" or _pending_dialogue_beat != null:
 		DialogueController.dialogue_finished.connect(
-			_on_dialogue_finished_apply_flag,
+			_on_dialogue_finished_apply_state,
 			CONNECT_ONE_SHOT
 		)
-	DialogueController.start_dialogue(dialogue_resource, dialogue_title, _get_focus_target())
+	DialogueController.start_dialogue(dialogue_resource, title, _get_focus_target())
 
 
 func _await_dialogue_preparation() -> void:
@@ -180,9 +194,18 @@ func _get_dialogue_owner() -> Node:
 	return get_parent()
 
 
-func _on_dialogue_finished_apply_flag() -> void:
+func _resolve_dialogue_title() -> String:
+	if dialogue_profile == null:
+		return dialogue_title
+	return GameManager.resolve_npc_dialogue_title(dialogue_profile, npc_id)
+
+
+func _on_dialogue_finished_apply_state() -> void:
 	if set_flag_on_finish != "":
 		GameManager.set_flag(set_flag_on_finish, set_flag_on_finish_value)
+	if _pending_dialogue_beat != null:
+		GameManager.apply_dialogue_beat_finished(_pending_dialogue_beat, npc_id)
+		_pending_dialogue_beat = null
 
 
 func get_interaction_prompt() -> String:
@@ -315,8 +338,8 @@ func get_dialogue_focus_radius() -> float:
 	var shape_node := target.get_node_or_null("FocusHitbox/CollisionShape3D") as CollisionShape3D
 	if shape_node != null and shape_node.shape is SphereShape3D:
 		var local_radius: float = (shape_node.shape as SphereShape3D).radius
-		var scale := shape_node.global_transform.basis.get_scale()
-		return local_radius * maxf(scale.x, maxf(scale.y, scale.z))
+		var shape_scale := shape_node.global_transform.basis.get_scale()
+		return local_radius * maxf(shape_scale.x, maxf(shape_scale.y, shape_scale.z))
 	return 0.85
 
 

@@ -31,18 +31,7 @@ height = 1.75
 
 [node name="SoftJumpscareSetup" type="Node3D"]
 script = ExtResource("1_setup")
-scare_run_speed = null
-use_run_speed_for_duration = null
 scare_duration = 0.5
-min_scare_duration = null
-max_scare_duration = null
-run_animation_speed_scale = null
-snap_actor_to_floor = null
-floor_ray_height = null
-floor_ray_depth = null
-exit_after_dialogue = null
-exit_rise_height = null
-exit_rise_duration = null
 
 [node name="TriggerZone" type="Area3D" parent="."]
 collision_layer = 0

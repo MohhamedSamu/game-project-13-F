@@ -14,15 +14,15 @@ func _ready() -> void:
 	if audio_bus_id != -1:
 		AudioServer.set_bus_volume_linear(audio_bus_id, value)
 
-func _on_value_changed(v: float) -> void:
+func _on_slider_value_changed(v: float) -> void:
 	if audio_bus_id != -1:
 		AudioServer.set_bus_volume_linear(audio_bus_id, v)
 
 	var key: String = _bus_to_settings_key(audio_bus_name)
 	Settings.set_value(key, v)
 
-func _on_drag_ended(value_changed: bool) -> void:
-	if not value_changed:
+func _on_drag_ended(did_change: bool) -> void:
+	if not did_change:
 		return
 
 	Settings.save_settings()

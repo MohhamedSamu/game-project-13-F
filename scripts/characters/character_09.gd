@@ -81,7 +81,7 @@ func _ensure_walking_in_place(library: AnimationLibrary) -> void:
 
 
 func _get_walking_in_place_reference_hips(library: AnimationLibrary) -> Vector3:
-	var reference := Vector3.ZERO
+	var hips_ref := Vector3.ZERO
 	var xz_source: Variant = _read_hips_from_animations(library, [
 		"standing_up_short",
 		"idle",
@@ -89,8 +89,8 @@ func _get_walking_in_place_reference_hips(library: AnimationLibrary) -> Vector3:
 		"talking",
 	])
 	if xz_source is Vector3:
-		reference.x = xz_source.x
-		reference.z = xz_source.z
+		hips_ref.x = xz_source.x
+		hips_ref.z = xz_source.z
 	var y_source: Variant = _read_hips_from_animations(library, [
 		"idle",
 		"male_standing_pose",
@@ -99,10 +99,10 @@ func _get_walking_in_place_reference_hips(library: AnimationLibrary) -> Vector3:
 		"walking",
 	])
 	if y_source is Vector3:
-		reference.y = y_source.y
+		hips_ref.y = y_source.y
 	elif xz_source is Vector3:
-		reference.y = xz_source.y
-	return reference
+		hips_ref.y = xz_source.y
+	return hips_ref
 
 
 func _read_hips_from_animations(library: AnimationLibrary, names: Array) -> Variant:

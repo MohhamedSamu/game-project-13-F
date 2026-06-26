@@ -360,10 +360,10 @@ func _get_setup_uniform_scale() -> float:
 
 
 func _reference_space_factor() -> float:
-	var scale := _get_setup_uniform_scale()
-	if scale < 0.0001:
+	var uniform_scale := _get_setup_uniform_scale()
+	if uniform_scale < 0.0001:
 		return 1.0
-	return DOOR_REFERENCE_SCALE / scale
+	return DOOR_REFERENCE_SCALE / uniform_scale
 
 
 func _to_reference_space(value: float) -> float:
