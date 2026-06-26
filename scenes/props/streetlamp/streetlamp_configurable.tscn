@@ -1,14 +1,23 @@
-[gd_scene load_steps=5 format=3 uid="uid://cvl7jes7ecmi3"]
+[gd_scene load_steps=6 format=3 uid="uid://cvl7jes7ecmi3"]
 
 [ext_resource type="PackedScene" uid="uid://6m0myua5kt2w" path="res://scenes/props/streetlamp/streetlamp.tscn" id="1_streetlamp"]
 [ext_resource type="Script" uid="uid://dm1esx00c3cvn" path="res://scripts/environment/street_lamp_controller.gd" id="2_controller"]
 [ext_resource type="Script" uid="uid://bikqe675bud6f" path="res://scripts/lights/security_spot_light.gd" id="3_secspot"]
 [ext_resource type="Script" uid="uid://bbxw6d4w417sj" path="res://scripts/lights/ceiling_omni_light.gd" id="4_ceilomni"]
+[ext_resource type="AudioStream" uid="uid://8mtidi3xs6q3" path="res://assets/audio/SFX/streetlamp/flickering-neon-316717.mp3" id="5_flicker"]
 
 [node name="StreetLampConfigurable" type="Node3D"]
 script = ExtResource("2_controller")
 
 [node name="StreetLamp" parent="." instance=ExtResource("1_streetlamp")]
+
+[node name="FlickerSFX" type="AudioStreamPlayer3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.05, -2.55)
+stream = ExtResource("5_flicker")
+volume_db = 2.5
+unit_size = 5.0
+max_distance = 34.0
+bus = &"SFX"
 
 [node name="Lights" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.05, -2.55)

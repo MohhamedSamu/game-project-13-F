@@ -55,6 +55,16 @@ const _FLICKER_GROUP := &"flicker_managed"
 @export var bulb_on_emission_energy: float = 1.0
 @export var bulb_off_emission_energy: float = 0.0
 
+@export_group("Flicker Audio")
+@export var flicker_sound_enabled: bool = true
+@export var flicker_sound_player_path: NodePath = ^"FlickerSFX"
+## Solo en la fase principal encendida (no en micro-parpadeos).
+@export_range(0.0, 1.0) var flicker_sfx_play_chance: float = 1.0
+## Duración mínima de la fase ON para disparar SFX (los micro-parpadeos no llaman esto).
+@export var flicker_sfx_min_on_duration: float = 0.4
+@export_range(0.5, 2.0) var flicker_sfx_pitch_min: float = 0.92
+@export_range(0.5, 2.0) var flicker_sfx_pitch_max: float = 1.08
+
 var _current_mode: LampMode = LampMode.STABLE
 var _controlled_lights: Array[Light3D] = []
 var _original_energies: Dictionary = {}
@@ -63,6 +73,7 @@ var _initialized: bool = false
 var _bulb_mesh_targets: Array[MeshInstance3D] = []
 var _bulb_surface_targets: Array[int] = []
 var _bulb_materials: Array[StandardMaterial3D] = []
+var _flicker_audio: AudioStreamPlayer3D
 
 
 func _ready() -> void:
@@ -72,6 +83,7 @@ func _ready() -> void:
 
 
 func _begin() -> void:
+	_resolve_flicker_audio()
 	_align_lights_to_socket()
 	_resolve_controlled_lights()
 	_resolve_bulb_targets()
@@ -102,9 +114,11 @@ func set_mode(mode: LampMode) -> void:
 	_flicker_running = false
 	match mode:
 		LampMode.OFF:
+			_stop_flicker_audio()
 			_unmark_lights_flicker_managed()
 			_set_light_off()
 		LampMode.STABLE:
+			_stop_flicker_audio()
 			_unmark_lights_flicker_managed()
 			_restore_lights()
 		LampMode.FLICKERING:
@@ -145,6 +159,7 @@ func start_flicker() -> void:
 
 func stop_flicker(restore_lights: bool = true) -> void:
 	_flicker_running = false
+	_stop_flicker_audio()
 	if restore_lights:
 		_restore_lights()
 	elif _current_mode == LampMode.FLICKERING:
@@ -170,6 +185,43 @@ func get_mode() -> LampMode:
 	return _current_mode
 
 
+func _resolve_flicker_audio() -> void:
+	_flicker_audio = get_node_or_null(flicker_sound_player_path) as AudioStreamPlayer3D
+	if not flicker_sound_enabled:
+		return
+	if _flicker_audio == null:
+		push_warning(
+			"StreetLampController: no se encontró AudioStreamPlayer3D en %s (%s)."
+			% [get_path(), flicker_sound_player_path]
+		)
+
+
+func _play_flicker_sfx_for_on_phase(on_duration: float) -> void:
+	if not flicker_sound_enabled or _flicker_audio == null:
+		return
+	if _flicker_audio.stream == null:
+		return
+	if _current_mode != LampMode.FLICKERING or not _flicker_running:
+		return
+	if on_duration < flicker_sfx_min_on_duration:
+		return
+	if randf() > flicker_sfx_play_chance:
+		return
+
+	_flicker_audio.pitch_scale = randf_range(
+		minf(flicker_sfx_pitch_min, flicker_sfx_pitch_max),
+		maxf(flicker_sfx_pitch_min, flicker_sfx_pitch_max)
+	)
+	if _flicker_audio.playing:
+		_flicker_audio.stop()
+	_flicker_audio.play()
+
+
+func _stop_flicker_audio() -> void:
+	if _flicker_audio != null and _flicker_audio.playing:
+		_flicker_audio.stop()
+
+
 func _align_lights_to_socket() -> void:
 	if not align_lights_to_socket_on_ready:
 		return
@@ -179,6 +231,9 @@ func _align_lights_to_socket() -> void:
 		return
 	lights_parent.position = socket.position
 	lights_parent.rotation = socket.rotation
+	if _flicker_audio != null and _flicker_audio.get_parent() == self:
+		_flicker_audio.position = socket.position
+		_flicker_audio.rotation = socket.rotation
 
 
 func _resolve_controlled_lights() -> void:
@@ -422,8 +477,10 @@ func _wait_while_running(duration: float) -> bool:
 
 func _flicker_loop() -> void:
 	while _flicker_running and _current_mode == LampMode.FLICKERING:
+		var on_duration := randf_range(min_on_time, max_on_time)
 		_set_light_on_random_strength()
-		if not await _wait_while_running(randf_range(min_on_time, max_on_time)):
+		_play_flicker_sfx_for_on_phase(on_duration)
+		if not await _wait_while_running(on_duration):
 			break
 
 		if randf() < micro_flicker_chance:
