@@ -1,0 +1,48 @@
+[gd_scene load_steps=5 format=3 uid="uid://cvl7jes7ecmi3"]
+
+[ext_resource type="PackedScene" uid="uid://6m0myua5kt2w" path="res://scenes/props/streetlamp/streetlamp.tscn" id="1_streetlamp"]
+[ext_resource type="Script" uid="uid://dm1esx00c3cvn" path="res://scripts/environment/street_lamp_controller.gd" id="2_controller"]
+[ext_resource type="Script" uid="uid://bikqe675bud6f" path="res://scripts/lights/security_spot_light.gd" id="3_secspot"]
+[ext_resource type="Script" uid="uid://bbxw6d4w417sj" path="res://scripts/lights/ceiling_omni_light.gd" id="4_ceilomni"]
+
+[node name="StreetLampConfigurable" type="Node3D"]
+script = ExtResource("2_controller")
+
+[node name="StreetLamp" parent="." instance=ExtResource("1_streetlamp")]
+
+[node name="Lights" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10.05, -2.55)
+
+[node name="SpotLight3D" type="SpotLight3D" parent="Lights"]
+transform = Transform3D(0.993608, -0.107407, -0.034734, 0, 0.307694, -0.951485, 0.112884, 0.945404, 0.305728, 0, 0, 0)
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 10.0
+light_indirect_energy = 0.0
+light_volumetric_fog_energy = 4.0
+shadow_enabled = true
+spot_range = 26.0
+spot_attenuation = 0.6
+spot_angle = 48.0
+script = ExtResource("3_secspot")
+night_light_energy = 10.0
+night_spot_range = 26.0
+night_spot_angle = 48.0
+night_spot_attenuation = 0.6
+night_volumetric_fog_energy = 4.0
+shadow_bias_setting = 0.08
+
+[node name="OmniLight3D" type="OmniLight3D" parent="Lights"]
+light_color = Color(1, 0.94, 0.82, 1)
+light_energy = 5.0
+light_indirect_energy = 0.1
+light_volumetric_fog_energy = 2.5
+light_specular = 0.3
+omni_range = 14.0
+omni_attenuation = 0.55
+script = ExtResource("4_ceilomni")
+night_light_energy = 5.0
+night_omni_range = 14.0
+night_omni_attenuation = 0.55
+night_volumetric_fog_energy = 2.5
+night_light_color = Color(1, 0.94, 0.82, 1)
+cast_shadows = false
