@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://bnfp7cjx823mb"
+path="res://.godot/imported/clown_jumpscare_easter_egg.dialogue-09c40ab35af323bee50ab479ae4f7744.tres"
+
+[deps]
+
+source_file="res://dialogues/demo/clown_jumpscare_easter_egg.dialogue"
+dest_files=["res://.godot/imported/clown_jumpscare_easter_egg.dialogue-09c40ab35af323bee50ab479ae4f7744.tres"]
+
+[params]
+
+defaults=true

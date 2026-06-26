@@ -70,6 +70,9 @@ func lock_player() -> void:
 	_set_crosshair_dialogue_hidden(true)
 	InnerThoughts.hide_thought()
 
+	if player and player.has_method("stop_movement_immediately"):
+		player.stop_movement_immediately()
+
 	if player and player.has_method("set_input_enabled"):
 		player.set_input_enabled(false)
 
@@ -98,6 +101,9 @@ func lock_player_minigame() -> void:
 	minigame_active = true
 	_set_crosshair_dialogue_hidden(true)
 	InnerThoughts.hide_thought()
+
+	if player and player.has_method("stop_movement_immediately"):
+		player.stop_movement_immediately()
 
 	if player and player.has_method("set_input_enabled"):
 		player.set_input_enabled(false)

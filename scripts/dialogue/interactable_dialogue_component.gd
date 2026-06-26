@@ -140,6 +140,9 @@ func interact() -> void:
 
 func _begin_dialogue_interaction() -> void:
 	_preparing_dialogue = true
+	var player := GameManager.get_player()
+	if player != null and player.has_method("stop_movement_immediately"):
+		player.stop_movement_immediately()
 	await _await_dialogue_preparation()
 	_preparing_dialogue = false
 

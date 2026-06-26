@@ -1,0 +1,11 @@
+~ start
+McDonalds: [[Holis|Hola|Buenas buenas]], que haces por aqui tan solito?.
+McDonalds: No te dijeron que por aqui es ... peligroso si andas por tu cuenta?.
+- Nunca estas solo si estas con dios
+	McDonalds: Si si si, ojalá te ayude... lo necesitaras. 
+- Quien eres?
+	McDonalds: Yo solo estoy aqui para darle dulcitos a los preguntones.
+McDonalds: Pero entonces, quieres unos dulcitos?.
+- ... => END
+- Mejor me quedo asi, adiós. => END
+=> END

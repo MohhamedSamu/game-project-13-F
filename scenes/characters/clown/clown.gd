@@ -1,23 +1,35 @@
 @tool
 extends Node3D
-## Carga la animación Mixamo scary_clown_idle en el AnimationPlayer local.
+## Registra animaciones Mixamo en el AnimationPlayer local (cache .res en editor).
 
-const MIXAMO_FBX := "res://assets/characters/clown/animations/scary_clown_idle.fbx"
-const MIXAMO_RES := "res://assets/characters/clown/animations/scary_clown_idle.res"
-const ANIM_NAME := "scary_clown_idle"
+const ANIMATIONS_DIR := "res://assets/characters/clown/animations/"
 const SOURCE_ANIM := "mixamo.com"
+
+## Nombre lógico → FBX en assets/characters/clown/animations/
+const MIXAMO_SOURCES: Dictionary = {
+	"scary_clown_idle": "scary_clown_idle.fbx",
+	"running": "Running.fbx",
+	"scary_clown_walk": "Scary Clown Walk.fbx",
+	"female_dance_pose": "Female Dance Pose.fbx",
+}
+
+const SINGLE_SHOT_ANIMATIONS: Array[String] = ["female_dance_pose"]
+
+@export_group("Reproducción")
+@export var autoplay_on_ready: bool = true
+@export var default_animation: String = "scary_clown_idle"
 
 
 func _enter_tree() -> void:
 	if Engine.is_editor_hint():
-		call_deferred("_setup_scary_clown_idle")
+		call_deferred("_setup_mixamo_animations")
 
 
 func _ready() -> void:
-	_setup_scary_clown_idle()
+	_setup_mixamo_animations()
 
 
-func _setup_scary_clown_idle() -> void:
+func _setup_mixamo_animations() -> void:
 	var animation_player := get_node_or_null("AnimationPlayer") as AnimationPlayer
 	if animation_player == null:
 		return
@@ -27,29 +39,62 @@ func _setup_scary_clown_idle() -> void:
 		library = AnimationLibrary.new()
 		animation_player.add_animation_library("", library)
 
-	if not library.has_animation(ANIM_NAME):
-		var anim := _load_mixamo_animation()
+	for anim_name in MIXAMO_SOURCES.keys():
+		if library.has_animation(anim_name):
+			continue
+		var anim := _load_mixamo_animation(anim_name)
 		if anim == null:
-			push_warning("Clown: no se pudo cargar '%s' desde Mixamo." % ANIM_NAME)
-			if library.has_animation("idle_arms_down"):
-				animation_player.play("idle_arms_down")
-			return
-		_neutralize_root_motion(anim)
-		library.add_animation(ANIM_NAME, anim)
+			push_warning("Clown: no se pudo cargar '%s'." % anim_name)
+			continue
+		library.add_animation(anim_name, anim)
 
 	if animation_player.autoplay != "":
 		animation_player.autoplay = ""
-	if not animation_player.is_playing() or animation_player.current_animation != ANIM_NAME:
-		animation_player.play(ANIM_NAME)
+
+	if Engine.is_editor_hint():
+		return
+
+	if autoplay_on_ready and not default_animation.is_empty() and library.has_animation(default_animation):
+		if not animation_player.is_playing() or animation_player.current_animation != default_animation:
+			animation_player.play(default_animation)
 
 
-func _load_mixamo_animation() -> Animation:
-	if ResourceLoader.exists(MIXAMO_RES):
-		var saved_anim := load(MIXAMO_RES) as Animation
-		if saved_anim:
-			return _remap_animation(saved_anim.duplicate())
+func play_animation(animation_name: String) -> void:
+	var animation_player := get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if animation_player == null:
+		return
+	if not animation_player.has_animation(animation_name):
+		push_warning("Clown: animación '%s' no registrada." % animation_name)
+		return
+	animation_player.play(animation_name)
 
-	var scene := load(MIXAMO_FBX) as PackedScene
+
+func get_animation_names() -> PackedStringArray:
+	var animation_player := get_node_or_null("AnimationPlayer") as AnimationPlayer
+	if animation_player == null:
+		return PackedStringArray()
+	var library := animation_player.get_animation_library("")
+	if library == null:
+		return PackedStringArray()
+	return PackedStringArray(library.get_animation_list())
+
+
+func _load_mixamo_animation(anim_name: String) -> Animation:
+	var cache_path := _cache_path(anim_name)
+	if ResourceLoader.exists(cache_path):
+		var cached := load(cache_path) as Animation
+		if cached:
+			return cached.duplicate()
+
+	var fbx_file: String = MIXAMO_SOURCES.get(anim_name, "")
+	if fbx_file.is_empty():
+		return null
+
+	var fbx_path := ANIMATIONS_DIR.path_join(fbx_file)
+	if not ResourceLoader.exists(fbx_path):
+		return null
+
+	var scene := load(fbx_path) as PackedScene
 	if scene == null:
 		return null
 
@@ -73,7 +118,22 @@ func _load_mixamo_animation() -> Animation:
 	if source_anim == null:
 		return null
 
-	return _remap_animation(source_anim.duplicate())
+	var anim := _remap_animation(source_anim.duplicate(), anim_name)
+	_neutralize_root_motion(anim)
+	_try_save_cache(anim_name, anim)
+	return anim
+
+
+func _cache_path(anim_name: String) -> String:
+	return ANIMATIONS_DIR.path_join(anim_name + ".res")
+
+
+func _try_save_cache(anim_name: String, anim: Animation) -> void:
+	if not Engine.is_editor_hint():
+		return
+	var err := ResourceSaver.save(anim, _cache_path(anim_name))
+	if err != OK:
+		push_warning("Clown: no se pudo guardar cache '%s' (%s)." % [anim_name, error_string(err)])
 
 
 func _find_animation_player(node: Node) -> AnimationPlayer:
@@ -86,9 +146,12 @@ func _find_animation_player(node: Node) -> AnimationPlayer:
 	return null
 
 
-func _remap_animation(anim: Animation) -> Animation:
-	anim.resource_name = ANIM_NAME
-	anim.loop_mode = Animation.LOOP_LINEAR
+func _remap_animation(anim: Animation, anim_name: String) -> Animation:
+	anim.resource_name = anim_name
+	if anim_name in SINGLE_SHOT_ANIMATIONS:
+		anim.loop_mode = Animation.LOOP_NONE
+	else:
+		anim.loop_mode = Animation.LOOP_LINEAR
 
 	for track_idx in range(anim.get_track_count()):
 		var path := String(anim.track_get_path(track_idx))

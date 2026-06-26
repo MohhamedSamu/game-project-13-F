@@ -23,6 +23,11 @@ DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 GameManager="*res://scripts/autoload/game_manager.gd"
 DialogueController="*res://scripts/autoload/dialogue_controller.gd"
 InnerThoughts="*res://scenes/ui/inner_thoughts_overlay.tscn"
+DevOverlay="*res://scenes/ui/dev_overlay.tscn"
+
+[debug]
+
+settings/stdout/print_fps=true
 
 [dialogue_manager]
 
@@ -96,7 +101,12 @@ drop_item={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":81,"key_label":0,"unicode":113,"location":0,"echo":false,"script":null)
 ]
 }
+toggle_fps={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194334,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
 
 [internationalization]
 
-locale/translations_pot_files=PackedStringArray("res://dialogues/my_dialogue.dialogue", "res://dialogues/door_01.dialogue", "res://dialogues/ice_proximity.dialogue", "res://dialogues/gas_station_npc.dialogue")
+locale/translations_pot_files=PackedStringArray("res://dialogues/my_dialogue.dialogue", "res://dialogues/door_01.dialogue", "res://dialogues/ice_proximity.dialogue", "res://dialogues/gas_station_npc.dialogue", "res://dialogues/demo/clown_jumpscare_easter_egg.dialogue")

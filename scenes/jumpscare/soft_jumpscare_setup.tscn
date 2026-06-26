@@ -1,0 +1,96 @@
+[gd_scene load_steps=10 format=3 uid="uid://qaglqwcm6djo"]
+
+[ext_resource type="Script" uid="uid://bt82vbblvf4hh" path="res://scripts/jumpscare/soft_jumpscare_setup.gd" id="1_setup"]
+[ext_resource type="Script" uid="uid://bpur0mpxi6emt" path="res://scripts/jumpscare/jumpscare_trigger_zone.gd" id="2_trigger"]
+[ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="3_focus"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_jbf7n"]
+size = Vector3(4, 2.5, 0.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_doby0"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0.95, 0.25, 0.55, 0.38)
+
+[sub_resource type="BoxMesh" id="BoxMesh_36uxf"]
+size = Vector3(4, 2.5, 0.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_arrival_gizmo"]
+size = Vector3(0.35, 0.05, 0.35)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_dabwu"]
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0.85, 0.2, 0.35, 0.55)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_actor_preview"]
+radius = 0.35
+height = 1.75
+
+[node name="SoftJumpscareSetup" type="Node3D"]
+script = ExtResource("1_setup")
+scare_run_speed = null
+use_run_speed_for_duration = null
+scare_duration = 0.5
+min_scare_duration = null
+max_scare_duration = null
+run_animation_speed_scale = null
+snap_actor_to_floor = null
+floor_ray_height = null
+floor_ray_depth = null
+exit_after_dialogue = null
+exit_rise_height = null
+exit_rise_duration = null
+
+[node name="TriggerZone" type="Area3D" parent="."]
+collision_layer = 0
+monitorable = false
+script = ExtResource("2_trigger")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="TriggerZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+shape = SubResource("BoxShape3D_jbf7n")
+
+[node name="EditorPreview" type="MeshInstance3D" parent="TriggerZone"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+material_override = SubResource("StandardMaterial3D_doby0")
+cast_shadow = 0
+mesh = SubResource("BoxMesh_36uxf")
+
+[node name="ScareSpawnPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 1.58075)
+
+[node name="ScareArrivalPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.853047)
+
+[node name="ArrivalGizmo" type="MeshInstance3D" parent="ScareArrivalPoint"]
+cast_shadow = 0
+mesh = SubResource("BoxMesh_arrival_gizmo")
+
+[node name="CameraFocusPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 1.6)
+script = ExtResource("3_focus")
+use_stand_position = false
+
+[node name="ScareActor" type="Node3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 1.58075)
+
+[node name="DialogueFocusPoint" type="Marker3D" parent="ScareActor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, 0)
+script = ExtResource("3_focus")
+use_stand_position = false
+
+[node name="EditorPreview" type="MeshInstance3D" parent="ScareActor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.875, 0)
+material_override = SubResource("StandardMaterial3D_dabwu")
+cast_shadow = 0
+mesh = SubResource("CapsuleMesh_actor_preview")
+
+[node name="Audio" type="Node3D" parent="."]
+
+[node name="ScreamPlayer" type="AudioStreamPlayer3D" parent="Audio"]
+unit_size = 8.0
+max_distance = 24.0
+bus = &"Scary"

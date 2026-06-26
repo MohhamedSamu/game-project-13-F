@@ -80,6 +80,8 @@ const DEVELOP_FREEFLY_SPEED := 25.0
 @export_range(0.0, 1.0) var dialogue_reposition_blend: float = 0.5
 @export var dialogue_reposition_speed: float = 1.4
 @export var dialogue_reposition_stop_threshold: float = 0.05
+## Frenado al soltar teclas (unidades/s). Más alto = parada más rápida.
+@export var movement_stop_deceleration: float = 28.0
 @export var input_interact: String = "interact"
 @export var input_drop_item: String = "drop_item"
 @export var input_flashlight_toggle: String = "flashlight_toggle"
@@ -211,10 +213,12 @@ func _physics_process(delta: float) -> void:
 		if repositioning_for_dialogue:
 			_update_dialogue_reposition(delta)
 		else:
-			if not is_on_floor():
+			if is_on_floor():
+				velocity = Vector3.ZERO
+			else:
+				velocity.x = 0.0
+				velocity.z = 0.0
 				velocity += get_gravity() * delta
-			velocity.x = 0.0
-			velocity.z = 0.0
 			move_and_slide()
 		return
 	
@@ -256,8 +260,8 @@ func _physics_process(delta: float) -> void:
 			velocity.x = move_dir.x * move_speed
 			velocity.z = move_dir.z * move_speed
 		else:
-			velocity.x = move_toward(velocity.x, 0, move_speed)
-			velocity.z = move_toward(velocity.z, 0, move_speed)
+			velocity.x = move_toward(velocity.x, 0, movement_stop_deceleration * delta)
+			velocity.z = move_toward(velocity.z, 0, movement_stop_deceleration * delta)
 	else:
 		velocity.x = 0
 		velocity.y = 0
@@ -923,11 +927,16 @@ func _update_dialogue_camera_focus(delta: float) -> void:
 		focusing_camera = false
 
 
+func stop_movement_immediately() -> void:
+	velocity = Vector3.ZERO
+	_footstep_stride_accum = 0.0
+	repositioning_for_dialogue = false
+
+
 func set_input_enabled(value: bool) -> void:
 	input_enabled = value
 	if not input_enabled:
-		velocity.x = 0.0
-		velocity.z = 0.0
+		stop_movement_immediately()
 		_focus_interactable = null
 		_apply_crosshair_ui(false, "")
 
@@ -946,6 +955,7 @@ func _apply_movement_profile_from_settings() -> void:
 	base_speed = Settings.get_walk_speed()
 	sprint_speed = Settings.get_sprint_speed()
 	freefly_speed = Settings.get_freefly_speed()
+	jump_velocity = Settings.get_jump_velocity()
 	can_freefly = Settings.is_freefly_enabled()
 	if not can_freefly and freeflying:
 		disable_freefly()

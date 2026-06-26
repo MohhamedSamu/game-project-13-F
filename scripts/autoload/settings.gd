@@ -15,18 +15,20 @@ const DEVELOP_FREEFLY_SPEED := 25.0
 
 const PRODUCTION_WALK_SPEED := 2.5
 const PRODUCTION_SPRINT_SPEED := 4.5
+const DEVELOP_JUMP_VELOCITY := 4.5
+## Mitad de altura que develop: v ∝ sqrt(h) → factor sqrt(0.5).
+const PRODUCTION_JUMP_VELOCITY := DEVELOP_JUMP_VELOCITY * 0.7071067811865476
 
-# Defaults
-# "movement_profile": "develop" production,
 var data := {
 	"mouse_sensitivity": DEFAULT_MOUSE_SENSITIVITY,
 	"camera_fov": DEFAULT_CAMERA_FOV,
-	"movement_profile": "develop",
+	"movement_profile": "production",
 	"master_volume": 1.0,
 	"music_volume": 1.0,
 	"sfx_volume": 1.0,
 	"fullscreen": false,
 }
+
 
 func _ready() -> void:
 	load_settings()
@@ -108,6 +110,10 @@ func set_movement_profile(profile: MovementProfile) -> void:
 	data["movement_profile"] = "develop" if profile == MovementProfile.DEVELOP else "production"
 
 
+func get_movement_profile_display_name() -> String:
+	return "Develop" if get_movement_profile() == MovementProfile.DEVELOP else "Production"
+
+
 func get_walk_speed() -> float:
 	return DEVELOP_WALK_SPEED if get_movement_profile() == MovementProfile.DEVELOP else PRODUCTION_WALK_SPEED
 
@@ -120,17 +126,22 @@ func get_freefly_speed() -> float:
 	return DEVELOP_FREEFLY_SPEED if get_movement_profile() == MovementProfile.DEVELOP else 0.0
 
 
+func get_jump_velocity() -> float:
+	return DEVELOP_JUMP_VELOCITY if get_movement_profile() == MovementProfile.DEVELOP else PRODUCTION_JUMP_VELOCITY
+
+
 func is_freefly_enabled() -> bool:
 	return get_movement_profile() == MovementProfile.DEVELOP
 
 
-func apply_movement_to_player(player: Node) -> void:
+func apply_movement_to_player(player: Node = null) -> void:
 	if player == null:
 		player = GameManager.get_player()
 	if player == null or not is_instance_valid(player):
 		return
 	if player.has_method("apply_movement_profile"):
 		player.apply_movement_profile()
+
 
 func _set_bus_linear(bus_name: String, value: float) -> void:
 	var id := AudioServer.get_bus_index(bus_name)

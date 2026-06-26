@@ -17,6 +17,9 @@ func _run_start_dialogue(dialogue_resource: DialogueResource, title: String, foc
 		push_warning("DialogueController: dialogue_resource is null.")
 		return
 
+	if GameManager.player and GameManager.player.has_method("stop_movement_immediately"):
+		GameManager.player.stop_movement_immediately()
+
 	current_focus_target = focus_target
 	GameManager.lock_player()
 
