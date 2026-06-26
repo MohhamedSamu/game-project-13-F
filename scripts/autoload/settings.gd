@@ -21,7 +21,7 @@ const PRODUCTION_SPRINT_SPEED := 4.5
 var data := {
 	"mouse_sensitivity": DEFAULT_MOUSE_SENSITIVITY,
 	"camera_fov": DEFAULT_CAMERA_FOV,
-	"movement_profile": "production",
+	"movement_profile": "develop",
 	"master_volume": 1.0,
 	"music_volume": 1.0,
 	"sfx_volume": 1.0,
