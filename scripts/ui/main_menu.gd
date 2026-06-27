@@ -21,7 +21,7 @@ var current_panel: int = 0
 var checkpoint_data := [
 	{"id":"new_game", "title":"Partida nueva", "locked":false},
 	{"id":"lvl1", "title":"Nivel 1", "locked":false},
-	{"id":"lvl2", "title":"Nivel 2", "locked":false},
+	#{"id":"lvl2", "title":"Nivel 2", "locked":false},
 ]
 
 func _play_enter() -> void:
@@ -103,9 +103,9 @@ func _on_checkpoint_selected(id: String) -> void:
 	
 	match id:
 		"new_game", "lvl1":
-			get_tree().change_scene_to_file("res://scenes/levels/level_1.tscn")
-		"lvl2":
 			get_tree().change_scene_to_file("res://scenes/levels/level_2.tscn")
+		#"lvl2":
+			#get_tree().change_scene_to_file("res://scenes/levels/level_1.tscn")
 		_:
 			print("Checkpoint not mapped:", id)
 

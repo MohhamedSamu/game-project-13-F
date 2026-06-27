@@ -1,4 +1,4 @@
-[gd_scene load_steps=40 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=43 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -35,6 +35,9 @@
 [ext_resource type="Script" uid="uid://cm3m07xxeyilg" path="res://scripts/jumpscare/jumpscare_lamp_sequence.gd" id="33_lampseq"]
 [ext_resource type="Script" uid="uid://c404ed67nv3sg" path="res://scripts/narrative/level_narrative_setup.gd" id="34_narrative"]
 [ext_resource type="Resource" uid="uid://7wctwyi0bbxw" path="res://resources/narrative/level_2_scenes.tres" id="35_level2_scenes"]
+[ext_resource type="Script" uid="uid://b44m4nskn4uyr" path="res://scripts/narrative/level_intro_setup.gd" id="36_intro_setup"]
+[ext_resource type="Resource" uid="uid://cwd4fs3obmbxp" path="res://resources/narrative/level_2_intro.tres" id="37_level2_intro"]
+[ext_resource type="PackedScene" uid="uid://bu41qfrfnvo41" path="res://scenes/props/trees/tree_pack_prop.tscn" id="38_s7kn7"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wwjag"]
 shader = ExtResource("12_lkn2k")
@@ -89,8 +92,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.0828045, 0.0828044)
-shader_parameter/cirrus_position2 = Vector2(0.0828045, 0.0828044)
+shader_parameter/cirrus_position1 = Vector2(0.25013, 0.25013)
+shader_parameter/cirrus_position2 = Vector2(0.25013, 0.25013)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -100,7 +103,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.413997, 0.413996)
+shader_parameter/cumulus_position = Vector2(1.25054, 1.25054)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -152,7 +155,7 @@ restore_as_open = true
 transform = Transform3D(0.0146561, 0.519973, -0.854057, 0.0047239, 0.854103, 0.520082, 0.999881, -0.0116569, 0.0100615, 23.8593, 1.84612, -16.0882)
 
 [node name="ToiletPeeSetup" parent="Gas_station" instance=ExtResource("9_pee")]
-transform = Transform3D(-0.0155328, 0, -0.999879, 0, 1, 0, 0.999879, 0, -0.0155328, 24.76, 0.455526, -16.1152)
+transform = Transform3D(-0.0155328, 0, -0.999879, 0, 1, 0, 0.999879, 0, -0.0155328, 24.7889, 0.39352, -16.1152)
 fixed_camera_path = NodePath("../ToiletPeeCamera")
 proximity_radius = 1.875
 bathroom_door_path = NodePath("../BathroomDoorSetup")
@@ -258,7 +261,7 @@ wall_height = 5.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.222, -0.00352758, 26.2195)
 
 [node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
-transform = Transform3D(0.977808, 0, 0.209499, 0, 1, 0, -0.209499, 0, 0.977808, 96.9698, -0.144804, 22.651)
+transform = Transform3D(-0.999224, 0, -0.0393646, 0, 1, 0, 0.0393646, 0, -0.999224, 99.5419, 0.395215, 20.4431)
 slide_on_ceiling = false
 
 [node name="ClownEnemy" parent="." instance=ExtResource("4_clown")]
@@ -541,6 +544,26 @@ pump_2_look_target = NodePath("../NPCMarkers/GasNPC_Pump2LookTarget")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 53.4017, 0.0320933, 31.8664)
 initial_mode = 2
 
+[node name="StreetLampConfigurable7" parent="StreetLamps" instance=ExtResource("31_wwjag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 90.0767, 0.0320933, 31.8664)
+randomize_on_start = false
+
+[node name="StreetLampConfigurable8" parent="StreetLamps" instance=ExtResource("31_wwjag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 135.534, 0.0320933, 31.8664)
+randomize_on_start = false
+
+[node name="StreetLampConfigurable9" parent="StreetLamps" instance=ExtResource("31_wwjag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 172.469, 0.0320933, 31.8664)
+randomize_on_start = false
+
+[node name="StreetLampConfigurable10" parent="StreetLamps" instance=ExtResource("31_wwjag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 206.197, 0.0320933, 31.8664)
+randomize_on_start = false
+
+[node name="StreetLampConfigurable11" parent="StreetLamps" instance=ExtResource("31_wwjag")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 245.436, 0.0320933, 30.5711)
+randomize_on_start = false
+
 [node name="StreetLampConfigurable2" parent="StreetLamps" instance=ExtResource("31_wwjag")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.9726, 0.0320933, 31.8664)
 
@@ -565,7 +588,7 @@ initial_mode = 2
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.61151, 3.39228e-07, 0.45255)
 
 [node name="flashlight" parent="Props" instance=ExtResource("5_flash")]
-transform = Transform3D(0.994098, 0, 0.108485, 0, 1, 0, -0.108485, 0, 0.994098, 91.3405, 1.12709, 22.774)
+transform = Transform3D(0.994098, 0, 0.108485, 0, 1, 0, -0.108485, 0, 0.994098, 87.3297, 1.12709, 22.3817)
 
 [node name="camera" parent="Props" instance=ExtResource("7_cam")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70.0538, 0.0360137, 26.8067)
@@ -593,3 +616,21 @@ jumpscare_path = NodePath("../SoftJumpscareSetup")
 [node name="NarrativeSetup" type="Node" parent="."]
 script = ExtResource("34_narrative")
 scene_profile = ExtResource("35_level2_scenes")
+auto_begin_on_ready = false
+
+[node name="LevelIntroSetup" type="Node" parent="."]
+script = ExtResource("36_intro_setup")
+intro_sequence = ExtResource("37_level2_intro")
+scene_profile = ExtResource("35_level2_scenes")
+
+[node name="TreePackProp" parent="." instance=ExtResource("38_s7kn7")]
+transform = Transform3D(0.992565, 5.32026e-09, 0.121713, 0.121713, -4.33864e-08, -0.992565, 0, 1, -4.37114e-08, 103.337, 0.650075, 19.7513)
+tree_variant = &"Tree_6"
+
+[node name="TreePackProp3" parent="." instance=ExtResource("38_s7kn7")]
+transform = Transform3D(0.784769, -0.612273, 0.0962324, 0.121713, -4.6633e-08, -0.992565, 0.60772, 0.790647, 0.0745218, 60.2728, 0.650075, 2.38001)
+tree_variant = &"Tree"
+
+[node name="TreePackProp2" parent="." instance=ExtResource("38_s7kn7")]
+transform = Transform3D(-0.958745, -0.258819, -0.117566, 0.121713, -4.33864e-08, -0.992565, 0.256895, -0.965926, 0.0315018, 97.0583, -1.77317, 36.4564)
+tree_variant = &"Tree_1"

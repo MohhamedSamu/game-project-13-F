@@ -7,6 +7,7 @@ signal dialogue_beat_played(npc_id: String, beat_id: String)
 
 var dialogue_active: bool = false
 var minigame_active: bool = false
+var level_intro_active: bool = false
 var player: Node = null
 var has_met_clown: bool = false
 var flags: Dictionary = {}
@@ -225,18 +226,18 @@ func _ensure_level_state(level_id: String) -> void:
 	}
 
 
-func _set_level_scene_internal(level_id: String, scene_id: String, emit_signal: bool) -> bool:
+func _set_level_scene_internal(level_id: String, scene_id: String, should_emit: bool) -> bool:
 	_ensure_level_state(level_id)
 	var level_state: Dictionary = _level_narrative_state[level_id]
 	var previous_scene_id: String = level_state.get("current_scene", "")
-	if previous_scene_id == scene_id and emit_signal:
+	if previous_scene_id == scene_id and should_emit:
 		return true
 	level_state["current_scene"] = scene_id
 	current_level_id = level_id
 	current_scene_id = scene_id
 	if not level_state["scenes"].has(scene_id):
 		level_state["scenes"][scene_id] = {"objectives": {}}
-	if emit_signal:
+	if should_emit:
 		level_scene_changed.emit(level_id, scene_id, previous_scene_id)
 	return true
 

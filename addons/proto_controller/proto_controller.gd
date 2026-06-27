@@ -80,8 +80,6 @@ const DEVELOP_FREEFLY_SPEED := 25.0
 @export_range(0.0, 1.0) var dialogue_reposition_blend: float = 0.5
 @export var dialogue_reposition_speed: float = 1.4
 @export var dialogue_reposition_stop_threshold: float = 0.05
-## Frenado al soltar teclas (unidades/s). Más alto = parada más rápida.
-@export var movement_stop_deceleration: float = 28.0
 @export var input_interact: String = "interact"
 @export var input_drop_item: String = "drop_item"
 @export var input_flashlight_toggle: String = "flashlight_toggle"
@@ -176,6 +174,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	# Mouse capturing (no recapturar durante diálogo: el ratón debe seguir visible).
 	if (
 		not GameManager.dialogue_active
+		and not GameManager.level_intro_active
+		and input_enabled
 		and not minigame_mode
 		and event is InputEventMouseButton
 		and event.button_index == MOUSE_BUTTON_LEFT
@@ -260,8 +260,8 @@ func _physics_process(delta: float) -> void:
 			velocity.x = move_dir.x * move_speed
 			velocity.z = move_dir.z * move_speed
 		else:
-			velocity.x = move_toward(velocity.x, 0, movement_stop_deceleration * delta)
-			velocity.z = move_toward(velocity.z, 0, movement_stop_deceleration * delta)
+			velocity.x = 0.0
+			velocity.z = 0.0
 	else:
 		velocity.x = 0
 		velocity.y = 0
