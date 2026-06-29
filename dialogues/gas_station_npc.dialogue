@@ -3,3 +3,12 @@ Old Man: No deberías andar por aquí tan tarde.
 Old Man: Esta estación lleva horas demasiado silenciosa.
 Old Man: Yo solo estoy revisando las bombas... o eso intento.
 => END
+
+~ repeat
+Old Man: Sigue revisando las bombas. No tardes.
+=> END
+
+~ after_bathroom
+Old Man: El baño de ahí dentro no me gusta nada.
+Old Man: Si oyes algo raro, mejor no te quedes mucho tiempo.
+=> END

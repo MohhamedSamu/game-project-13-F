@@ -37,10 +37,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			else:
 				_resume()
 
-func _set_crosshair_pause_hidden(hidden: bool) -> void:
+func _set_crosshair_pause_hidden(is_hidden: bool) -> void:
 	var crosshair := get_tree().get_first_node_in_group("interaction_crosshair") as Control
 	if crosshair and crosshair.has_method("set_pause_hidden"):
-		crosshair.set_pause_hidden(hidden)
+		crosshair.set_pause_hidden(is_hidden)
 
 
 func open() -> void:

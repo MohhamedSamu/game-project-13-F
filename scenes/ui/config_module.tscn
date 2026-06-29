@@ -282,13 +282,13 @@ text = "Back
 "
 
 [connection signal="drag_ended" from="VScrollBar/MasterAudioControl" to="VScrollBar/MasterAudioControl" method="_on_drag_ended"]
-[connection signal="value_changed" from="VScrollBar/MasterAudioControl" to="VScrollBar/MasterAudioControl" method="_on_value_changed"]
+[connection signal="value_changed" from="VScrollBar/MasterAudioControl" to="VScrollBar/MasterAudioControl" method="_on_slider_value_changed"]
 [connection signal="drag_ended" from="VScrollBar/MusicAudioControl" to="VScrollBar/MusicAudioControl" method="_on_drag_ended"]
-[connection signal="value_changed" from="VScrollBar/MusicAudioControl" to="VScrollBar/MusicAudioControl" method="_on_value_changed"]
+[connection signal="value_changed" from="VScrollBar/MusicAudioControl" to="VScrollBar/MusicAudioControl" method="_on_slider_value_changed"]
 [connection signal="drag_ended" from="VScrollBar/SFXAudioControl" to="VScrollBar/SFXAudioControl" method="_on_drag_ended"]
-[connection signal="value_changed" from="VScrollBar/SFXAudioControl" to="VScrollBar/SFXAudioControl" method="_on_value_changed"]
+[connection signal="value_changed" from="VScrollBar/SFXAudioControl" to="VScrollBar/SFXAudioControl" method="_on_slider_value_changed"]
 [connection signal="toggled" from="VScrollBar/FullscreenControl" to="VScrollBar/FullscreenControl" method="_on_toggled"]
 [connection signal="drag_ended" from="VScrollBar/MouseSensControl" to="VScrollBar/MouseSensControl" method="_on_drag_ended"]
-[connection signal="value_changed" from="VScrollBar/MouseSensControl" to="VScrollBar/MouseSensControl" method="_on_value_changed"]
+[connection signal="value_changed" from="VScrollBar/MouseSensControl" to="VScrollBar/MouseSensControl" method="_on_slider_value_changed"]
 [connection signal="drag_ended" from="VScrollBar/FovControl" to="VScrollBar/FovControl" method="_on_drag_ended"]
-[connection signal="value_changed" from="VScrollBar/FovControl" to="VScrollBar/FovControl" method="_on_value_changed"]
+[connection signal="value_changed" from="VScrollBar/FovControl" to="VScrollBar/FovControl" method="_on_slider_value_changed"]

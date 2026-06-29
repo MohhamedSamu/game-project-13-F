@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://hp3o3xt5df7s"]
+[gd_scene load_steps=12 format=3 uid="uid://hp3o3xt5df7s"]
 
 [ext_resource type="PackedScene" uid="uid://b5vp0g8kfahfn" path="res://scenes/characters/gas_station_npc/character_09.tscn" id="1_model"]
 [ext_resource type="Script" uid="uid://dc3ir525hc81k" path="res://scripts/characters/gas_station_npc.gd" id="2_script"]
@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://3wo7lah4owqs" path="res://scripts/dialogue/proximity_dialogue_component.gd" id="4_prox"]
 [ext_resource type="Resource" uid="uid://cg78lqav0lxg2" path="res://dialogues/gas_station_npc.dialogue" id="5_dlg"]
 [ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="6_dlgfocus"]
+[ext_resource type="Resource" uid="uid://dwuygmh42jxhj" path="res://resources/narrative/gas_station_npc_dialogue.tres" id="7_dialogue_profile"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.42
@@ -49,7 +50,8 @@ prompt_text = "Presiona [E] para hablar"
 trigger_once = true
 requires_focus_hitbox = true
 use_camera_focus = false
-set_flag_on_finish = "gas_npc_intro_done"
+npc_id = "gas_station_npc"
+dialogue_profile = ExtResource("7_dialogue_profile")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0.55)

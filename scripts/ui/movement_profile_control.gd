@@ -18,7 +18,7 @@ func _load_saved_value() -> void:
 
 
 func _on_item_selected(index: int) -> void:
-	var profile: Settings.MovementProfile = get_item_id(index)
+	var profile := get_item_id(index) as Settings.MovementProfile
 	Settings.set_movement_profile(profile)
 	Settings.save_settings()
 	Settings.apply_movement_to_player()

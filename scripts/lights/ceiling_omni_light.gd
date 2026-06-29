@@ -37,7 +37,7 @@ func _apply_shadow_settings() -> void:
 		shadow_normal_bias = shadow_normal_bias_setting
 		shadow_opacity = 1.0
 
-func apply_time_profile(day_factor: float, night_factor: float) -> void:
+func apply_time_profile(_day_factor: float, night_factor: float) -> void:
 	var night_blend := clampf(night_factor, 0.0, 1.0)
 	light_color = night_light_color
 	omni_range = night_omni_range

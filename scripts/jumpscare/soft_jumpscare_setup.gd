@@ -2,11 +2,15 @@
 class_name SoftJumpscareSetup
 extends Node3D
 ## Susto no letal: trigger invisible, actor corre al jugador, grito aleatorio y diálogo.
-## Señales: [signal jumpscare_dialogue_finished] al cerrar el diálogo del susto;
-## [signal jumpscare_completed] tras la secuencia de salida (o justo después del diálogo si está desactivada).
+## Señales: [signal jumpscare_triggered] al aparecer el actor; [signal jumpscare_dialogue_finished]
+## al cerrar el diálogo; [signal jumpscare_rise_started] / [signal jumpscare_rise_finished] durante la salida;
+## [signal jumpscare_completed] cuando termina todo el susto.
 
 signal jumpscare_dialogue_finished
 signal jumpscare_completed
+signal jumpscare_triggered
+signal jumpscare_rise_started
+signal jumpscare_rise_finished
 
 enum AllowedAudioTier {
 	SOFT,
@@ -231,6 +235,7 @@ func _run_soft_jumpscare_async(player: Node3D) -> void:
 		_face_actor_toward(actor, arrival)
 
 	_set_actor_visible(true)
+	jumpscare_triggered.emit()
 	var look_pos := arrival
 	if player != null and player.is_inside_tree():
 		look_pos = player.global_position
@@ -293,13 +298,13 @@ func _prepare_dialogue_focus(actor: Node3D, player: Node3D) -> Node3D:
 	return _resolve_dialogue_focus(actor)
 
 
-func _set_actor_visible(visible: bool) -> void:
+func _set_actor_visible(is_visible: bool) -> void:
 	if not hide_actor_until_trigger:
 		return
 	var actor := _resolve_scare_actor()
 	if actor == null:
 		return
-	actor.visible = visible
+	actor.visible = is_visible
 
 
 func _resolve_animation_player() -> AnimationPlayer:
@@ -348,6 +353,7 @@ func _run_post_dialogue_sequence() -> void:
 	jumpscare_dialogue_finished.emit()
 	_play_actor_animation(after_dialogue_animation)
 	if exit_after_dialogue:
+		jumpscare_rise_started.emit()
 		await _run_exit_rise_sequence()
 	jumpscare_completed.emit()
 
@@ -372,6 +378,7 @@ func _run_exit_rise_sequence() -> void:
 		exit_rise_duration
 	)
 	await _exit_tween.finished
+	jumpscare_rise_finished.emit()
 	if is_instance_valid(actor):
 		actor.visible = false
 
@@ -417,9 +424,9 @@ func _face_actor_toward(actor: Node3D, world_target: Vector3) -> void:
 	direction.y = 0.0
 	if direction.length_squared() < 0.0001:
 		return
-	var basis := Basis.looking_at(direction.normalized(), Vector3.UP)
-	basis = basis.rotated(Vector3.UP, _MIXAMO_YAW_CORRECTION + deg_to_rad(actor_yaw_offset_deg))
-	actor.global_transform = Transform3D(basis, pos)
+	var look_basis := Basis.looking_at(direction.normalized(), Vector3.UP)
+	look_basis = look_basis.rotated(Vector3.UP, _MIXAMO_YAW_CORRECTION + deg_to_rad(actor_yaw_offset_deg))
+	actor.global_transform = Transform3D(look_basis, pos)
 
 
 func _play_random_scream() -> void:
