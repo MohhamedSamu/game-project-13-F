@@ -1,14 +1,27 @@
-[gd_scene load_steps=3 format=3 uid="uid://blhoimejjrojj"]
+[gd_scene load_steps=4 format=3 uid="uid://blhoimejjrojj"]
 
 [ext_resource type="PackedScene" uid="uid://c33iwiqw6ogfg" path="res://scenes/interactables/door_interact_setup.tscn" id="1_base"]
 [ext_resource type="Resource" uid="uid://du8sfa0irqkv6" path="res://dialogues/door_01.dialogue" id="2_dlg"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_5lmpn"]
+size = Vector3(0.2, 1.05, 2.8)
 
 [node name="Door01InteractSetup" instance=ExtResource("1_base")]
 door_mesh_path = NodePath("../Door_01")
 dialogue_resource = ExtResource("2_dlg")
 
 [node name="DoorPivot" parent="." index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.00077, -0.000335)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.077, -0.0335)
+
+[node name="DialogueFocusPoint" parent="." index="1"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.448, -0.0335)
 
 [node name="InteractableDialogueComponent" parent="." index="2"]
 dialogue_resource = ExtResource("2_dlg")
+
+[node name="CollisionShape3D" parent="InteractionRayTarget" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.448, -0.0335)
+shape = SubResource("BoxShape3D_5lmpn")
+
+[node name="OpenSoundPlayer" parent="Audio" index="0"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.448, -0.0335)
