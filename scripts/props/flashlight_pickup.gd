@@ -30,6 +30,10 @@ enum LightMode {
 @export_group("Luz")
 @export var start_mode: LightMode = LightMode.FAR
 
+@export_group("Audio")
+@export var sound_on: AudioStream = preload("res://assets/audio/SFX/flashlight/Flashlight on.wav")
+@export var sound_off: AudioStream = preload("res://assets/audio/SFX/flashlight/Flashlight off.wav")
+
 var _rb: RigidBody3D
 var _collision_shape: CollisionShape3D
 var _beam_csg: CSGCylinder3D
@@ -43,6 +47,7 @@ var _lights: Node3D
 var _lights_ground_transform: Transform3D
 var _mode: LightMode = LightMode.FAR
 var _held_in_hand: bool = false
+var _sfx_player: AudioStreamPlayer3D
 
 
 func _ready() -> void:
@@ -65,6 +70,7 @@ func _ready() -> void:
 	if _lights != null:
 		_lights_ground_transform = _lights.transform
 	_mode = start_mode
+	_sfx_player = find_child("ToggleSFX", true, false) as AudioStreamPlayer3D
 	_fix_negative_rb_scale()
 	_disable_mesh_shadow_casting()
 	_apply_lights_ground_transform()
@@ -208,6 +214,18 @@ func toggle_spotlight() -> void:
 		_:
 			_mode = LightMode.FAR
 	_apply_light_state()
+	if _mode == LightMode.OFF:
+		_play_toggle_sfx(sound_off)
+	else:
+		_play_toggle_sfx(sound_on)
+
+
+func _play_toggle_sfx(stream: AudioStream) -> void:
+	if stream == null or _sfx_player == null:
+		return
+	_sfx_player.stream = stream
+	_sfx_player.stop()
+	_sfx_player.play()
 
 
 func get_light_mode_label() -> String:

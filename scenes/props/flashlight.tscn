@@ -51,6 +51,11 @@ shadow_mesh = SubResource("ArrayMesh_vojtk")
 [node name="flashlight" type="Node3D"]
 script = ExtResource("2_pickup")
 
+[node name="Audio" type="Node3D" parent="."]
+
+[node name="ToggleSFX" type="AudioStreamPlayer3D" parent="Audio"]
+bus = &"SFX"
+
 [node name="RigidBody3D" type="RigidBody3D" parent="."]
 mass = 0.328
 continuous_cd = true
