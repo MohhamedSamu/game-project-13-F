@@ -112,6 +112,8 @@ func _ready() -> void:
 	_connect_animation_player()
 	if not DialogueController.dialogue_finished.is_connected(_on_dialogue_finished):
 		DialogueController.dialogue_finished.connect(_on_dialogue_finished)
+	if not DialogueController.dialogue_finished.is_connected(_on_any_dialogue_finished_recover):
+		DialogueController.dialogue_finished.connect(_on_any_dialogue_finished_recover)
 
 
 func _wait_for_character_animations() -> void:
@@ -140,6 +142,7 @@ func _physics_process(delta: float) -> void:
 
 	if behavior_enabled:
 		_process_work_behavior(delta)
+		_recover_animation_driven_state()
 	elif is_on_floor():
 		_halt_horizontal_movement()
 
@@ -149,11 +152,20 @@ func _physics_process(delta: float) -> void:
 
 
 func _should_pause_work_behavior() -> bool:
-	return (
-		behavior_enabled
-		and pause_behavior_during_dialogue
-		and GameManager.dialogue_active
-	)
+	if not behavior_enabled or not pause_behavior_during_dialogue:
+		return false
+	if not GameManager.dialogue_active:
+		return false
+	return _is_dialogue_with_self()
+
+
+func _is_dialogue_with_self() -> bool:
+	var focus := DialogueController.current_focus_target
+	if focus == null:
+		return false
+	if focus == self:
+		return true
+	return is_ancestor_of(focus) or focus.is_ancestor_of(self)
 
 
 func _try_start_work_behavior() -> void:
@@ -511,8 +523,18 @@ func _connect_animation_player() -> void:
 
 
 func _on_animation_finished(anim_name: StringName) -> void:
-	if not behavior_enabled or _should_pause_work_behavior():
+	if not behavior_enabled:
 		return
+	if _should_pause_work_behavior():
+		return
+	_advance_work_state_after_animation(anim_name)
+
+
+func _on_any_dialogue_finished_recover() -> void:
+	_recover_animation_driven_state()
+
+
+func _advance_work_state_after_animation(anim_name: StringName) -> void:
 	match _work_state:
 		WorkState.KNEELING_DOWN:
 			if anim_name == &"kneeling_down":
@@ -527,6 +549,37 @@ func _on_animation_finished(anim_name: StringName) -> void:
 			_on_gesture_animation_finished(anim_name)
 		WorkState.LOOK_TURN_SETTLE:
 			_on_gesture_animation_finished(anim_name)
+
+
+## Si una animación termina mientras hay diálogo en el mapa, el signal puede perderse
+## o el estado quedar congelado. Recupera cuando el AnimationPlayer ya no reproduce.
+func _recover_animation_driven_state() -> void:
+	if not behavior_enabled:
+		return
+	var animation_player := _get_animation_player()
+	if animation_player == null or animation_player.is_playing():
+		return
+
+	match _work_state:
+		WorkState.KNEELING_DOWN:
+			if animation_player.current_animation == &"kneeling_down":
+				_advance_work_state_after_animation(&"kneeling_down")
+		WorkState.INSPECTING:
+			if animation_player.current_animation == &"kneeling_inspecting":
+				_advance_work_state_after_animation(&"kneeling_inspecting")
+		WorkState.STANDING_UP:
+			if animation_player.current_animation in [&"standing_up_short", &"standing_up"]:
+				_advance_work_state_after_animation(animation_player.current_animation)
+		WorkState.WAITING:
+			if _gesture_anim in POST_STANDING_GESTURES:
+				_on_gesture_animation_finished(_gesture_anim)
+			else:
+				_continue_after_waiting()
+		WorkState.LOOK_TURN_SETTLE:
+			if _gesture_anim in POST_STANDING_GESTURES:
+				_on_gesture_animation_finished(_gesture_anim)
+			elif _state_timer <= 0.0:
+				_set_work_state(WorkState.KNEELING_DOWN)
 
 
 func _get_animation_player() -> AnimationPlayer:
@@ -684,8 +737,18 @@ func _play_random_post_standing_gesture(blend: float = BLEND_ROUTINE) -> StringN
 			return &"male_standing_pose"
 		return &""
 	var chosen := available[randi() % available.size()]
+	_force_animation_no_loop(chosen)
 	_play_anim(chosen, blend)
 	return chosen
+
+
+func _force_animation_no_loop(anim_name: StringName) -> void:
+	var animation_player := _get_animation_player()
+	if animation_player == null or not animation_player.has_animation(anim_name):
+		return
+	var anim := animation_player.get_animation(anim_name)
+	if anim != null:
+		anim.loop_mode = Animation.LOOP_NONE
 
 
 func play_idle() -> void:
