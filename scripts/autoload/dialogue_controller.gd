@@ -60,4 +60,5 @@ func _on_dialogue_finished() -> void:
 	current_balloon = null
 	current_focus_target = null
 	GameManager.unlock_player()
-	dialogue_finished.emit()
+	if get_tree() != null:
+		dialogue_finished.emit()

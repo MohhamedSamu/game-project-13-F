@@ -251,7 +251,10 @@ func set_toilet_bladder_remaining(value: float, capacity: float) -> void:
 	toilet_bladder_remaining = clampf(value, 0.0, capacity)
 
 func _set_crosshair_dialogue_hidden(is_hidden: bool) -> void:
-	var crosshair := get_tree().get_first_node_in_group("interaction_crosshair") as Control
+	var tree := get_tree()
+	if tree == null:
+		return
+	var crosshair := tree.get_first_node_in_group("interaction_crosshair") as Control
 	if crosshair and crosshair.has_method("set_dialogue_hidden"):
 		crosshair.set_dialogue_hidden(is_hidden)
 
@@ -274,15 +277,19 @@ func lock_player() -> void:
 
 func unlock_player() -> void:
 	dialogue_active = false
+	var tree := get_tree()
+	if tree == null:
+		return
+
 	_set_crosshair_dialogue_hidden(false)
 
-	if player and player.has_method("clear_camera_focus"):
+	if player and is_instance_valid(player) and player.has_method("clear_camera_focus"):
 		player.clear_camera_focus()
 
-	if player and player.has_method("set_input_enabled"):
+	if player and is_instance_valid(player) and player.has_method("set_input_enabled"):
 		player.set_input_enabled(true)
 
-	if player and player.has_method("capture_mouse"):
+	if player and is_instance_valid(player) and player.has_method("capture_mouse"):
 		player.capture_mouse()
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
