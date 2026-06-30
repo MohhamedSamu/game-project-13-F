@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://b8k2treepack01"]
+
+[ext_resource type="PackedScene" uid="uid://dgmk5j2nyt7p1" path="res://scenes/objects/trees.tscn" id="1_trees"]
+[ext_resource type="Script" path="res://scripts/props/tree_pack_prop.gd" id="2_script"]
+
+[node name="TreePackProp" type="Node3D"]
+script = ExtResource("2_script")
+tree_variant = &"Tree_4"
+
+[node name="TreesPack" parent="." instance=ExtResource("1_trees")]

@@ -1,0 +1,93 @@
+[gd_resource type="Resource" script_class="LevelIntroSequence" load_steps=21 format=3 uid="uid://cwd4fs3obmbxp"]
+
+[ext_resource type="Script" uid="uid://ch52m06fujmon" path="res://scripts/narrative/level_intro_sequence.gd" id="1_sequence"]
+[ext_resource type="Script" uid="uid://tgv3jgp4fjlf" path="res://scripts/narrative/level_intro_page.gd" id="2_page"]
+[ext_resource type="Script" uid="uid://ctb1ric1jw1cq" path="res://scripts/narrative/level_intro_paragraph.gd" id="3_paragraph"]
+
+[sub_resource type="Resource" id="demo_p1"]
+script = ExtResource("3_paragraph")
+text = "Gracias por querer jugar esta demo."
+style = 0
+
+[sub_resource type="Resource" id="demo_p2"]
+script = ExtResource("3_paragraph")
+text = "Esperamos que la disfruten tanto como nosotros la hemos disfrutado creándola."
+style = 0
+
+[sub_resource type="Resource" id="demo_p3"]
+script = ExtResource("3_paragraph")
+text = "Todos sus comentarios serán bien recibidos."
+style = 0
+
+[sub_resource type="Resource" id="demo_p4"]
+script = ExtResource("3_paragraph")
+text = "Esta es una demo de prueba de jugabilidad y mecánicas."
+style = 0
+
+[sub_resource type="Resource" id="page_demo_1"]
+script = ExtResource("2_page")
+paragraphs = Array[ExtResource("3_paragraph")]([SubResource("demo_p1"), SubResource("demo_p2"), SubResource("demo_p3"), SubResource("demo_p4")])
+
+[sub_resource type="Resource" id="demo_p5"]
+script = ExtResource("3_paragraph")
+text = "No tiene nada que ver con la historia real del juego final."
+style = 0
+
+[sub_resource type="Resource" id="demo_p6"]
+script = ExtResource("3_paragraph")
+text = "No esperen lore definitivo: solo escenas con objetivos para probar la jugabilidad."
+style = 0
+
+[sub_resource type="Resource" id="demo_p7"]
+script = ExtResource("3_paragraph")
+text = "Muchas gracias de parte de Samuel, Walter y Diego."
+style = 0
+
+[sub_resource type="Resource" id="demo_p8"]
+script = ExtResource("3_paragraph")
+text = "Ahora sí… vamos al demo."
+style = 0
+
+[sub_resource type="Resource" id="page_demo_2"]
+script = ExtResource("2_page")
+paragraphs = Array[ExtResource("3_paragraph")]([SubResource("demo_p5"), SubResource("demo_p6"), SubResource("demo_p7"), SubResource("demo_p8")])
+
+[sub_resource type="Resource" id="thought_p1"]
+script = ExtResource("3_paragraph")
+text = "Menudo cansancio… ya no doy más de caminar."
+style = 1
+
+[sub_resource type="Resource" id="thought_p2"]
+script = ExtResource("3_paragraph")
+text = "El carro se quedó sin gasolina a kilómetros de cualquier lugar."
+style = 1
+
+[sub_resource type="Resource" id="thought_p3"]
+script = ExtResource("3_paragraph")
+text = "Tengo hambre y sed, pero sobre todo ganas de ir al baño."
+style = 1
+
+[sub_resource type="Resource" id="page_thought_1"]
+script = ExtResource("2_page")
+paragraphs = Array[ExtResource("3_paragraph")]([SubResource("thought_p1"), SubResource("thought_p2"), SubResource("thought_p3")])
+
+[sub_resource type="Resource" id="thought_p4"]
+script = ExtResource("3_paragraph")
+text = "Llevo rato caminando sin ver a nadie."
+style = 1
+
+[sub_resource type="Resource" id="thought_p5"]
+script = ExtResource("3_paragraph")
+text = "Tiene que aparecer en algún momento un lugar donde pueda pedir ayuda… ¿no?"
+style = 1
+
+[sub_resource type="Resource" id="page_thought_2"]
+script = ExtResource("2_page")
+paragraphs = Array[ExtResource("3_paragraph")]([SubResource("thought_p4"), SubResource("thought_p5")])
+
+[resource]
+script = ExtResource("1_sequence")
+pages = Array[ExtResource("2_page")]([SubResource("page_demo_1"), SubResource("page_demo_2"), SubResource("page_thought_1"), SubResource("page_thought_2")])
+continue_hint = "Clic para seguir leyendo"
+fade_out_duration = 0.65
+final_scene_id = "arrival"
