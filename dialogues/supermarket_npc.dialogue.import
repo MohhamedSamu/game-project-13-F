@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://cesy63kxhdfp8"
+path="res://.godot/imported/supermarket_npc.dialogue-8f60662bc61df177024642e3ff5671b8.tres"
+
+[deps]
+
+source_file="res://dialogues/supermarket_npc.dialogue"
+dest_files=["res://.godot/imported/supermarket_npc.dialogue-8f60662bc61df177024642e3ff5671b8.tres"]
+
+[params]
+
+defaults=true

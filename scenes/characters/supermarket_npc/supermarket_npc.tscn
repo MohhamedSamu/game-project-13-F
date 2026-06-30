@@ -1,0 +1,49 @@
+[gd_scene load_steps=9 format=3 uid="uid://bidhv73yicyeu"]
+
+[ext_resource type="PackedScene" uid="uid://4bnhyl64knfg" path="res://scenes/characters/supermarket_npc/character_05.tscn" id="1_model"]
+[ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]
+[ext_resource type="Resource" uid="uid://cesy63kxhdfp8" path="res://dialogues/supermarket_npc.dialogue" id="3_dlg"]
+[ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="4_dlgfocus"]
+[ext_resource type="Resource" uid="uid://cqkcejua6304k" path="res://resources/narrative/supermarket_npc_dialogue.tres" id="5_dialogue_profile"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.35
+height = 1.72
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_focus"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_interact"]
+size = Vector3(1.2, 1.65, 1.4)
+
+[node name="SupermarketNPC" type="CharacterBody3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.88, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="Model" type="Node3D" parent="."]
+
+[node name="Character05" parent="Model" instance=ExtResource("1_model")]
+
+[node name="DialogueFocusPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.62, 0)
+script = ExtResource("4_dlgfocus")
+
+[node name="FocusHitbox" type="Area3D" parent="DialogueFocusPoint"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="DialogueFocusPoint/FocusHitbox"]
+shape = SubResource("SphereShape3D_focus")
+
+[node name="InteractableDialogueComponent" type="Area3D" parent="."]
+visible = false
+script = ExtResource("2_ixdlg")
+dialogue_resource = ExtResource("3_dlg")
+dialogue_title = "start"
+prompt_text = "Presiona [E] para hablar"
+requires_focus_hitbox = true
+npc_id = "supermarket_npc"
+dialogue_profile = ExtResource("5_dialogue_profile")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.82, 0.45)
+shape = SubResource("BoxShape3D_interact")

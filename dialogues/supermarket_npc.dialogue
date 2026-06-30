@@ -1,0 +1,8 @@
+~ start
+Clerk: Bienvenido. Si buscas algo, dímelo.
+Clerk: Por ahora solo estoy aquí atendiendo la caja.
+=> END
+
+~ repeat
+Clerk: Sigue mirando lo que necesites.
+=> END
