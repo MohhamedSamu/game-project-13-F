@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]
 [ext_resource type="Resource" uid="uid://cesy63kxhdfp8" path="res://dialogues/supermarket_npc.dialogue" id="3_dlg"]
 [ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="4_dlgfocus"]
-[ext_resource type="Resource" uid="uid://cqkcejua6304k" path="res://resources/narrative/supermarket_npc_dialogue.tres" id="5_dialogue_profile"]
+[ext_resource type="Resource" uid="uid://xnv2fph2cxsk" path="res://resources/narrative/supermarket_npc_dialogue.tres" id="5_dialogue_profile"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.35

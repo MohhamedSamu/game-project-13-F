@@ -163,6 +163,10 @@ func _physics_process(delta: float) -> void:
 	if _should_pause_work_behavior():
 		_halt_horizontal_movement()
 		move_and_slide()
+		_update_dialogue_focus_height(delta)
+		if _dialogue_prep_active:
+			_recover_dialogue_prep_animation()
+		_try_start_work_behavior()
 		return
 
 	if behavior_enabled:
@@ -180,6 +184,8 @@ func _physics_process(delta: float) -> void:
 func _should_pause_work_behavior() -> bool:
 	if not behavior_enabled or not pause_behavior_during_dialogue:
 		return false
+	if _dialogue_prep_active or _dialogue_turn_active or GameManager.interaction_prep_active:
+		return true
 	if not GameManager.dialogue_active:
 		return false
 	return _is_dialogue_with_self()
@@ -551,9 +557,41 @@ func _connect_animation_player() -> void:
 func _on_animation_finished(anim_name: StringName) -> void:
 	if not behavior_enabled:
 		return
+	if _dialogue_prep_active:
+		_advance_dialogue_prep_animation(anim_name)
+		return
+	if _dialogue_turn_active or GameManager.interaction_prep_active:
+		return
 	if _should_pause_work_behavior():
 		return
 	_advance_work_state_after_animation(anim_name)
+
+
+func _advance_dialogue_prep_animation(anim_name: StringName) -> void:
+	match _work_state:
+		WorkState.KNEELING_DOWN:
+			if anim_name == &"kneeling_down":
+				_force_dialogue_prep_kneel_inspecting()
+		WorkState.STANDING_UP:
+			if anim_name in [&"standing_up_short", &"standing_up"]:
+				_finish_dialogue_prep_stand_up()
+
+
+func _force_dialogue_prep_kneel_inspecting() -> void:
+	_gesture_anim = &""
+	_state_timer = 0.0
+	_work_state = WorkState.INSPECTING
+	play_kneeling_inspecting()
+
+
+func _finish_dialogue_prep_stand_up() -> void:
+	_gesture_anim = &""
+	_state_timer = 0.0
+	_work_state = WorkState.WAITING
+	if _work_behavior_started:
+		play_routine_idle(BLEND_ROUTINE)
+	else:
+		play_idle()
 
 
 func _on_any_dialogue_finished_recover() -> void:
@@ -584,6 +622,13 @@ func _advance_work_state_after_animation(anim_name: StringName) -> void:
 ## o el estado quedar congelado. Recupera cuando el AnimationPlayer ya no reproduce.
 func _recover_animation_driven_state() -> void:
 	if not behavior_enabled:
+		return
+	if _dialogue_prep_active:
+		_recover_dialogue_prep_animation()
+		return
+	if _dialogue_turn_active or GameManager.interaction_prep_active:
+		return
+	if _should_pause_work_behavior():
 		return
 	var animation_player := _get_animation_player()
 	if animation_player == null or animation_player.is_playing():
@@ -825,6 +870,11 @@ func cancel_dialogue_prep() -> void:
 	_use_camera_focus_for_dialogue = false
 	_pending_resume_after_repeat_dialogue = false
 	_pending_kneel_interrupt_dialogue = false
+	if GameManager.interaction_prep_active and not GameManager.dialogue_active:
+		GameManager.unlock_player_interaction_prep()
+	var player := GameManager.get_player()
+	if player != null and player.has_method("clear_camera_focus"):
+		player.clear_camera_focus()
 	if should_resume and _work_behavior_started and not GameManager.dialogue_active:
 		_resume_routine_after_repeat_dialogue()
 
@@ -847,19 +897,25 @@ func consume_dialogue_interaction_override() -> Dictionary:
 	}
 
 
+func _uses_repeat_dialogue_prep() -> bool:
+	return turn_on_repeat_dialogue and (
+		_work_behavior_started
+		or GameManager.get_flag(start_behavior_flag)
+	)
+
+
 func prepare_dialogue_interaction(interactor: Node3D) -> void:
 	if interactor == null or _dialogue_turn_active or _dialogue_prep_active:
 		return
 
-	var intro_done := GameManager.get_flag(start_behavior_flag)
-	if intro_done and turn_on_repeat_dialogue:
+	if _uses_repeat_dialogue_prep():
 		if should_play_kneel_interrupt_dialogue():
 			await _prepare_kneel_interrupt_dialogue(interactor)
 			return
 		await _prepare_repeat_dialogue(interactor)
 		return
 
-	if intro_done:
+	if GameManager.get_flag(start_behavior_flag):
 		return
 
 	_pre_dialogue_yaw = global_rotation.y
@@ -877,10 +933,13 @@ func _prepare_repeat_dialogue(interactor: Node3D) -> void:
 	GameManager.lock_player_interaction_prep()
 
 	await _wait_for_posture_transition_to_finish()
+	if _work_state == WorkState.KNEELING_DOWN:
+		await _wait_for_dialogue_prep_posture(WorkState.INSPECTING, 6.0)
+
 	_cache_routine_snapshot_for_resume()
 	_pending_resume_after_repeat_dialogue = true
 
-	var needs_stand_up := _work_state == WorkState.INSPECTING
+	var needs_stand_up := _is_kneeling_focus_state()
 	_use_camera_focus_for_dialogue = needs_stand_up and repeat_camera_focus_on_stand_up
 
 	await _stand_up_for_dialogue_if_needed(interactor, needs_stand_up)
@@ -901,7 +960,7 @@ func _prepare_kneel_interrupt_dialogue(_interactor: Node3D) -> void:
 	_halt_horizontal_movement()
 
 	if _work_state == WorkState.KNEELING_DOWN:
-		await _wait_for_work_state(WorkState.INSPECTING)
+		await _wait_for_dialogue_prep_posture(WorkState.INSPECTING, 6.0)
 
 	_set_dialogue_focus_height(dialogue_focus_height_kneeling, true)
 	play_kneeling_inspecting()
@@ -971,6 +1030,10 @@ func _stand_up_for_dialogue_if_needed(interactor: Node3D, needs_stand_up: bool) 
 	if not needs_stand_up:
 		return
 
+	if _work_state == WorkState.STANDING_UP:
+		await _wait_for_dialogue_prep_posture(WorkState.WAITING, 4.0)
+		return
+
 	_set_work_state(WorkState.STANDING_UP)
 	_set_dialogue_focus_height(dialogue_focus_height_kneeling, true)
 
@@ -981,12 +1044,47 @@ func _stand_up_for_dialogue_if_needed(interactor: Node3D, needs_stand_up: bool) 
 	):
 		interactor.focus_camera_on(_get_dialogue_focus_point())
 
-	await _tween_dialogue_focus_height(dialogue_focus_height_standing, _get_stand_up_duration())
-	await _wait_for_work_state(WorkState.WAITING)
+	var stand_duration := _get_stand_up_duration()
+	_begin_tween_dialogue_focus_height(dialogue_focus_height_standing, stand_duration)
+	await _wait_for_dialogue_prep_posture(WorkState.WAITING, stand_duration + 0.5)
+	await _await_focus_height_tween()
 
 
-func _wait_for_work_state(target_state: WorkState) -> void:
+func _wait_for_dialogue_prep_posture(target_state: WorkState, timeout_sec: float) -> void:
+	await _wait_for_work_state(target_state, timeout_sec)
+	if _work_state == target_state:
+		return
+	match target_state:
+		WorkState.INSPECTING:
+			_force_dialogue_prep_kneel_inspecting()
+		WorkState.WAITING:
+			_finish_dialogue_prep_stand_up()
+
+
+func _recover_dialogue_prep_animation() -> void:
+	var animation_player := _get_animation_player()
+	if animation_player == null or animation_player.is_playing():
+		return
+	match _work_state:
+		WorkState.KNEELING_DOWN:
+			if animation_player.current_animation == &"kneeling_down":
+				_force_dialogue_prep_kneel_inspecting()
+		WorkState.STANDING_UP:
+			if animation_player.current_animation in [&"standing_up_short", &"standing_up"]:
+				_finish_dialogue_prep_stand_up()
+
+
+func _wait_for_work_state(target_state: WorkState, timeout_sec: float = -1.0) -> void:
+	var elapsed := 0.0
 	while _work_state != target_state:
+		if timeout_sec >= 0.0:
+			elapsed += get_physics_process_delta_time()
+			if elapsed >= timeout_sec:
+				push_warning(
+					"GasStationNPC: timeout esperando estado %s (actual %s)."
+					% [WorkState.keys()[target_state], WorkState.keys()[_work_state]]
+				)
+				return
 		await get_tree().physics_frame
 
 
@@ -998,6 +1096,9 @@ func _interrupt_routine_for_dialogue() -> void:
 			_work_state = WorkState.WAITING
 			_state_timer = 0.0
 			play_routine_idle(BLEND_ROUTINE)
+		WorkState.INSPECTING, WorkState.KNEELING_DOWN:
+			_gesture_anim = &""
+			_state_timer = 0.0
 
 
 func _get_dialogue_focus_point() -> Node3D:
@@ -1033,6 +1134,11 @@ func _set_dialogue_focus_height(height: float, immediate: bool) -> void:
 
 
 func _tween_dialogue_focus_height(target_height: float, duration: float) -> void:
+	_begin_tween_dialogue_focus_height(target_height, duration)
+	await _await_focus_height_tween()
+
+
+func _begin_tween_dialogue_focus_height(target_height: float, duration: float) -> void:
 	if _dialogue_focus_point == null:
 		return
 	_kill_focus_height_tween()
@@ -1044,7 +1150,12 @@ func _tween_dialogue_focus_height(target_height: float, duration: float) -> void
 		target_height,
 		maxf(duration, 0.05)
 	)
-	await tween.finished
+
+
+func _await_focus_height_tween() -> void:
+	if _focus_height_tween == null or not _focus_height_tween.is_valid():
+		return
+	await _focus_height_tween.finished
 	_focus_height_tween = null
 
 
@@ -1096,6 +1207,10 @@ func _on_dialogue_finished() -> void:
 		await _return_to_pre_dialogue_rotation()
 
 	_has_saved_pre_dialogue_yaw = false
+	call_deferred("_start_work_behavior_after_intro_dialogue")
+
+
+func _start_work_behavior_after_intro_dialogue() -> void:
 	_pending_intro_first_kneel_entry = true
 	start_work_behavior_after_intro()
 

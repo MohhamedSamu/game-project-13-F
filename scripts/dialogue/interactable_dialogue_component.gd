@@ -58,20 +58,41 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	if require_exit_before_reinteract:
-		_connect_reentry_monitor_area()
+		call_deferred("_connect_reentry_monitor_area")
+		set_process(require_exit_before_reinteract)
 	if require_specific_ray_target:
 		_configure_ray_target()
 
 
+func _process(_delta: float) -> void:
+	if not _awaiting_area_reentry:
+		return
+	if _is_player_outside_reentry_area():
+		_awaiting_area_reentry = false
+
+
+func _resolve_reentry_monitor_area() -> Area3D:
+	if reentry_monitor_area != null and is_instance_valid(reentry_monitor_area):
+		return reentry_monitor_area
+	var parent := get_parent()
+	if parent == null:
+		return null
+	return parent.get_node_or_null("InteractionReentryArea") as Area3D
+
+
 func _connect_reentry_monitor_area() -> void:
-	if reentry_monitor_area == null:
+	var area := _resolve_reentry_monitor_area()
+	if area == null:
 		push_warning(
-			"%s: require_exit_before_reinteract activo pero falta reentry_monitor_area."
+			"%s: require_exit_before_reinteract activo pero falta InteractionReentryArea."
 			% name
 		)
 		return
-	if not reentry_monitor_area.body_exited.is_connected(_on_reentry_monitor_body_exited):
-		reentry_monitor_area.body_exited.connect(_on_reentry_monitor_body_exited)
+	reentry_monitor_area = area
+	area.monitoring = true
+	area.collision_mask = 1
+	if not area.body_exited.is_connected(_on_reentry_monitor_body_exited):
+		area.body_exited.connect(_on_reentry_monitor_body_exited)
 
 
 func refresh_ray_target() -> void:
@@ -173,7 +194,7 @@ func _begin_dialogue_interaction() -> void:
 	if player != null and player.has_method("stop_movement_immediately"):
 		player.stop_movement_immediately()
 	var dialogue_owner := _get_dialogue_owner()
-	var has_dialogue_prep := (
+	var has_dialogue_prep := dialogue_owner is GasStationNPC or (
 		dialogue_owner != null and dialogue_owner.has_method("prepare_dialogue_interaction")
 	)
 	if has_dialogue_prep:
@@ -202,6 +223,9 @@ func _begin_dialogue_interaction() -> void:
 		GameManager.unlock_player_interaction_prep()
 		return
 
+	if GameManager.interaction_prep_active and not GameManager.dialogue_active:
+		GameManager.unlock_player_interaction_prep()
+
 	if trigger_once:
 		already_triggered = true
 
@@ -225,7 +249,7 @@ func _begin_dialogue_interaction() -> void:
 			_on_dialogue_finished_apply_state,
 			CONNECT_ONE_SHOT
 		)
-	if require_exit_before_reinteract and reentry_monitor_area != null:
+	if require_exit_before_reinteract:
 		DialogueController.dialogue_finished.connect(
 			_on_dialogue_finished_require_reentry,
 			CONNECT_ONE_SHOT
@@ -280,18 +304,45 @@ func _on_dialogue_finished_apply_state() -> void:
 
 func _on_dialogue_finished_require_reentry() -> void:
 	_awaiting_area_reentry = true
-	if reentry_monitor_area == null:
-		return
-	var player := GameManager.player as Node3D
-	if player == null:
-		return
-	if not reentry_monitor_area.overlaps_body(player):
-		_awaiting_area_reentry = false
+
+
+func _get_reentry_area_radius(area: Area3D) -> float:
+	var shape_node := area.get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if shape_node == null or shape_node.shape == null:
+		return 0.0
+	if shape_node.shape is SphereShape3D:
+		return (shape_node.shape as SphereShape3D).radius
+	return 0.0
+
+
+func _get_reentry_area_center(area: Area3D) -> Vector3:
+	var shape_node := area.get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if shape_node == null:
+		return area.global_position
+	return area.to_global(shape_node.position)
+
+
+func _is_player_outside_reentry_area() -> bool:
+	var area := _resolve_reentry_monitor_area()
+	var player := GameManager.get_player() as Node3D
+	if area == null or player == null:
+		return true
+	var radius := _get_reentry_area_radius(area)
+	if radius <= 0.0:
+		return area.overlaps_body(player as CharacterBody3D)
+	var center := _get_reentry_area_center(area)
+	return player.global_position.distance_to(center) > radius
 
 
 func _on_reentry_monitor_body_exited(body: Node3D) -> void:
-	if body.is_in_group("player"):
-		_awaiting_area_reentry = false
+	if not _awaiting_area_reentry:
+		return
+	var player := GameManager.get_player()
+	if player == null:
+		return
+	if body == player or body.is_in_group("player"):
+		if _is_player_outside_reentry_area():
+			_awaiting_area_reentry = false
 
 
 func get_interaction_prompt() -> String:
