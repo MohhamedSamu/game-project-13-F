@@ -45233,7 +45233,7 @@ skeleton = NodePath("")
 shape = SubResource("ConcavePolygonShape3D_dpoyr")
 
 [node name="Lamp_024" type="MeshInstance3D" parent="."]
-transform = Transform3D(-100, 3.89414e-05, -2.84217e-12, 0, 5.96046e-06, 100, 3.89414e-05, 100, -1.19209e-05, 22.5875, 3.31549, -19.4039)
+transform = Transform3D(-100, 3.89414e-05, -2.84217e-12, 0, 5.96046e-06, 100, 3.89414e-05, 100, -1.19209e-05, 22.5875, 3.29301, -19.4039)
 mesh = SubResource("ArrayMesh_6yfrt")
 skeleton = NodePath("")
 
@@ -45243,7 +45243,7 @@ skeleton = NodePath("")
 shape = SubResource("ConcavePolygonShape3D_rjpb5")
 
 [node name="Lamp" type="MeshInstance3D" parent="."]
-transform = Transform3D(-100, 3.89414e-05, -2.84217e-12, 0, 5.96046e-06, 100, 3.89414e-05, 100, -1.19209e-05, 22.5875, 3.31549, -16.2771)
+transform = Transform3D(-100, 3.89414e-05, -2.84217e-12, 0, 5.96046e-06, 100, 3.89414e-05, 100, -1.19209e-05, 22.5875, 3.29454, -16.2771)
 mesh = SubResource("ArrayMesh_82fm6")
 skeleton = NodePath("")
 
