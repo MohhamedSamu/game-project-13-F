@@ -609,7 +609,7 @@ initial_mode = 2
 [node name="Props" type="Node3D" parent="."]
 
 [node name="KeyGold" parent="Props" instance=ExtResource("29_r6ket")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.61151, 3.39228e-07, 0.45255)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.51352, 1.05296, -23.3272)
 
 [node name="flashlight" parent="Props" instance=ExtResource("5_flash")]
 transform = Transform3D(0.994098, 0, 0.108485, 0, 1, 0, -0.108485, 0, 0.994098, 82.37, 0.0693585, 22.6941)

@@ -7,7 +7,7 @@ enum State { IDLE, ENTERING, ACTIVE, EXITING }
 
 const _FOCUS_PREVIEW_COLOR := Color(0.35, 0.78, 1.0, 0.38)
 const _PROXIMITY_PREVIEW_COLOR := Color(0.45, 0.95, 0.55, 0.16)
-const _BLADDER_EMPTY_EPSILON := 0.01
+const _BLADDER_EMPTY_EPSILON := 1.0
 
 @export_group("Cámara")
 ## Cámara fija colocada en el nivel padre (configurable desde el inspector).
@@ -16,7 +16,7 @@ const _BLADDER_EMPTY_EPSILON := 0.01
 @export_group("Interacción")
 @export var prompt_enter: String = "Presiona [E] para usar el inodoro"
 @export var prompt_exit: String = "Presiona [E] para salir"
-@export var aim_hint: String = "Mantén click izquierdo"
+@export var aim_hint: String = "Mantén click izquierdo · [E] para salir"
 ## Centro de la cúpula de interacción (offset local).
 @export var focus_offset: Vector3 = Vector3(0.0, 0.45, 0.0):
 	set(value):
@@ -62,7 +62,7 @@ const _BLADDER_EMPTY_EPSILON := 0.01
 @export_group("Vejiga")
 @export var bladder_capacity: float = 100.0
 ## Segundos de chorro continuo para vaciar la vejiga al 100%.
-@export var bladder_drain_duration: float = 60.0
+@export var bladder_drain_duration: float = 20.0
 @export var show_bladder_ui: bool = true
 @export var empty_bladder_thought: String = "ya no tenía deseos de usar el inodoro"
 
@@ -462,6 +462,8 @@ func _run_exit_sequence() -> void:
 	_set_overlay_visible(false)
 	_update_hud_labels(false)
 	_save_bladder_state()
+	if _get_bladder_percent() <= _BLADDER_EMPTY_EPSILON:
+		GameManager.complete_objective("visited_bathroom")
 	GameManager.unlock_player_minigame()
 
 
@@ -518,7 +520,7 @@ func _save_bladder_state() -> void:
 
 
 func _is_bladder_empty() -> bool:
-	return _bladder_remaining <= _BLADDER_EMPTY_EPSILON
+	return _get_bladder_percent() <= _BLADDER_EMPTY_EPSILON
 
 
 func _update_empty_bladder_thought() -> void:

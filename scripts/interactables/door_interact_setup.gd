@@ -286,6 +286,8 @@ func _unlock_and_open() -> void:
 	unlocked = true
 	if not unlocked_flag.is_empty():
 		GameManager.set_flag(unlocked_flag, true)
+	if unlocked_flag == "bathroom_door_unlocked":
+		GameManager.set_flag("bathroom_entered_with_key", true)
 
 	var player := GameManager.player
 	if consume_key_on_unlock and player != null and player.has_method("consume_held_item"):

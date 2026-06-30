@@ -21,10 +21,14 @@ Old Man: A mi edad uno lo ve desde lejos. ¿Serás ciego?
 => END
 
 ~ after_door
-Old Man: ¿Ya probaste la puerta?
-Old Man: Cerrada, ¿verdad? No tiene llave.
-Old Man: Quizá en la tienda sepan algo... si te atreves a entrar.
-Old Man: Yo me quedo aquí. Las bombas no se revisan solas.
+Player: Oye... ¿sabes dónde puedo conseguir la llave del baño?
+Old Man: ¿La llave? Ah...
+Old Man: Mejor pregúntale a la señora del súper. Seguro ella la tiene.
+=> END
+
+~ after_door_repeat
+Old Man: Ya te dije que no tengo la llave.
+Old Man: La tiene que tener la señora del súper. Ve antes de que cierre.
 => END
 
 ~ kneel_interrupt

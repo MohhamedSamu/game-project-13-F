@@ -32,7 +32,8 @@ play_once = true
 complete_objectives_on_finish = PackedStringArray()
 set_scene_on_finish = ""
 set_flags_on_finish = {
-"supermarket_npc_intro_done": true
+"supermarket_npc_intro_done": true,
+"supermarket_npc_key_hint_done": true
 }
 
 [resource]

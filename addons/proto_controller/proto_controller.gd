@@ -47,8 +47,8 @@ var sprint_speed : float = PRODUCTION_SPRINT_SPEED
 ## Velocidad en freefly (se aplica según [movement_profile] en [code]_ready[/code]).
 var freefly_speed : float = DEVELOP_FREEFLY_SPEED
 
-const PRODUCTION_WALK_SPEED := 2.5
-const PRODUCTION_SPRINT_SPEED := 4.5
+const PRODUCTION_WALK_SPEED := 3.0
+const PRODUCTION_SPRINT_SPEED := 5.5
 const DEVELOP_WALK_SPEED := 7.0
 const DEVELOP_SPRINT_SPEED := 10.0
 const DEVELOP_FREEFLY_SPEED := 25.0

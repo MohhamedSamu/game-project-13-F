@@ -1,19 +1,20 @@
 ~ start
 Clerk: Bienvenido. ¿En qué te ayudo?
-Clerk: Si buscas el baño, está afuera — atrás del local, junto al letrero verde.
-- ¿El baño?
-	Clerk: Sí. Sale por aquí y da la vuelta. No es lejos.
-	Clerk: Solo no esperes que esté impecable.
-- Solo estoy mirando.
-	Clerk: Como gustes. Estoy en la caja.
+Player: Necesito usar el baño urgente.
+Clerk: El baño es afuera, detrás del local. Pero está con llave.
+Clerk: Para poder usarlo tienes que consumir algo en la tienda. Es la política.
+Player: Ok, compraré algo... pero déjame ir al baño primero, que no me aguanto.
+Clerk: Mira, no te puedo dejar sin eso. Pero te voy a decir una cosa.
+Clerk: La llave está en la bodega — la puerta del fondo del súper.
+Clerk: Entra por ahí y búscala. Luego ya me compras lo que sea.
 => END
 
 ~ repeat
-Clerk: Mira, estoy ocupada.
-Clerk: Si necesitas algo, dilo rápido... antes de que cambie de opinión.
+Clerk: La llave está en la bodega, al fondo del súper.
+Clerk: ¿Necesitas algo más?
 - ¿Dónde está el baño?
-	Clerk: Ya te lo dije. Afuera. A la derecha del edificio.
-	Clerk: ¿Acaso no escuchaste la primera vez?
-- ...
-	Clerk: ...
+	Clerk: Afuera, a la derecha del edificio. Ya te lo dije.
+	Clerk: Primero la llave, luego el baño.
+- Solo estoy mirando.
+	Clerk: No me hagas perder el tiempo.
 => END

@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="NpcDialogueProfile" load_steps=7 format=3 uid="uid://dwuygmh42jxhj"]
+[gd_resource type="Resource" script_class="NpcDialogueProfile" load_steps=8 format=3 uid="uid://dwuygmh42jxhj"]
 
 [ext_resource type="Script" uid="uid://dxn1fgps4oaah" path="res://scripts/narrative/npc_dialogue_profile.gd" id="1_profile"]
 [ext_resource type="Script" uid="uid://b52s51m6jrkno" path="res://scripts/narrative/npc_dialogue_beat.gd" id="2_beat"]
@@ -18,6 +18,21 @@ complete_objectives_on_finish = PackedStringArray()
 set_scene_on_finish = ""
 set_flags_on_finish = {}
 
+[sub_resource type="Resource" id="beat_after_door_repeat"]
+script = ExtResource("2_beat")
+beat_id = "after_door_repeat"
+dialogue_title = "after_door_repeat"
+required_scene_id = ""
+required_objectives = PackedStringArray("tried_bathroom_door")
+required_objectives_scene_id = ""
+required_objectives_any_scene = true
+forbidden_objectives = PackedStringArray()
+required_flags = PackedStringArray("gas_npc_sent_to_supermarket")
+play_once = false
+complete_objectives_on_finish = PackedStringArray()
+set_scene_on_finish = ""
+set_flags_on_finish = {}
+
 [sub_resource type="Resource" id="beat_after_door"]
 script = ExtResource("2_beat")
 beat_id = "after_door"
@@ -28,10 +43,12 @@ required_objectives_scene_id = ""
 required_objectives_any_scene = true
 forbidden_objectives = PackedStringArray()
 required_flags = PackedStringArray()
-play_once = false
+play_once = true
 complete_objectives_on_finish = PackedStringArray()
 set_scene_on_finish = ""
-set_flags_on_finish = {}
+set_flags_on_finish = {
+"gas_npc_sent_to_supermarket": true
+}
 
 [sub_resource type="Resource" id="beat_repeat"]
 script = ExtResource("2_beat")
@@ -69,4 +86,4 @@ set_flags_on_finish = {
 script = ExtResource("1_profile")
 npc_id = "gas_station_npc"
 fallback_title = "start"
-beats = Array[ExtResource("2_beat")]([SubResource("beat_kneel_interrupt"), SubResource("beat_after_door"), SubResource("beat_repeat"), SubResource("beat_intro")])
+beats = Array[ExtResource("2_beat")]([SubResource("beat_kneel_interrupt"), SubResource("beat_after_door_repeat"), SubResource("beat_after_door"), SubResource("beat_repeat"), SubResource("beat_intro")])

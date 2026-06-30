@@ -69,6 +69,8 @@ func pickup_to_hand(hand: Node3D) -> void:
 	_rb.collision_mask = 0
 	if _collision_shape:
 		_collision_shape.disabled = true
+	if item_id == &"bathroom_key":
+		GameManager.complete_objective("found_supermarket_key")
 
 
 func drop_soft(forward_dir: Vector3, drop_parent: Node) -> void:
