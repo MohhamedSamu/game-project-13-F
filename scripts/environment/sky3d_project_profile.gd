@@ -21,6 +21,7 @@ enum Profile { MENU, GAMEPLAY }
 const SECURITY_GROUP := &"security_lighting_zones"
 
 var _menu_sky3d: Sky3D
+var _gameplay_sky3d: Sky3D
 
 
 func _ready() -> void:
@@ -171,6 +172,7 @@ func _process(_delta: float) -> void:
 
 func _apply_gameplay(sky3d: Sky3D) -> void:
 	_menu_sky3d = null
+	_gameplay_sky3d = sky3d
 	set_process(false)
 	var dome: SkyDome = sky3d.sky
 	if sky3d.environment:
@@ -211,6 +213,34 @@ func _apply_gameplay(sky3d: Sky3D) -> void:
 		sky3d.sky_material.set_shader_parameter("atm_darkness", dome.atm_darkness)
 
 	sky3d._start_sky_contrib_tween(false)
+	_connect_gameplay_lighting_signals(sky3d)
+
+
+func _connect_gameplay_lighting_signals(sky3d: Sky3D) -> void:
+	if sky3d.tod and not sky3d.tod.time_changed.is_connected(_on_gameplay_time_changed):
+		sky3d.tod.time_changed.connect(_on_gameplay_time_changed)
+	if sky3d.sky and not sky3d.sky.day_night_changed.is_connected(_on_gameplay_day_night_changed):
+		sky3d.sky.day_night_changed.connect(_on_gameplay_day_night_changed)
+
+
+func _on_gameplay_time_changed(_time: float) -> void:
+	if profile != Profile.GAMEPLAY or _gameplay_sky3d == null:
+		return
+	if apply_security_lighting:
+		_sync_security_lighting(_gameplay_sky3d)
+
+
+func _on_gameplay_day_night_changed(_is_day: bool) -> void:
+	if profile != Profile.GAMEPLAY or _gameplay_sky3d == null:
+		return
+	if apply_security_lighting:
+		_sync_security_lighting(_gameplay_sky3d)
+
+
+func refresh_security_lighting() -> void:
+	var sky3d := get_parent() as Sky3D
+	if sky3d != null and apply_security_lighting:
+		_sync_security_lighting(sky3d)
 
 
 func _boost_local_lights_in_scene() -> void:

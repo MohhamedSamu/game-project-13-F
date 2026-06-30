@@ -111,6 +111,7 @@ func _advance_sky_to_midnight(sky: Sky3D) -> void:
 	tod.set_time(0, 0, 0)
 	sky.game_time_enabled = false
 	tod.minutes_per_day = _saved_minutes_per_day
+	_refresh_gas_station_lighting(sky)
 
 
 func _restore_dialogue_focus(player: Node, police: Node3D) -> void:
@@ -140,3 +141,9 @@ func _set_police_animation(police: Node3D, animation_name: StringName) -> void:
 		return
 	if police.has_method("play_animation"):
 		police.play_animation(String(animation_name))
+
+
+func _refresh_gas_station_lighting(sky: Sky3D) -> void:
+	var profile := sky.get_node_or_null("ProjectProfile")
+	if profile != null and profile.has_method("refresh_security_lighting"):
+		profile.call("refresh_security_lighting")

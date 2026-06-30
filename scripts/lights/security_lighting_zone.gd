@@ -9,6 +9,7 @@ extends Node3D
 @export var canopy_volume_albedo: Color = Color(0.1, 0.11, 0.15, 1.0)
 
 const SPOT_SCRIPT := preload("res://scripts/lights/security_spot_light.gd")
+const OMNI_SCRIPT := preload("res://scripts/lights/ceiling_omni_light.gd")
 
 var _canopy_fog: FogVolume
 
@@ -18,6 +19,8 @@ func _ready() -> void:
 	for child in get_children():
 		if child is SpotLight3D and child.get_script() == null:
 			child.set_script(SPOT_SCRIPT)
+		elif child is OmniLight3D and child.get_script() == null:
+			_attach_omni_script(child as OmniLight3D)
 	if canopy_clear_volume_enabled:
 		_setup_canopy_fog_volume()
 
@@ -28,9 +31,25 @@ func apply_time_of_day(day_factor: float, night_factor: float) -> void:
 		if child is SpotLight3D and child.has_method("apply_time_profile"):
 			child.apply_time_profile(day_factor, night_factor)
 		elif child is OmniLight3D:
-			child.visible = night_blend > 0.05
+			if child.has_method("apply_time_profile"):
+				child.apply_time_profile(day_factor, night_factor)
+			else:
+				child.visible = night_blend > 0.05
 	if _canopy_fog != null:
 		_canopy_fog.visible = night_blend > 0.05
+
+
+func _attach_omni_script(omni: OmniLight3D) -> void:
+	var saved_energy := omni.light_energy
+	var saved_range := omni.omni_range
+	omni.set_script(OMNI_SCRIPT)
+	if saved_energy > 0.01:
+		omni.set("night_light_energy", saved_energy)
+	if saved_range > 0.01:
+		omni.set("night_omni_range", saved_range)
+	omni.set("day_light_energy", 0.0)
+	if omni.has_method("apply_time_profile"):
+		omni.apply_time_profile(1.0, 1.0)
 
 
 func _setup_canopy_fog_volume() -> void:

@@ -10,8 +10,11 @@ extends Node
 @export var snap_to_floor: bool = true
 @export var floor_ray_height: float = 3.0
 @export var floor_ray_depth: float = 12.0
-@export var hide_on_complete: bool = true
+@export var hide_on_complete: bool = false
+@export var remove_on_complete: bool = true
 @export var clear_player_camera_focus: bool = true
+@export var next_scene_id: String = "explore_gas_station"
+@export var departure_flag: String = "level2_juan_departed"
 
 const START_WALK_ANIM := &"start_walking"
 const WALK_ANIM := &"walking"
@@ -49,6 +52,8 @@ func _run_exit_walk() -> void:
 		push_warning("Scene1PoliceExitWalk: añade Marker3D hijos en JuanExitPath.")
 		return
 
+	_advance_to_next_narrative_scene()
+
 	if clear_player_camera_focus:
 		var player := GameManager.get_player()
 		if player != null and player.has_method("clear_camera_focus"):
@@ -65,7 +70,24 @@ func _run_exit_walk() -> void:
 		await _walk_to_marker(police, marker.global_position)
 
 	_walking = false
-	if hide_on_complete and is_instance_valid(police):
+	_despawn_police(police)
+
+
+func _advance_to_next_narrative_scene() -> void:
+	if not departure_flag.is_empty():
+		GameManager.set_flag(departure_flag, true)
+	if not next_scene_id.is_empty():
+		GameManager.set_level_scene(next_scene_id)
+
+
+func _despawn_police(police: Node3D) -> void:
+	if not is_instance_valid(police):
+		return
+	if remove_on_complete:
+		police.process_mode = Node.PROCESS_MODE_DISABLED
+		police.visible = false
+		police.queue_free()
+	elif hide_on_complete:
 		police.visible = false
 
 
