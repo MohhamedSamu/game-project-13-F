@@ -1,14 +1,33 @@
 ~ start
-Old Man: No deberías andar por aquí tan tarde.
-Old Man: Esta estación lleva horas demasiado silenciosa.
-Old Man: Yo solo estoy revisando las bombas... o eso intento.
+Old Man: No deberías andar por aquí tan tarde, muchacho.
+Old Man: Esta estación lleva horas demasiado silenciosa... como si alguien la hubiera olvidado.
+Old Man: Yo solo reviso las bombas. O eso intento.
+- ¿Sabe dónde está el baño?
+	Old Man: Ah... sí. Por atrás del edificio, a la derecha del súper.
+	Old Man: Hay un letrero verde medio borrado. No te lo pierdas.
+	Old Man: Si la puerta no cede, no insistas mucho.
+- ...
+	Old Man: Como quieras. Solo no te quedes mucho rato afuera.
 => END
 
 ~ repeat
-Old Man: Sigue revisando las bombas. No tardes.
+Old Man: ¿Otra vez tú?
+Old Man: Te lo repito: el baño está atrás, a la derecha del súper.
+Old Man: A mi edad uno lo ve desde lejos. ¿Serás ciego?
+- Perdón, gracias.
+	Old Man: Vaya con cuidado. Esta noche el aire pesa distinto.
+- ...
+	Old Man: No me hagas perder el tiempo con miradas.
 => END
 
-~ after_bathroom
-Old Man: El baño de ahí dentro no me gusta nada.
-Old Man: Si oyes algo raro, mejor no te quedes mucho tiempo.
+~ after_door
+Old Man: ¿Ya probaste la puerta?
+Old Man: Cerrada, ¿verdad? No tiene llave.
+Old Man: Quizá en la tienda sepan algo... si te atreves a entrar.
+Old Man: Yo me quedo aquí. Las bombas no se revisan solas.
+=> END
+
+~ kneel_interrupt
+Old Man: ¿No ves que ya estoy mayor...?
+Old Man: Déjame revisar la bomba tranquilo, muchacho.
 => END

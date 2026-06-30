@@ -21,6 +21,9 @@ size = Vector3(1.4, 1.7, 1.6)
 [sub_resource type="SphereShape3D" id="SphereShape3D_proximity"]
 radius = 3.0
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_reentry"]
+radius = 9.0
+
 [node name="GasStationNPC" type="CharacterBody3D"]
 script = ExtResource("2_script")
 
@@ -47,11 +50,11 @@ script = ExtResource("3_ixdlg")
 dialogue_resource = ExtResource("5_dlg")
 dialogue_title = "start"
 prompt_text = "Presiona [E] para hablar"
-trigger_once = true
 requires_focus_hitbox = true
-use_camera_focus = false
 npc_id = "gas_station_npc"
 dialogue_profile = ExtResource("7_dialogue_profile")
+require_exit_before_reinteract = true
+reentry_monitor_area = NodePath("../InteractionReentryArea")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0.55)
@@ -67,3 +70,11 @@ auto_find_focus_target = false
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ProximityDialogueComponent"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("SphereShape3D_proximity")
+
+[node name="InteractionReentryArea" type="Area3D" parent="."]
+collision_mask = 1
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionReentryArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+shape = SubResource("SphereShape3D_reentry")

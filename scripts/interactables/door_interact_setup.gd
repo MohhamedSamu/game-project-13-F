@@ -98,6 +98,7 @@ const DOOR_REFERENCE_SCALE := 100.0
 @export_group("Diálogo")
 @export var dialogue_resource: DialogueResource
 @export var locked_dialogue_title: String = "locked"
+@export var locked_repeat_dialogue_title: String = "locked_repeat"
 @export var unlock_dialogue_title: String = "unlocked"
 
 @export_group("Audio")
@@ -385,7 +386,13 @@ func _play_open_sound() -> void:
 func _start_locked_dialogue() -> void:
 	if dialogue_resource == null:
 		return
-	DialogueController.start_dialogue(dialogue_resource, locked_dialogue_title, _focus_target)
+	var title := locked_dialogue_title
+	if (
+		not locked_repeat_dialogue_title.is_empty()
+		and GameManager.has_objective_in_level("tried_bathroom_door")
+	):
+		title = locked_repeat_dialogue_title
+	DialogueController.start_dialogue(dialogue_resource, title, _focus_target)
 
 
 func _on_unlock_dialogue_finished() -> void:

@@ -1,8 +1,19 @@
 ~ start
-Clerk: Bienvenido. Si buscas algo, dímelo.
-Clerk: Por ahora solo estoy aquí atendiendo la caja.
+Clerk: Bienvenido. ¿En qué te ayudo?
+Clerk: Si buscas el baño, está afuera — atrás del local, junto al letrero verde.
+- ¿El baño?
+	Clerk: Sí. Sale por aquí y da la vuelta. No es lejos.
+	Clerk: Solo no esperes que esté impecable.
+- Solo estoy mirando.
+	Clerk: Como gustes. Estoy en la caja.
 => END
 
 ~ repeat
-Clerk: Sigue mirando lo que necesites.
+Clerk: Mira, estoy ocupada.
+Clerk: Si necesitas algo, dilo rápido... antes de que cambie de opinión.
+- ¿Dónde está el baño?
+	Clerk: Ya te lo dije. Afuera. A la derecha del edificio.
+	Clerk: ¿Acaso no escuchaste la primera vez?
+- ...
+	Clerk: ...
 => END

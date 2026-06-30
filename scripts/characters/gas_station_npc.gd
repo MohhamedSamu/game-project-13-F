@@ -57,8 +57,9 @@ enum WorkState {
 @export var dialogue_turn_speed: float = 2.2
 @export var dialogue_turn_angle_tolerance: float = 0.035
 @export var max_dialogue_turn_time: float = 1.6
-@export var turn_on_repeat_dialogue: bool = false
-@export var repeat_dialogue_turn_time_scale: float = 0.5
+@export var turn_on_repeat_dialogue: bool = true
+@export var repeat_dialogue_turn_time_scale: float = 1.0
+@export var repeat_camera_focus_on_stand_up: bool = true
 @export var return_to_original_rotation_after_intro: bool = true
 @export var return_turn_speed: float = 2.0
 @export var max_return_turn_time: float = 1.6
@@ -69,6 +70,11 @@ enum WorkState {
 @export var turn_walk_angle_threshold_deg: float = 25.0
 @export var kneeling_inspect_playback_speed: float = 0.72
 @export var stand_up_playback_speed: float = 0.7
+
+@export_group("Dialogue Focus")
+@export var dialogue_focus_height_standing: float = 1.72
+@export var dialogue_focus_height_kneeling: float = 0.95
+@export var dialogue_focus_height_lerp_speed: float = 8.0
 
 const BLEND_IDLE_WALK := 0.25
 const BLEND_TURN_IN_PLACE := 0.20
@@ -88,6 +94,8 @@ const POST_STANDING_GESTURES: Array[StringName] = [
 const WALK_IN_PLACE_ANIM := &"walking_in_place"
 const WALK_ANIM := &"walking"
 const ROUTINE_IDLE_ANIM := &"idle"
+const KNEEL_INTERRUPT_BEAT_ID := "kneel_interrupt"
+const KNEEL_INTERRUPT_TITLE := "kneel_interrupt"
 
 var _dialogue_turn_active: bool = false
 var _turn_visual_active: bool = false
@@ -104,9 +112,21 @@ var _pending_intro_first_kneel_entry: bool = false
 var _intro_first_kneel_pause_active: bool = false
 var _use_intro_first_kneel_start_time: bool = false
 var _arrival_turn_start_angle: float = 0.0
+var _dialogue_prep_active: bool = false
+var _dialogue_focus_point: Marker3D
+var _focus_height_tween: Tween
+var _use_camera_focus_for_dialogue: bool = false
+var _pending_resume_after_repeat_dialogue: bool = false
+var _resume_was_inspecting: bool = false
+var _resume_was_walking: bool = false
+var _resume_pump_index: int = 0
+var _resume_look_yaw: float = 0.0
+var _routine_resume_active: bool = false
+var _pending_kneel_interrupt_dialogue: bool = false
 
 
 func _ready() -> void:
+	_dialogue_focus_point = get_node_or_null("DialogueFocusPoint") as Marker3D
 	await _wait_for_character_animations()
 	play_idle()
 	_connect_animation_player()
@@ -135,6 +155,11 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
+	if _routine_resume_active:
+		_halt_horizontal_movement()
+		move_and_slide()
+		return
+
 	if _should_pause_work_behavior():
 		_halt_horizontal_movement()
 		move_and_slide()
@@ -147,6 +172,7 @@ func _physics_process(delta: float) -> void:
 		_halt_horizontal_movement()
 
 	move_and_slide()
+	_update_dialogue_focus_height(delta)
 
 	_try_start_work_behavior()
 
@@ -532,6 +558,9 @@ func _on_animation_finished(anim_name: StringName) -> void:
 
 func _on_any_dialogue_finished_recover() -> void:
 	_recover_animation_driven_state()
+	if _pending_resume_after_repeat_dialogue and _work_behavior_started:
+		_pending_resume_after_repeat_dialogue = false
+		_resume_routine_after_repeat_dialogue()
 
 
 func _advance_work_state_after_animation(anim_name: StringName) -> void:
@@ -786,17 +815,51 @@ func play_look_around() -> void:
 	play_idle()
 
 
+func should_use_dialogue_camera_focus() -> bool:
+	return _use_camera_focus_for_dialogue
+
+
+func cancel_dialogue_prep() -> void:
+	var should_resume := _pending_resume_after_repeat_dialogue
+	_dialogue_prep_active = false
+	_use_camera_focus_for_dialogue = false
+	_pending_resume_after_repeat_dialogue = false
+	_pending_kneel_interrupt_dialogue = false
+	if should_resume and _work_behavior_started and not GameManager.dialogue_active:
+		_resume_routine_after_repeat_dialogue()
+
+
+func should_play_kneel_interrupt_dialogue() -> bool:
+	if not _work_behavior_started or not GameManager.get_flag(start_behavior_flag):
+		return false
+	if GameManager.was_dialogue_beat_played("gas_station_npc", KNEEL_INTERRUPT_BEAT_ID):
+		return false
+	return _is_kneeling_focus_state()
+
+
+func consume_dialogue_interaction_override() -> Dictionary:
+	if not _pending_kneel_interrupt_dialogue:
+		return {}
+	_pending_kneel_interrupt_dialogue = false
+	return {
+		"title": KNEEL_INTERRUPT_TITLE,
+		"beat_id": KNEEL_INTERRUPT_BEAT_ID,
+	}
+
+
 func prepare_dialogue_interaction(interactor: Node3D) -> void:
-	if interactor == null or _dialogue_turn_active:
+	if interactor == null or _dialogue_turn_active or _dialogue_prep_active:
 		return
 
 	var intro_done := GameManager.get_flag(start_behavior_flag)
-	if intro_done and not turn_on_repeat_dialogue:
+	if intro_done and turn_on_repeat_dialogue:
+		if should_play_kneel_interrupt_dialogue():
+			await _prepare_kneel_interrupt_dialogue(interactor)
+			return
+		await _prepare_repeat_dialogue(interactor)
 		return
 
-	if intro_done and turn_on_repeat_dialogue:
-		var repeat_limit := max_dialogue_turn_time * repeat_dialogue_turn_time_scale
-		await _turn_smoothly_to_player(interactor, repeat_limit, dialogue_turn_speed)
+	if intro_done:
 		return
 
 	_pre_dialogue_yaw = global_rotation.y
@@ -805,6 +868,222 @@ func prepare_dialogue_interaction(interactor: Node3D) -> void:
 
 	await _turn_smoothly_to_player(interactor, max_dialogue_turn_time, dialogue_turn_speed)
 	play_idle()
+
+
+func _prepare_repeat_dialogue(interactor: Node3D) -> void:
+	_dialogue_prep_active = true
+	_use_camera_focus_for_dialogue = false
+	_halt_horizontal_movement()
+	GameManager.lock_player_interaction_prep()
+
+	await _wait_for_posture_transition_to_finish()
+	_cache_routine_snapshot_for_resume()
+	_pending_resume_after_repeat_dialogue = true
+
+	var needs_stand_up := _work_state == WorkState.INSPECTING
+	_use_camera_focus_for_dialogue = needs_stand_up and repeat_camera_focus_on_stand_up
+
+	await _stand_up_for_dialogue_if_needed(interactor, needs_stand_up)
+	_interrupt_routine_for_dialogue()
+
+	_set_dialogue_focus_height(dialogue_focus_height_standing, true)
+
+	var turn_limit := max_dialogue_turn_time * repeat_dialogue_turn_time_scale
+	await _turn_smoothly_to_player(interactor, turn_limit, dialogue_turn_speed)
+	play_routine_idle(BLEND_ROUTINE)
+
+	_dialogue_prep_active = false
+
+
+func _prepare_kneel_interrupt_dialogue(_interactor: Node3D) -> void:
+	_dialogue_prep_active = true
+	_use_camera_focus_for_dialogue = false
+	_halt_horizontal_movement()
+
+	if _work_state == WorkState.KNEELING_DOWN:
+		await _wait_for_work_state(WorkState.INSPECTING)
+
+	_set_dialogue_focus_height(dialogue_focus_height_kneeling, true)
+	play_kneeling_inspecting()
+	_pending_kneel_interrupt_dialogue = true
+	_dialogue_prep_active = false
+
+
+func _cache_routine_snapshot_for_resume() -> void:
+	_resume_pump_index = _current_pump_index
+	_resume_was_inspecting = _work_state == WorkState.INSPECTING
+	_resume_was_walking = _work_state in [
+		WorkState.WALKING_TO_POINT,
+		WorkState.TURNING_TO_LOOK_TARGET,
+	]
+	_resume_look_yaw = _get_pump_look_yaw(_current_pump_index)
+
+
+func _get_pump_look_yaw(pump_index: int) -> float:
+	var look_target := _get_pump_look_target(pump_index)
+	if look_target == null:
+		return global_rotation.y
+	var direction := _horizontal_direction_to(look_target.global_position)
+	if direction.length_squared() < 0.0001:
+		return global_rotation.y
+	return atan2(direction.x, direction.z)
+
+
+func _get_pump_walk_yaw(pump_index: int) -> float:
+	var point := _get_pump_point(pump_index)
+	if point == null:
+		return global_rotation.y
+	var direction := _horizontal_direction_to(point.global_position)
+	if direction.length_squared() < 0.0001:
+		return global_rotation.y
+	return atan2(direction.x, direction.z)
+
+
+func _resume_routine_after_repeat_dialogue() -> void:
+	if not behavior_enabled or not _work_behavior_started:
+		return
+
+	_routine_resume_active = true
+	_current_pump_index = _resume_pump_index
+
+	if _resume_was_walking:
+		await _turn_smoothly_to_yaw(
+			_get_pump_walk_yaw(_current_pump_index),
+			max_return_turn_time,
+			return_turn_speed
+		)
+		_set_work_state(WorkState.WALKING_TO_POINT)
+		_routine_resume_active = false
+		return
+
+	await _turn_smoothly_to_yaw(_resume_look_yaw, max_return_turn_time, return_turn_speed)
+	_gesture_anim = &""
+	_set_work_state(WorkState.KNEELING_DOWN)
+	_routine_resume_active = false
+
+
+func _wait_for_posture_transition_to_finish() -> void:
+	while _work_state in [WorkState.KNEELING_DOWN, WorkState.STANDING_UP]:
+		await get_tree().physics_frame
+
+
+func _stand_up_for_dialogue_if_needed(interactor: Node3D, needs_stand_up: bool) -> void:
+	if not needs_stand_up:
+		return
+
+	_set_work_state(WorkState.STANDING_UP)
+	_set_dialogue_focus_height(dialogue_focus_height_kneeling, true)
+
+	if (
+		repeat_camera_focus_on_stand_up
+		and interactor != null
+		and interactor.has_method("focus_camera_on")
+	):
+		interactor.focus_camera_on(_get_dialogue_focus_point())
+
+	await _tween_dialogue_focus_height(dialogue_focus_height_standing, _get_stand_up_duration())
+	await _wait_for_work_state(WorkState.WAITING)
+
+
+func _wait_for_work_state(target_state: WorkState) -> void:
+	while _work_state != target_state:
+		await get_tree().physics_frame
+
+
+func _interrupt_routine_for_dialogue() -> void:
+	_halt_horizontal_movement()
+	match _work_state:
+		WorkState.WALKING_TO_POINT, WorkState.TURNING_TO_LOOK_TARGET:
+			_gesture_anim = &""
+			_work_state = WorkState.WAITING
+			_state_timer = 0.0
+			play_routine_idle(BLEND_ROUTINE)
+
+
+func _get_dialogue_focus_point() -> Node3D:
+	if _dialogue_focus_point != null:
+		return _dialogue_focus_point
+	return self
+
+
+func _is_kneeling_focus_state() -> bool:
+	return _work_state in [WorkState.KNEELING_DOWN, WorkState.INSPECTING]
+
+
+func _get_target_dialogue_focus_height() -> float:
+	if not _work_behavior_started:
+		return dialogue_focus_height_standing
+	if _is_kneeling_focus_state():
+		return dialogue_focus_height_kneeling
+	return dialogue_focus_height_standing
+
+
+func _set_dialogue_focus_height(height: float, immediate: bool) -> void:
+	if _dialogue_focus_point == null:
+		return
+	var pos := _dialogue_focus_point.position
+	if immediate:
+		pos.y = height
+		_dialogue_focus_point.position = pos
+		return
+	_kill_focus_height_tween()
+	var tween := create_tween()
+	_focus_height_tween = tween
+	tween.tween_property(_dialogue_focus_point, "position:y", height, 0.35)
+
+
+func _tween_dialogue_focus_height(target_height: float, duration: float) -> void:
+	if _dialogue_focus_point == null:
+		return
+	_kill_focus_height_tween()
+	var tween := create_tween()
+	_focus_height_tween = tween
+	tween.tween_property(
+		_dialogue_focus_point,
+		"position:y",
+		target_height,
+		maxf(duration, 0.05)
+	)
+	await tween.finished
+	_focus_height_tween = null
+
+
+func _kill_focus_height_tween() -> void:
+	if _focus_height_tween != null and _focus_height_tween.is_valid():
+		_focus_height_tween.kill()
+	_focus_height_tween = null
+
+
+func _update_dialogue_focus_height(delta: float) -> void:
+	if (
+		_dialogue_focus_point == null
+		or not _work_behavior_started
+		or _dialogue_prep_active
+		or GameManager.dialogue_active
+	):
+		return
+
+	var target_y := _get_target_dialogue_focus_height()
+	var pos := _dialogue_focus_point.position
+	if is_equal_approx(pos.y, target_y):
+		return
+	pos.y = lerpf(pos.y, target_y, minf(1.0, dialogue_focus_height_lerp_speed * delta))
+	_dialogue_focus_point.position = pos
+
+
+func _get_stand_up_duration() -> float:
+	var animation_player := _get_animation_player()
+	if animation_player == null:
+		return 1.0
+	var anim_name := &"standing_up_short"
+	if not animation_player.has_animation(anim_name):
+		anim_name = &"standing_up"
+	if not animation_player.has_animation(anim_name):
+		return 1.0
+	var anim := animation_player.get_animation(anim_name)
+	if anim == null:
+		return 1.0
+	return anim.length / maxf(stand_up_playback_speed, 0.01)
 
 
 func _on_dialogue_finished() -> void:
@@ -824,7 +1103,7 @@ func _on_dialogue_finished() -> void:
 func _play_turn_animation(angle: float) -> void:
 	var abs_angle := absf(angle)
 	if abs_angle < deg_to_rad(turn_walk_angle_threshold_deg):
-		play_idle()
+		_play_post_turn_idle()
 		_turn_visual_active = false
 	elif _uses_old_man_style() and _has_animation(&"old_man_walk"):
 		_play_anim_if_not(&"old_man_walk", BLEND_OLD_MAN_TURN)
@@ -833,8 +1112,15 @@ func _play_turn_animation(angle: float) -> void:
 		_play_anim_if_not(_resolve_walk_in_place_anim(), BLEND_TURN_IN_PLACE, 1.0)
 		_turn_visual_active = true
 	else:
-		play_idle()
+		_play_post_turn_idle()
 		_turn_visual_active = false
+
+
+func _play_post_turn_idle() -> void:
+	if _work_behavior_started:
+		play_routine_idle(BLEND_ROUTINE)
+	else:
+		play_idle()
 
 
 func _turn_smoothly_to_player(player: Node3D, time_limit: float, turn_speed: float) -> void:
@@ -885,8 +1171,13 @@ func _turn_smoothly_to_yaw(
 
 	global_rotation.y = target_yaw
 	_turn_visual_active = false
-	play_idle()
+	_play_post_turn_idle()
 
 	if locked_input and is_instance_valid(player) and player.has_method("set_input_enabled"):
-		player.set_input_enabled(true)
+		if (
+			not GameManager.interaction_prep_active
+			and not GameManager.interaction_prep_committed
+			and not GameManager.dialogue_active
+		):
+			player.set_input_enabled(true)
 	_dialogue_turn_active = false

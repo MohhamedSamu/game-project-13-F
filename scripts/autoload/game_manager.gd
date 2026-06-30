@@ -6,6 +6,9 @@ signal objective_completed(level_id: String, scene_id: String, objective_id: Str
 signal dialogue_beat_played(npc_id: String, beat_id: String)
 
 var dialogue_active: bool = false
+var interaction_prep_active: bool = false
+## Tras pulsar E y entrar en prep del NPC, no revalidar rango/aim al terminar la animación.
+var interaction_prep_committed: bool = false
 var minigame_active: bool = false
 var player: Node = null
 var has_met_clown: bool = false
@@ -260,6 +263,8 @@ func _set_crosshair_dialogue_hidden(is_hidden: bool) -> void:
 
 
 func lock_player() -> void:
+	interaction_prep_committed = false
+	interaction_prep_active = false
 	dialogue_active = true
 	_set_crosshair_dialogue_hidden(true)
 	InnerThoughts.hide_thought()
@@ -277,10 +282,51 @@ func lock_player() -> void:
 
 func unlock_player() -> void:
 	dialogue_active = false
+	interaction_prep_committed = false
+	interaction_prep_active = false
 	var tree := get_tree()
 	if tree == null:
 		return
 
+	_set_crosshair_dialogue_hidden(false)
+
+	if player and is_instance_valid(player) and player.has_method("clear_camera_focus"):
+		player.clear_camera_focus()
+
+	if player and is_instance_valid(player) and player.has_method("set_input_enabled"):
+		player.set_input_enabled(true)
+
+	if player and is_instance_valid(player) and player.has_method("capture_mouse"):
+		player.capture_mouse()
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func lock_player_interaction_prep() -> void:
+	if interaction_prep_active or dialogue_active:
+		return
+	interaction_prep_committed = true
+	interaction_prep_active = true
+	_set_crosshair_dialogue_hidden(true)
+	InnerThoughts.hide_thought()
+
+	if player and player.has_method("stop_movement_immediately"):
+		player.stop_movement_immediately()
+
+	if player and player.has_method("set_input_enabled"):
+		player.set_input_enabled(false)
+
+	if player and player.has_method("capture_mouse"):
+		player.capture_mouse()
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func unlock_player_interaction_prep() -> void:
+	if not interaction_prep_active or dialogue_active:
+		return
+	interaction_prep_committed = false
+	interaction_prep_active = false
 	_set_crosshair_dialogue_hidden(false)
 
 	if player and is_instance_valid(player) and player.has_method("clear_camera_focus"):

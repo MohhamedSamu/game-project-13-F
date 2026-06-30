@@ -36,9 +36,14 @@ extends Area3D
 @export var npc_id: String = ""
 @export var dialogue_profile: NpcDialogueProfile
 
+@export_group("Re-entry Cooldown")
+@export var require_exit_before_reinteract: bool = false
+@export var reentry_monitor_area: Area3D
+
 var player_near: bool = false
 var _preparing_dialogue: bool = false
 var _pending_dialogue_beat: NpcDialogueBeat = null
+var _awaiting_area_reentry: bool = false
 
 ## Capa física dedicada para InteractionRayTarget (layer 3 = bit 4).
 const RAY_TARGET_COLLISION_LAYER: int = 4
@@ -52,8 +57,21 @@ func _ready() -> void:
 	monitorable = not require_specific_ray_target
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+	if require_exit_before_reinteract:
+		_connect_reentry_monitor_area()
 	if require_specific_ray_target:
 		_configure_ray_target()
+
+
+func _connect_reentry_monitor_area() -> void:
+	if reentry_monitor_area == null:
+		push_warning(
+			"%s: require_exit_before_reinteract activo pero falta reentry_monitor_area."
+			% name
+		)
+		return
+	if not reentry_monitor_area.body_exited.is_connected(_on_reentry_monitor_body_exited):
+		reentry_monitor_area.body_exited.connect(_on_reentry_monitor_body_exited)
 
 
 func refresh_ray_target() -> void:
@@ -115,13 +133,17 @@ func is_player_in_proximity() -> bool:
 func can_interact() -> bool:
 	if _preparing_dialogue:
 		return false
+	if _awaiting_area_reentry:
+		return false
 	if not enabled:
 		return false
 	if GameManager.dialogue_active:
 		return false
 	if GameManager.minigame_active:
 		return false
-	if not _is_player_in_range():
+	if GameManager.interaction_prep_active:
+		return false
+	if not GameManager.interaction_prep_committed and not _is_player_in_range():
 		return false
 	if trigger_once and already_triggered:
 		return false
@@ -150,18 +172,34 @@ func _begin_dialogue_interaction() -> void:
 	var player := GameManager.get_player()
 	if player != null and player.has_method("stop_movement_immediately"):
 		player.stop_movement_immediately()
+	var dialogue_owner := _get_dialogue_owner()
+	var has_dialogue_prep := (
+		dialogue_owner != null and dialogue_owner.has_method("prepare_dialogue_interaction")
+	)
+	if has_dialogue_prep:
+		GameManager.lock_player_interaction_prep()
 	await _await_dialogue_preparation()
 	_preparing_dialogue = false
 
 	if not enabled:
+		_cancel_dialogue_prep_if_needed()
+		GameManager.unlock_player_interaction_prep()
 		return
 	if GameManager.dialogue_active:
+		_cancel_dialogue_prep_if_needed()
+		GameManager.unlock_player_interaction_prep()
 		return
-	if not _is_player_in_range():
+	if not GameManager.interaction_prep_committed and not _is_player_in_range():
+		_cancel_dialogue_prep_if_needed()
+		GameManager.unlock_player_interaction_prep()
 		return
 	if trigger_once and already_triggered:
+		_cancel_dialogue_prep_if_needed()
+		GameManager.unlock_player_interaction_prep()
 		return
 	if dialogue_resource == null:
+		_cancel_dialogue_prep_if_needed()
+		GameManager.unlock_player_interaction_prep()
 		return
 
 	if trigger_once:
@@ -173,12 +211,38 @@ func _begin_dialogue_interaction() -> void:
 		_pending_dialogue_beat = GameManager.resolve_npc_dialogue_beat(dialogue_profile, npc_id)
 		title = _resolve_dialogue_title()
 
+	if dialogue_owner != null and dialogue_owner.has_method("consume_dialogue_interaction_override"):
+		var override: Dictionary = dialogue_owner.consume_dialogue_interaction_override()
+		var override_title: Variant = override.get("title", "")
+		if override_title is String and not (override_title as String).is_empty():
+			title = override_title as String
+			var beat_id: Variant = override.get("beat_id", "")
+			if beat_id is String and not (beat_id as String).is_empty():
+				_pending_dialogue_beat = _find_dialogue_beat_by_id(beat_id as String)
+
 	if set_flag_on_finish != "" or _pending_dialogue_beat != null:
 		DialogueController.dialogue_finished.connect(
 			_on_dialogue_finished_apply_state,
 			CONNECT_ONE_SHOT
 		)
-	DialogueController.start_dialogue(dialogue_resource, title, _get_focus_target())
+	if require_exit_before_reinteract and reentry_monitor_area != null:
+		DialogueController.dialogue_finished.connect(
+			_on_dialogue_finished_require_reentry,
+			CONNECT_ONE_SHOT
+		)
+	var use_camera_focus := true
+	if dialogue_owner != null and dialogue_owner.has_method("should_use_dialogue_camera_focus"):
+		use_camera_focus = dialogue_owner.should_use_dialogue_camera_focus()
+	DialogueController.start_dialogue(dialogue_resource, title, _get_focus_target(), use_camera_focus)
+
+
+func _find_dialogue_beat_by_id(beat_id: String) -> NpcDialogueBeat:
+	if dialogue_profile == null or beat_id.is_empty():
+		return null
+	for beat in dialogue_profile.beats:
+		if beat != null and beat.beat_id == beat_id:
+			return beat
+	return null
 
 
 func _await_dialogue_preparation() -> void:
@@ -194,6 +258,12 @@ func _get_dialogue_owner() -> Node:
 	return get_parent()
 
 
+func _cancel_dialogue_prep_if_needed() -> void:
+	var dialogue_owner := _get_dialogue_owner()
+	if dialogue_owner != null and dialogue_owner.has_method("cancel_dialogue_prep"):
+		dialogue_owner.cancel_dialogue_prep()
+
+
 func _resolve_dialogue_title() -> String:
 	if dialogue_profile == null:
 		return dialogue_title
@@ -206,6 +276,22 @@ func _on_dialogue_finished_apply_state() -> void:
 	if _pending_dialogue_beat != null:
 		GameManager.apply_dialogue_beat_finished(_pending_dialogue_beat, npc_id)
 		_pending_dialogue_beat = null
+
+
+func _on_dialogue_finished_require_reentry() -> void:
+	_awaiting_area_reentry = true
+	if reentry_monitor_area == null:
+		return
+	var player := GameManager.player as Node3D
+	if player == null:
+		return
+	if not reentry_monitor_area.overlaps_body(player):
+		_awaiting_area_reentry = false
+
+
+func _on_reentry_monitor_body_exited(body: Node3D) -> void:
+	if body.is_in_group("player"):
+		_awaiting_area_reentry = false
 
 
 func get_interaction_prompt() -> String:

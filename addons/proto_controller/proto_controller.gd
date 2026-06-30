@@ -187,7 +187,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		release_mouse()
 	
 	# Look around
-	if input_enabled and mouse_captured and event is InputEventMouseMotion:
+	if (
+		input_enabled
+		and mouse_captured
+		and not GameManager.interaction_prep_active
+		and event is InputEventMouseMotion
+	):
 		rotate_look(event.relative)
 	
 	# Toggle freefly mode
@@ -202,8 +207,9 @@ func _physics_process(delta: float) -> void:
 		_update_dialogue_camera_focus(delta)
 
 	if input_enabled and interaction_enabled and mouse_captured and not freeflying:
-		if Input.is_action_just_pressed(input_interact):
-			_try_interact_focused()
+		if not GameManager.interaction_prep_active:
+			if Input.is_action_just_pressed(input_interact):
+				_try_interact_focused()
 		if Input.is_action_just_pressed(input_drop_item):
 			_try_drop_held()
 		if Input.is_action_just_pressed(input_flashlight_toggle):
@@ -395,6 +401,9 @@ func _update_interaction_focus() -> void:
 	_focus_interactable = null
 	_ensure_crosshair_ref()
 	if GameManager.dialogue_active:
+		_apply_crosshair_ui(false, "")
+		return
+	if GameManager.interaction_prep_active:
 		_apply_crosshair_ui(false, "")
 		return
 	var focus: Node = null

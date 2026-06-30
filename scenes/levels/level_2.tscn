@@ -90,8 +90,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.976114, 0.976114)
-shader_parameter/cirrus_position2 = Vector2(0.976114, 0.976114)
+shader_parameter/cirrus_position1 = Vector2(0.998198, 0.998198)
+shader_parameter/cirrus_position2 = Vector2(0.998198, 0.998198)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -101,7 +101,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(4.88148, 4.88147)
+shader_parameter/cumulus_position = Vector2(4.99195, 4.99195)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -563,7 +563,7 @@ initial_mode = 2
 [node name="Props" type="Node3D" parent="."]
 
 [node name="KeyGold" parent="Props" instance=ExtResource("29_r6ket")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.61151, 3.39228e-07, 0.45255)
+transform = Transform3D(0.950299, 0, -0.31134, 0, 1, 0, 0.31134, 0, 0.950299, 3.30956, 1.32821, -25.917)
 
 [node name="flashlight" parent="Props" instance=ExtResource("5_flash")]
 transform = Transform3D(0.994098, 0, 0.108485, 0, 1, 0, -0.108485, 0, 0.994098, 91.3405, 1.12709, 22.774)
