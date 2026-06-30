@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://ckx22jg6i1ods"
 path.s3tc="res://.godot/imported/Toilets_Sing.png-038998513febf7fb53ddb0cc04d55420.s3tc.ctex"
+path.etc2="res://.godot/imported/Toilets_Sing.png-038998513febf7fb53ddb0cc04d55420.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Toilets_Sing.png"
-dest_files=["res://.godot/imported/Toilets_Sing.png-038998513febf7fb53ddb0cc04d55420.s3tc.ctex"]
+dest_files=["res://.godot/imported/Toilets_Sing.png-038998513febf7fb53ddb0cc04d55420.s3tc.ctex", "res://.godot/imported/Toilets_Sing.png-038998513febf7fb53ddb0cc04d55420.etc2.ctex"]
 
 [params]
 

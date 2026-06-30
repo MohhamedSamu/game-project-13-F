@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bfxat1wrcsoee"
 path.s3tc="res://.godot/imported/cloud_wispy_psx.svg-62cefe00b17c5ee7a79ab0889f06c787.s3tc.ctex"
+path.etc2="res://.godot/imported/cloud_wispy_psx.svg-62cefe00b17c5ee7a79ab0889f06c787.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/textures/sky/cloud_wispy_psx.svg"
-dest_files=["res://.godot/imported/cloud_wispy_psx.svg-62cefe00b17c5ee7a79ab0889f06c787.s3tc.ctex"]
+dest_files=["res://.godot/imported/cloud_wispy_psx.svg-62cefe00b17c5ee7a79ab0889f06c787.s3tc.ctex", "res://.godot/imported/cloud_wispy_psx.svg-62cefe00b17c5ee7a79ab0889f06c787.etc2.ctex"]
 
 [params]
 

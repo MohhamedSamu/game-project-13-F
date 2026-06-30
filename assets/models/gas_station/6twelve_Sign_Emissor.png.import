@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bbjthfuvhi4jm"
 path.s3tc="res://.godot/imported/6twelve_Sign_Emissor.png-0d0d19f8b8ef571425e02c0129c87d36.s3tc.ctex"
+path.etc2="res://.godot/imported/6twelve_Sign_Emissor.png-0d0d19f8b8ef571425e02c0129c87d36.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/6twelve_Sign_Emissor.png"
-dest_files=["res://.godot/imported/6twelve_Sign_Emissor.png-0d0d19f8b8ef571425e02c0129c87d36.s3tc.ctex"]
+dest_files=["res://.godot/imported/6twelve_Sign_Emissor.png-0d0d19f8b8ef571425e02c0129c87d36.s3tc.ctex", "res://.godot/imported/6twelve_Sign_Emissor.png-0d0d19f8b8ef571425e02c0129c87d36.etc2.ctex"]
 
 [params]
 

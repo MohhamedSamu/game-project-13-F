@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cekpicavcejs4"
 path.s3tc="res://.godot/imported/Fusible.png-8afd7d08b52d6eb1d31c50e9f5676163.s3tc.ctex"
+path.etc2="res://.godot/imported/Fusible.png-8afd7d08b52d6eb1d31c50e9f5676163.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Fusible.png"
-dest_files=["res://.godot/imported/Fusible.png-8afd7d08b52d6eb1d31c50e9f5676163.s3tc.ctex"]
+dest_files=["res://.godot/imported/Fusible.png-8afd7d08b52d6eb1d31c50e9f5676163.s3tc.ctex", "res://.godot/imported/Fusible.png-8afd7d08b52d6eb1d31c50e9f5676163.etc2.ctex"]
 
 [params]
 

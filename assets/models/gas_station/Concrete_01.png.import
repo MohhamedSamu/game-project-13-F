@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://d4emcc1t4m6j7"
 path.s3tc="res://.godot/imported/Concrete_01.png-dd680bf94667035ecc81357213c27389.s3tc.ctex"
+path.etc2="res://.godot/imported/Concrete_01.png-dd680bf94667035ecc81357213c27389.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Concrete_01.png"
-dest_files=["res://.godot/imported/Concrete_01.png-dd680bf94667035ecc81357213c27389.s3tc.ctex"]
+dest_files=["res://.godot/imported/Concrete_01.png-dd680bf94667035ecc81357213c27389.s3tc.ctex", "res://.godot/imported/Concrete_01.png-dd680bf94667035ecc81357213c27389.etc2.ctex"]
 
 [params]
 

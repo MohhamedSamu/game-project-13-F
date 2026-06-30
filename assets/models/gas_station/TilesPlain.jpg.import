@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://o2s6xw4pwajo"
 path.s3tc="res://.godot/imported/TilesPlain.jpg-8de99db44d2b57e4b5d818b475d9d74e.s3tc.ctex"
+path.etc2="res://.godot/imported/TilesPlain.jpg-8de99db44d2b57e4b5d818b475d9d74e.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/TilesPlain.jpg"
-dest_files=["res://.godot/imported/TilesPlain.jpg-8de99db44d2b57e4b5d818b475d9d74e.s3tc.ctex"]
+dest_files=["res://.godot/imported/TilesPlain.jpg-8de99db44d2b57e4b5d818b475d9d74e.s3tc.ctex", "res://.godot/imported/TilesPlain.jpg-8de99db44d2b57e4b5d818b475d9d74e.etc2.ctex"]
 
 [params]
 

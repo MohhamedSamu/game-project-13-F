@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://lgrw7g6xd3py"
+path="res://.godot/imported/scene1PoliceNpc.dialogue-d67130c35c2c573b45df097e725cf4ae.tres"
+
+[deps]
+
+source_file="res://dialogues/scene1PoliceNpc.dialogue"
+dest_files=["res://.godot/imported/scene1PoliceNpc.dialogue-d67130c35c2c573b45df097e725cf4ae.tres"]
+
+[params]
+
+defaults=true

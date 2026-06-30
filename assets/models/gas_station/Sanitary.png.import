@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://8f62kd0p3qlm"
 path.s3tc="res://.godot/imported/Sanitary.png-cea696cf192210afbe05bf90df1a0d1c.s3tc.ctex"
+path.etc2="res://.godot/imported/Sanitary.png-cea696cf192210afbe05bf90df1a0d1c.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Sanitary.png"
-dest_files=["res://.godot/imported/Sanitary.png-cea696cf192210afbe05bf90df1a0d1c.s3tc.ctex"]
+dest_files=["res://.godot/imported/Sanitary.png-cea696cf192210afbe05bf90df1a0d1c.s3tc.ctex", "res://.godot/imported/Sanitary.png-cea696cf192210afbe05bf90df1a0d1c.etc2.ctex"]
 
 [params]
 

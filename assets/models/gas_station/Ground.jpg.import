@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://c28yr3i1n5jic"
 path.s3tc="res://.godot/imported/Ground.jpg-c5e1ed186dbf74e0111d1916129c98af.s3tc.ctex"
+path.etc2="res://.godot/imported/Ground.jpg-c5e1ed186dbf74e0111d1916129c98af.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Ground.jpg"
-dest_files=["res://.godot/imported/Ground.jpg-c5e1ed186dbf74e0111d1916129c98af.s3tc.ctex"]
+dest_files=["res://.godot/imported/Ground.jpg-c5e1ed186dbf74e0111d1916129c98af.s3tc.ctex", "res://.godot/imported/Ground.jpg-c5e1ed186dbf74e0111d1916129c98af.etc2.ctex"]
 
 [params]
 

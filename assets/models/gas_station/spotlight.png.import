@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://coa6tcoiko8em"
 path.s3tc="res://.godot/imported/spotlight.png-56cf3f4d1c36e6725a2a2bd73055f1c7.s3tc.ctex"
+path.etc2="res://.godot/imported/spotlight.png-56cf3f4d1c36e6725a2a2bd73055f1c7.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/spotlight.png"
-dest_files=["res://.godot/imported/spotlight.png-56cf3f4d1c36e6725a2a2bd73055f1c7.s3tc.ctex"]
+dest_files=["res://.godot/imported/spotlight.png-56cf3f4d1c36e6725a2a2bd73055f1c7.s3tc.ctex", "res://.godot/imported/spotlight.png-56cf3f4d1c36e6725a2a2bd73055f1c7.etc2.ctex"]
 
 [params]
 

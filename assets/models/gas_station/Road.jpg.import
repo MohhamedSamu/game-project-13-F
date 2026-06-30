@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bi4aia52ca3ah"
 path.s3tc="res://.godot/imported/Road.jpg-531a34c0f7c033d4b3f30e3643ca8f64.s3tc.ctex"
+path.etc2="res://.godot/imported/Road.jpg-531a34c0f7c033d4b3f30e3643ca8f64.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Road.jpg"
-dest_files=["res://.godot/imported/Road.jpg-531a34c0f7c033d4b3f30e3643ca8f64.s3tc.ctex"]
+dest_files=["res://.godot/imported/Road.jpg-531a34c0f7c033d4b3f30e3643ca8f64.s3tc.ctex", "res://.godot/imported/Road.jpg-531a34c0f7c033d4b3f30e3643ca8f64.etc2.ctex"]
 
 [params]
 

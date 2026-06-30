@@ -1,0 +1,31 @@
+~ start
+
+Juan: Oye, esa es mi linterna. ¿Qué haces?
+
+- La necesitaba, acabo de recogerla.
+	Juan: Ah, claro. Por ahí no hay mucha luz.
+	=> explain_keep
+- Solo la vi tirada en el suelo.
+	Juan: Bueno, al menos no te la llevaste a escondidas.
+	=> explain_keep
+
+~ explain_keep
+
+Juan: Mira, quédatela. El gobierno me las regala de todos modos.
+Juan: Tiene tres modos que cambias con la F: luz lejana, luz cercana y apagado.
+
+- ¿La voy a necesitar a pleno mediodía?
+
+Juan: Tienes razón... No sería un juego de miedo si no fuera de noche.
+
+do Scene1PoliceDirector.play_fourth_wall_night_transition()
+
+Juan: Ahora sí. Mejor.
+Juan: Como te decía, la vas a necesitar. Yo me voy... El del surtidor me cae mal igual.
+
+- Antes de eso, ¿gasolinera? ¿Está cerca?
+
+Juan: Literalmente a diez metros... Tienen baños, comida y gasolina.
+Juan: Acércate por ahí si necesitas algo.
+
+=> END

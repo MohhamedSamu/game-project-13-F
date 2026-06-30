@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://4h81my87kxyt"
 path.s3tc="res://.godot/imported/Pack_lighters.jpg-5aaa2e0a128185e4a8731242d4c67d02.s3tc.ctex"
+path.etc2="res://.godot/imported/Pack_lighters.jpg-5aaa2e0a128185e4a8731242d4c67d02.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Pack_lighters.jpg"
-dest_files=["res://.godot/imported/Pack_lighters.jpg-5aaa2e0a128185e4a8731242d4c67d02.s3tc.ctex"]
+dest_files=["res://.godot/imported/Pack_lighters.jpg-5aaa2e0a128185e4a8731242d4c67d02.s3tc.ctex", "res://.godot/imported/Pack_lighters.jpg-5aaa2e0a128185e4a8731242d4c67d02.etc2.ctex"]
 
 [params]
 

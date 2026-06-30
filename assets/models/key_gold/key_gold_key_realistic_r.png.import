@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://rkhey7jihfq1"
 path.s3tc="res://.godot/imported/key_gold_key_realistic_r.png-461b544292091897a735a8530e6bcbf3.s3tc.ctex"
+path.etc2="res://.godot/imported/key_gold_key_realistic_r.png-461b544292091897a735a8530e6bcbf3.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/key_gold/key_gold_key_realistic_r.png"
-dest_files=["res://.godot/imported/key_gold_key_realistic_r.png-461b544292091897a735a8530e6bcbf3.s3tc.ctex"]
+dest_files=["res://.godot/imported/key_gold_key_realistic_r.png-461b544292091897a735a8530e6bcbf3.s3tc.ctex", "res://.godot/imported/key_gold_key_realistic_r.png-461b544292091897a735a8530e6bcbf3.etc2.ctex"]
 
 [params]
 

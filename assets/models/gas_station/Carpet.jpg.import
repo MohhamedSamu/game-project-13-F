@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cyo70h236rg6y"
 path.s3tc="res://.godot/imported/Carpet.jpg-5c0eda3cad0a32d6e1b0eb3cdfa3cfde.s3tc.ctex"
+path.etc2="res://.godot/imported/Carpet.jpg-5c0eda3cad0a32d6e1b0eb3cdfa3cfde.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Carpet.jpg"
-dest_files=["res://.godot/imported/Carpet.jpg-5c0eda3cad0a32d6e1b0eb3cdfa3cfde.s3tc.ctex"]
+dest_files=["res://.godot/imported/Carpet.jpg-5c0eda3cad0a32d6e1b0eb3cdfa3cfde.s3tc.ctex", "res://.godot/imported/Carpet.jpg-5c0eda3cad0a32d6e1b0eb3cdfa3cfde.etc2.ctex"]
 
 [params]
 

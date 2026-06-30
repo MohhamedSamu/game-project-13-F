@@ -22,7 +22,9 @@ UISFX="*res://scripts/autoload/ui_sfx.gd"
 DialogueManager="*res://addons/dialogue_manager/dialogue_manager.gd"
 GameManager="*res://scripts/autoload/game_manager.gd"
 DialogueController="*res://scripts/autoload/dialogue_controller.gd"
+Scene1PoliceDirector="*res://scripts/narrative/scene1_police_director.gd"
 InnerThoughts="*res://scenes/ui/inner_thoughts_overlay.tscn"
+InstructionsOverlay="*res://scenes/ui/instructions_overlay.tscn"
 DevOverlay="*res://scenes/ui/dev_overlay.tscn"
 
 [dialogue_manager]
@@ -105,4 +107,8 @@ toggle_fps={
 
 [internationalization]
 
-locale/translations_pot_files=PackedStringArray("res://dialogues/my_dialogue.dialogue", "res://dialogues/door_01.dialogue", "res://dialogues/ice_proximity.dialogue", "res://dialogues/gas_station_npc.dialogue", "res://dialogues/supermarket_npc.dialogue", "res://dialogues/demo/clown_jumpscare_easter_egg.dialogue")
+locale/translations_pot_files=PackedStringArray("res://dialogues/my_dialogue.dialogue", "res://dialogues/door_01.dialogue", "res://dialogues/ice_proximity.dialogue", "res://dialogues/gas_station_npc.dialogue", "res://dialogues/supermarket_npc.dialogue", "res://dialogues/demo/clown_jumpscare_easter_egg.dialogue", "res://dialogues/scene1PoliceNpc.dialogue")
+
+[rendering]
+
+textures/vram_compression/import_etc2_astc=true

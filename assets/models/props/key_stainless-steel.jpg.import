@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cfnoy88xoflnd"
 path.s3tc="res://.godot/imported/key_stainless-steel.jpg-16d88db06051b852f52d54a718f209ca.s3tc.ctex"
+path.etc2="res://.godot/imported/key_stainless-steel.jpg-16d88db06051b852f52d54a718f209ca.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/props/key_stainless-steel.jpg"
-dest_files=["res://.godot/imported/key_stainless-steel.jpg-16d88db06051b852f52d54a718f209ca.s3tc.ctex"]
+dest_files=["res://.godot/imported/key_stainless-steel.jpg-16d88db06051b852f52d54a718f209ca.s3tc.ctex", "res://.godot/imported/key_stainless-steel.jpg-16d88db06051b852f52d54a718f209ca.etc2.ctex"]
 
 [params]
 

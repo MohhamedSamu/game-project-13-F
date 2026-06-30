@@ -1,0 +1,42 @@
+[gd_scene load_steps=3 format=3 uid="uid://drsolq08dtekl"]
+
+[ext_resource type="PackedScene" uid="uid://di6nwlg2k16np" path="res://assets/characters/policeNpc/Character_19_Police.fbx" id="1_wfuqx"]
+[ext_resource type="Script" uid="uid://drvulq3bje7d0" path="res://scenes/characters/polceNpc/police_npc.gd" id="2_script"]
+
+[node name="PoliceNpc" instance=ExtResource("1_wfuqx")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 0, 0, 0)
+script = ExtResource("2_script")
+
+[node name="Skeleton3D" parent="." index="0"]
+bones/0/position = Vector3(-0.000910547, 2.57427, 0.0107955)
+bones/0/rotation = Quaternion(-0.0166805, -0.707729, 0.0020791, 0.706284)
+bones/1/rotation = Quaternion(0.00107727, -0.00123092, 0.0517278, 0.99866)
+bones/2/rotation = Quaternion(-0.00152375, -0.0216092, -0.0088794, 0.999726)
+bones/3/rotation = Quaternion(-0.00114507, -0.0216265, -0.00882674, 0.999727)
+bones/4/rotation = Quaternion(-0.0121704, 0.00812744, -0.0360931, 0.999241)
+bones/5/rotation = Quaternion(0.0315465, -0.0148465, -0.0481969, 0.998229)
+bones/7/rotation = Quaternion(0.0583688, -0.660617, 0.74732, 0.0411301)
+bones/8/rotation = Quaternion(0.520626, 0.220827, 0.128418, 0.814674)
+bones/9/rotation = Quaternion(-0.0133341, 0.00779331, 0.25252, 0.967468)
+bones/10/rotation = Quaternion(0.114818, 0.0626349, -0.119846, 0.98414)
+bones/11/rotation = Quaternion(0.183459, 0.00364807, 0.00423304, 0.983012)
+bones/12/rotation = Quaternion(0.145736, 0.0472644, -0.1526, 0.97634)
+bones/13/rotation = Quaternion(0.189206, 0.0390048, 0.0409748, 0.980306)
+bones/15/rotation = Quaternion(0.731667, 0.00790859, -0.0127555, 0.681497)
+bones/16/rotation = Quaternion(0.153946, 0.801013, 0.545335, 0.193102)
+bones/17/rotation = Quaternion(0.00793113, -0.00729636, 0.234126, 0.972147)
+bones/18/rotation = Quaternion(-0.0155571, 0.0119072, -0.12798, 0.991583)
+bones/19/rotation = Quaternion(-0.0985916, -0.00114029, -0.0398521, 0.994329)
+bones/20/rotation = Quaternion(-0.273342, -0.0386778, -0.129657, 0.952354)
+bones/21/rotation = Quaternion(-0.0135712, 0.000504296, 0.0184553, 0.999737)
+bones/23/rotation = Quaternion(0.0373498, -0.0260339, 0.996084, -0.0757938)
+bones/24/rotation = Quaternion(-0.0136002, -0.0792828, -0.214736, 0.973354)
+bones/25/rotation = Quaternion(0.438323, -0.586464, 0.438683, 0.521047)
+bones/26/rotation = Quaternion(0.231104, -0.0484162, 0.0110966, 0.97166)
+bones/28/rotation = Quaternion(-0.121149, 0.0464769, 0.988829, -0.0733528)
+bones/29/rotation = Quaternion(0.00894028, 0.0352001, -0.174642, 0.983962)
+bones/30/rotation = Quaternion(0.401279, -0.523906, 0.41843, 0.62403)
+bones/31/rotation = Quaternion(0.228349, 0.0460068, -0.0108034, 0.972432)
+
+[node name="DialogueFocusPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.1, 0)

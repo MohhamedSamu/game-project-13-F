@@ -36,6 +36,7 @@ func _ready() -> void:
 		_saved_layer = _rb.collision_layer
 		_saved_mask = _rb.collision_mask
 	_collision_shape = find_child("CollisionShape3D", true, false) as CollisionShape3D
+	InteractableHighlight.ensure_on(self)
 
 
 func get_interaction_prompt() -> String:
@@ -47,6 +48,7 @@ func get_item_id() -> StringName:
 
 
 func pickup_to_hand(hand: Node3D) -> void:
+	_set_interaction_highlight(false)
 	if _rb == null:
 		return
 	var p := get_parent()
@@ -120,3 +122,9 @@ func _complete_drop(toss: Vector3) -> void:
 	_rb.freeze = false
 	_rb.linear_velocity = toss
 	_rb.angular_velocity = Vector3.ZERO
+
+
+func _set_interaction_highlight(active: bool) -> void:
+	var highlight := find_child("InteractableHighlight", true, false)
+	if highlight != null and highlight.has_method("set_highlight"):
+		highlight.set_highlight(active)

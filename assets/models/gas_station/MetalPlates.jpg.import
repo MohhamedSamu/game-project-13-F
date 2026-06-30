@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cvpnpm2npyb6t"
 path.s3tc="res://.godot/imported/MetalPlates.jpg-492f395e94f5e466d842a0ec13a92dd0.s3tc.ctex"
+path.etc2="res://.godot/imported/MetalPlates.jpg-492f395e94f5e466d842a0ec13a92dd0.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/MetalPlates.jpg"
-dest_files=["res://.godot/imported/MetalPlates.jpg-492f395e94f5e466d842a0ec13a92dd0.s3tc.ctex"]
+dest_files=["res://.godot/imported/MetalPlates.jpg-492f395e94f5e466d842a0ec13a92dd0.s3tc.ctex", "res://.godot/imported/MetalPlates.jpg-492f395e94f5e466d842a0ec13a92dd0.etc2.ctex"]
 
 [params]
 
