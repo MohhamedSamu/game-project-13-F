@@ -1,7 +1,7 @@
 [gd_scene load_steps=3 format=3 uid="uid://dakec3lcbbv7y"]
 
 [ext_resource type="PackedScene" uid="uid://qaglqwcm6djo" path="res://scenes/jumpscare/soft_jumpscare_setup.tscn" id="1_base"]
-[ext_resource type="Script" path="res://scripts/jumpscare/flashlight_jumpscare_setup.gd" id="2_script"]
+[ext_resource type="Script" uid="uid://dvmqv0kkfopm4" path="res://scripts/jumpscare/flashlight_jumpscare_setup.gd" id="2_script"]
 
 [node name="FlashlightJumpscareSetup" instance=ExtResource("1_base")]
 script = ExtResource("2_script")

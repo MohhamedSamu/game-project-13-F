@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://c33iwiqw6ogfg"]
+[gd_scene load_steps=7 format=3 uid="uid://c33iwiqw6ogfg"]
 
 [ext_resource type="Script" uid="uid://dq8kdoorinteract" path="res://scripts/interactables/door_interact_setup.gd" id="1_setup"]
 [ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]

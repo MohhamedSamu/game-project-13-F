@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://hp3o3xt5df7s"]
+[gd_scene load_steps=13 format=3 uid="uid://hp3o3xt5df7s"]
 
 [ext_resource type="PackedScene" uid="uid://b5vp0g8kfahfn" path="res://scenes/characters/gas_station_npc/character_09.tscn" id="1_model"]
 [ext_resource type="Script" uid="uid://dc3ir525hc81k" path="res://scripts/characters/gas_station_npc.gd" id="2_script"]

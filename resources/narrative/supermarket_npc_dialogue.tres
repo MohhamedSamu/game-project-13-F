@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="NpcDialogueProfile" load_steps=5 format=3 uid="uid://cqkcejua6304k"]
+[gd_resource type="Resource" script_class="NpcDialogueProfile" load_steps=5 format=3 uid="uid://xnv2fph2cxsk"]
 
 [ext_resource type="Script" uid="uid://dxn1fgps4oaah" path="res://scripts/narrative/npc_dialogue_profile.gd" id="1_profile"]
 [ext_resource type="Script" uid="uid://b52s51m6jrkno" path="res://scripts/narrative/npc_dialogue_beat.gd" id="2_beat"]
