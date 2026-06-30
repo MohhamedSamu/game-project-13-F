@@ -4,8 +4,9 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://cl4p8xw50capl"
 path.s3tc="res://.godot/imported/tree_1_Branch_07.png-4dc650e4c7439bdc6bf2e770672f7d2d.s3tc.ctex"
+path.etc2="res://.godot/imported/tree_1_Branch_07.png-4dc650e4c7439bdc6bf2e770672f7d2d.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 generator_parameters={
@@ -15,7 +16,7 @@ generator_parameters={
 [deps]
 
 source_file="res://assets/models/objects/trees/tree_1_Branch_07.png"
-dest_files=["res://.godot/imported/tree_1_Branch_07.png-4dc650e4c7439bdc6bf2e770672f7d2d.s3tc.ctex"]
+dest_files=["res://.godot/imported/tree_1_Branch_07.png-4dc650e4c7439bdc6bf2e770672f7d2d.s3tc.ctex", "res://.godot/imported/tree_1_Branch_07.png-4dc650e4c7439bdc6bf2e770672f7d2d.etc2.ctex"]
 
 [params]
 

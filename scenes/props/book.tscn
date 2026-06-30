@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://dch6f604i7uhr"]
+
+[ext_resource type="PackedScene" uid="uid://bgfdaowg13sh4" path="res://assets/models/props/Book.fbx" id="1_s0fqw"]
+
+[node name="Book" instance=ExtResource("1_s0fqw")]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)

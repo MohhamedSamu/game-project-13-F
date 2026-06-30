@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bp6ooamv5jbvk"
 path.s3tc="res://.godot/imported/Board.jpg-f1c69b2b7e6986fde808870bdb19b5e9.s3tc.ctex"
+path.etc2="res://.godot/imported/Board.jpg-f1c69b2b7e6986fde808870bdb19b5e9.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Board.jpg"
-dest_files=["res://.godot/imported/Board.jpg-f1c69b2b7e6986fde808870bdb19b5e9.s3tc.ctex"]
+dest_files=["res://.godot/imported/Board.jpg-f1c69b2b7e6986fde808870bdb19b5e9.s3tc.ctex", "res://.godot/imported/Board.jpg-f1c69b2b7e6986fde808870bdb19b5e9.etc2.ctex"]
 
 [params]
 

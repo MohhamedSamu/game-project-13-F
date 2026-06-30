@@ -1,9 +1,8 @@
-[gd_scene load_steps=43 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=47 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
 [ext_resource type="PackedScene" uid="uid://duud6tvy4wnso" path="res://scenes/map/iglesia.tscn" id="3_y2gk5"]
-[ext_resource type="PackedScene" uid="uid://bwe7kke14n0cd" path="res://scenes/characters/clown/clown_enemy.tscn" id="4_clown"]
 [ext_resource type="PackedScene" uid="uid://c8inviswall01" path="res://scenes/collision/invisible_wall.tscn" id="4_wikm6"]
 [ext_resource type="AudioStream" uid="uid://bjhqstyl7ynj0" path="res://assets/audio/SFX/door/Creaking_Door_7.mp3" id="4_wwjag"]
 [ext_resource type="PackedScene" uid="uid://d1vhu4ikpiebu" path="res://scenes/props/flashlight.tscn" id="5_flash"]
@@ -28,7 +27,9 @@
 [ext_resource type="Script" uid="uid://b0vsytimkedpu" path="res://scripts/environment/sky3d_project_profile.gd" id="23_profile"]
 [ext_resource type="PackedScene" uid="uid://hp3o3xt5df7s" path="res://scenes/characters/gas_station_npc/gas_station_npc.tscn" id="27_mx6s3"]
 [ext_resource type="PackedScene" uid="uid://c8k3goldkey01" path="res://scenes/props/key_gold/key_gold.tscn" id="29_r6ket"]
+[ext_resource type="PackedScene" uid="uid://fppwy0hngyjr" path="res://scenes/props/instructions_book.tscn" id="30_wk7pi"]
 [ext_resource type="PackedScene" uid="uid://c02jtkmk56p72" path="res://scenes/characters/clown/clown.tscn" id="30_xworo"]
+[ext_resource type="PackedScene" uid="uid://dakec3lcbbv7y" path="res://scenes/jumpscare/flashlight_jumpscare_setup.tscn" id="31_flash_js"]
 [ext_resource type="PackedScene" uid="uid://qaglqwcm6djo" path="res://scenes/jumpscare/soft_jumpscare_setup.tscn" id="31_rvwo1"]
 [ext_resource type="PackedScene" uid="uid://cvl7jes7ecmi3" path="res://scenes/props/streetlamp/streetlamp_configurable.tscn" id="31_wwjag"]
 [ext_resource type="Resource" uid="uid://bnfp7cjx823mb" path="res://dialogues/demo/clown_jumpscare_easter_egg.dialogue" id="32_rvwo1"]
@@ -38,6 +39,9 @@
 [ext_resource type="Script" uid="uid://b44m4nskn4uyr" path="res://scripts/narrative/level_intro_setup.gd" id="36_intro_setup"]
 [ext_resource type="Resource" uid="uid://cwd4fs3obmbxp" path="res://resources/narrative/level_2_intro.tres" id="37_level2_intro"]
 [ext_resource type="PackedScene" uid="uid://bu41qfrfnvo41" path="res://scenes/props/trees/tree_pack_prop.tscn" id="38_s7kn7"]
+[ext_resource type="PackedScene" uid="uid://drsolq08dtekl" path="res://scenes/characters/polceNpc/policeNpc.tscn" id="40_yqg3d"]
+[ext_resource type="Resource" uid="uid://lgrw7g6xd3py" path="res://dialogues/scene1PoliceNpc.dialogue" id="41_2e0t0"]
+[ext_resource type="Script" uid="uid://qk8ema8mgfum" path="res://scripts/narrative/scene1_police_exit_walk.gd" id="42_exitwalk"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wwjag"]
 shader = ExtResource("12_lkn2k")
@@ -76,7 +80,7 @@ shader_parameter/starmap_flip_u = false
 shader_parameter/starmap_flip_v = false
 shader_parameter/starmap_alignment = Vector3(2.68288, -0.25891, 0.40101)
 shader_parameter/star_rotation_offset = 9.38899
-shader_parameter/star_rotation = -11.5094
+shader_parameter/star_rotation = -11.2469
 shader_parameter/star_tilt = -1.29154
 shader_parameter/star_field_color = Color(1, 1, 1, 1)
 shader_parameter/star_field_texture = ExtResource("18_1a10c")
@@ -92,8 +96,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.25013, 0.25013)
-shader_parameter/cirrus_position2 = Vector2(0.25013, 0.25013)
+shader_parameter/cirrus_position1 = Vector2(0.101098, 0.101097)
+shader_parameter/cirrus_position2 = Vector2(0.101098, 0.101097)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -103,7 +107,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(1.25054, 1.25054)
+shader_parameter/cumulus_position = Vector2(0.50544, 0.505439)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -113,7 +117,7 @@ shader_parameter/azimuthal_grid_rotation_offset = 0.03
 shader_parameter/show_equatorial_grid = false
 shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
 shader_parameter/equatorial_grid_rotation_offset = 0.03
-shader_parameter/moon_matrix = Basis(0.998231, -0.0571537, -0.0163886, 0.0248064, 0.650846, -0.758804, 0.0540349, 0.757055, 0.651112)
+shader_parameter/moon_matrix = Basis(0.951846, -0.294701, -0.084504, 0.128605, 0.634033, -0.762537, 0.278298, 0.71495, 0.641402)
 
 [sub_resource type="Sky" id="Sky_rvwo1"]
 sky_material = SubResource("ShaderMaterial_wwjag")
@@ -257,15 +261,17 @@ transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 101.552,
 wall_length = 25.0
 wall_height = 5.0
 
+[node name="InvisibleWallSuper13" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, -16.7722, 0.0497312, 38.5747)
+wall_length = 25.0
+wall_height = 5.0
+
 [node name="Iglesia" parent="." instance=ExtResource("3_y2gk5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.222, -0.00352758, 26.2195)
 
 [node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
 transform = Transform3D(-0.999224, 0, -0.0393646, 0, 1, 0, 0.0393646, 0, -0.999224, 99.5419, 0.395215, 20.4431)
 slide_on_ceiling = false
-
-[node name="ClownEnemy" parent="." instance=ExtResource("4_clown")]
-transform = Transform3D(-0.742982, 0, -0.669312, 0, 1, 0, 0.669312, 0, -0.742982, 11.339, 0, 25.28)
 
 [node name="InGameHUD" parent="." instance=ExtResource("6_hud")]
 
@@ -486,25 +492,25 @@ camera_attributes = SubResource("CameraAttributesPractical_joiyc")
 script = ExtResource("20_7d3nu")
 editor_time_enabled = false
 game_time_enabled = false
-current_time = 13.0
+current_time = 12.0
 wind_direction = 2.35619
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
 [node name="SunLight" type="DirectionalLight3D" parent="Sky3D"]
-transform = Transform3D(0.916033, 0.296292, -0.270361, 0, 0.674043, 0.738692, 0.401103, -0.676666, 0.617446, -0.270361, 0.738692, 0.617446)
+transform = Transform3D(0.998591, 0.0412319, -0.033396, 0, 0.629401, 0.777081, 0.05306, -0.775986, 0.628514, -0.033396, 0.777081, 0.628514)
 shadow_enabled = true
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D"]
-transform = Transform3D(0, -0.998539, 0.0540349, 0.652065, 0.0409673, 0.757055, -0.758163, 0.0352343, 0.651112, 0.0540349, 0.757055, 0.651112)
+transform = Transform3D(0, -0.960495, 0.278298, 0.667783, 0.207153, 0.71495, -0.744356, 0.185843, 0.641402, 0.278298, 0.71495, 0.641402)
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 
 [node name="SkyDome" type="Node" parent="Sky3D"]
 script = ExtResource("21_r6ket")
-sun_azimuth = -3.55431
-sun_altitude = -0.739669
-moon_azimuth = -3.05879
-moon_altitude = -0.712002
+sun_azimuth = -3.19468
+sun_altitude = -0.680782
+moon_azimuth = -2.73222
+moon_altitude = -0.774244
 wind_direction = 2.35619
 
 [node name="TimeOfDay" type="Node" parent="Sky3D"]
@@ -512,7 +518,7 @@ script = ExtResource("22_xworo")
 editor_time_enabled = false
 game_time_enabled = false
 dome_path = NodePath("../SkyDome")
-current_time = 13.0
+current_time = 12.0
 
 [node name="ProjectProfile" type="Node" parent="Sky3D"]
 script = ExtResource("23_profile")
@@ -588,30 +594,13 @@ initial_mode = 2
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.61151, 3.39228e-07, 0.45255)
 
 [node name="flashlight" parent="Props" instance=ExtResource("5_flash")]
-transform = Transform3D(0.994098, 0, 0.108485, 0, 1, 0, -0.108485, 0, 0.994098, 87.3297, 1.12709, 22.3817)
+transform = Transform3D(0.994098, 0, 0.108485, 0, 1, 0, -0.108485, 0, 0.994098, 82.37, 0.0693585, 22.6941)
 
 [node name="camera" parent="Props" instance=ExtResource("7_cam")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -70.0538, 0.0360137, 26.8067)
 
-[node name="EasterEggJumpscare" type="Node3D" parent="."]
-
-[node name="ScareClown" parent="EasterEggJumpscare" instance=ExtResource("30_xworo")]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -2.37652, 0.1432, -27.5561)
-autoplay_on_ready = false
-
-[node name="SoftJumpscareSetup" parent="EasterEggJumpscare" instance=ExtResource("31_rvwo1")]
-transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -4.99839, 0.00312232, -26.0266)
-audio_tier = 1
-dialogue_resource = ExtResource("32_rvwo1")
-scare_actor_path = NodePath("../ScareClown")
-run_animation = "scary_clown_walk"
-dialogue_animation = "scary_clown_idle"
-after_dialogue_animation = "female_dance_pose"
-
-[node name="LampSequence" type="Node" parent="EasterEggJumpscare"]
-script = ExtResource("33_lampseq")
-lamp_path = NodePath("../../StreetLamps/StreetLampConfigurable6")
-jumpscare_path = NodePath("../SoftJumpscareSetup")
+[node name="InstructionsBook1" parent="Props" instance=ExtResource("30_wk7pi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 99.6606, 0.1, 24.2167)
 
 [node name="NarrativeSetup" type="Node" parent="."]
 script = ExtResource("34_narrative")
@@ -623,14 +612,67 @@ script = ExtResource("36_intro_setup")
 intro_sequence = ExtResource("37_level2_intro")
 scene_profile = ExtResource("35_level2_scenes")
 
-[node name="TreePackProp" parent="." instance=ExtResource("38_s7kn7")]
+[node name="fallenTrees" type="Node3D" parent="."]
+
+[node name="TreePackProp" parent="fallenTrees" instance=ExtResource("38_s7kn7")]
 transform = Transform3D(0.992565, 5.32026e-09, 0.121713, 0.121713, -4.33864e-08, -0.992565, 0, 1, -4.37114e-08, 103.337, 0.650075, 19.7513)
 tree_variant = &"Tree_6"
 
-[node name="TreePackProp3" parent="." instance=ExtResource("38_s7kn7")]
-transform = Transform3D(0.784769, -0.612273, 0.0962324, 0.121713, -4.6633e-08, -0.992565, 0.60772, 0.790647, 0.0745218, 60.2728, 0.650075, 2.38001)
-tree_variant = &"Tree"
-
-[node name="TreePackProp2" parent="." instance=ExtResource("38_s7kn7")]
+[node name="TreePackProp2" parent="fallenTrees" instance=ExtResource("38_s7kn7")]
 transform = Transform3D(-0.958745, -0.258819, -0.117566, 0.121713, -4.33864e-08, -0.992565, 0.256895, -0.965926, 0.0315018, 97.0583, -1.77317, 36.4564)
 tree_variant = &"Tree_1"
+
+[node name="Jumpscares" type="Node3D" parent="."]
+
+[node name="EasterEggJumpscare" type="Node3D" parent="Jumpscares"]
+
+[node name="ScareClown" parent="Jumpscares/EasterEggJumpscare" instance=ExtResource("30_xworo")]
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -2.37652, 0.1432, -27.5561)
+autoplay_on_ready = false
+
+[node name="SoftJumpscareSetup" parent="Jumpscares/EasterEggJumpscare" instance=ExtResource("31_rvwo1")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, -4.99839, 0.00312232, -26.0266)
+audio_tier = 1
+dialogue_resource = ExtResource("32_rvwo1")
+scare_actor_path = NodePath("../ScareClown")
+run_animation = "scary_clown_walk"
+dialogue_animation = "scary_clown_idle"
+after_dialogue_animation = "female_dance_pose"
+
+[node name="LampSequence" type="Node" parent="Jumpscares/EasterEggJumpscare"]
+script = ExtResource("33_lampseq")
+lamp_path = NodePath("../../../StreetLamps/StreetLampConfigurable6")
+jumpscare_path = NodePath("../SoftJumpscareSetup")
+
+[node name="Scene1FlashlightPickup" type="Node3D" parent="Jumpscares"]
+
+[node name="NightSkyLookTarget" type="Marker3D" parent="Jumpscares/Scene1FlashlightPickup"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39.325, 8.46172, 26.5)
+
+[node name="JuanExitPath" type="Node3D" parent="Jumpscares/Scene1FlashlightPickup"]
+
+[node name="JuanExitWP1_BetweenTrees" type="Marker3D" parent="Jumpscares/Scene1FlashlightPickup/JuanExitPath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 89.9786, 0.01, 22.4793)
+
+[node name="JuanExitWP2_UnderLamp" type="Marker3D" parent="Jumpscares/Scene1FlashlightPickup/JuanExitPath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.8151, 0.01, 30.4678)
+
+[node name="JuanExitWP3_RoadEnd" type="Marker3D" parent="Jumpscares/Scene1FlashlightPickup/JuanExitPath"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 170, 0.01, 28.8157)
+
+[node name="Scene1PoliceExitWalk" type="Node" parent="Jumpscares/Scene1FlashlightPickup"]
+script = ExtResource("42_exitwalk")
+
+[node name="PoliceNpc" parent="Jumpscares/Scene1FlashlightPickup" instance=ExtResource("40_yqg3d")]
+transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 81.884, 0.0101732, 28.5797)
+
+[node name="FlashlightJumpscareSetup" parent="Jumpscares/Scene1FlashlightPickup" instance=ExtResource("31_flash_js")]
+transform = Transform3D(-0.471782, 0, -0.881716, 0, 1, 0, 0.881716, 0, -0.471782, 82.0975, 0.00312232, 22.998)
+audio_tier = 1
+spawn_side = 2
+dialogue_resource = ExtResource("41_2e0t0")
+scare_actor_path = NodePath("../PoliceNpc")
+run_animation = "running"
+dialogue_animation = "breathing_idle"
+after_dialogue_animation = "start_walking"
+exit_after_dialogue = false

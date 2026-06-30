@@ -26,7 +26,7 @@ func _ready() -> void:
 		config_module.connect("back_pressed", Callable(self, "_close_options"))
 
 func _unhandled_input(event: InputEvent) -> void:
-	if GameManager.level_intro_active:
+	if GameManager.level_intro_active or GameManager.instructions_overlay_active:
 		return
 	if event.is_action_pressed("ui_cancel"): # ESC por defecto
 		get_viewport().set_input_as_handled()

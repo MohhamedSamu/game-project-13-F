@@ -12,6 +12,9 @@ enum LightMode {
 @export_group("UI")
 @export var pickup_prompt: String = "[E] Recoger linterna"
 
+@export_group("Identity")
+@export var item_id: StringName = &"flashlight"
+
 @export_group("En la mano")
 @export var hold_offset: Vector3 = Vector3(0.12, -0.08, -0.18)
 @export var hold_rotation_deg: Vector3 = Vector3(0.0, 180.0, 0.0)
@@ -69,6 +72,7 @@ func _ready() -> void:
 	_disable_mesh_shadow_casting()
 	_apply_lights_ground_transform()
 	_apply_light_state()
+	InteractableHighlight.ensure_on(self)
 
 
 func _process(_delta: float) -> void:
@@ -122,7 +126,12 @@ func get_interaction_prompt() -> String:
 	return pickup_prompt
 
 
+func get_item_id() -> StringName:
+	return item_id
+
+
 func pickup_to_hand(hand: Node3D) -> void:
+	_set_interaction_highlight(false)
 	if _rb == null:
 		return
 	var p := get_parent()
@@ -199,6 +208,15 @@ func _basis_beam_along_forward(fwd: Vector3) -> Basis:
 	return Basis(right, up, fwd).orthonormalized()
 
 
+func set_light_mode(mode: LightMode) -> void:
+	_mode = mode
+	_apply_light_state()
+
+
+func force_near_light() -> void:
+	set_light_mode(LightMode.NEAR)
+
+
 func toggle_spotlight() -> void:
 	match _mode:
 		LightMode.FAR:
@@ -218,3 +236,9 @@ func get_light_mode_label() -> String:
 			return "Cercana"
 		_:
 			return "Apagada"
+
+
+func _set_interaction_highlight(active: bool) -> void:
+	var highlight := find_child("InteractableHighlight", true, false)
+	if highlight != null and highlight.has_method("set_highlight"):
+		highlight.set_highlight(active)

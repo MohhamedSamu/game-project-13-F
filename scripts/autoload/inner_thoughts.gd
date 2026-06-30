@@ -32,6 +32,8 @@ func show_thought(text: String, duration: float = DEFAULT_DURATION) -> void:
 		return
 	if GameManager.dialogue_active or GameManager.minigame_active or GameManager.level_intro_active:
 		return
+	if GameManager.instructions_overlay_active:
+		return
 
 	var display_text := text.to_lower() if lowercase_text else text
 	if _anchor.visible and _current_text == display_text:

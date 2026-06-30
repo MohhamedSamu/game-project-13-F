@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://8sd4r3k73mon"
 path.s3tc="res://.godot/imported/Character_09.png-131e6720a77de833809fcd761bebc7ad.s3tc.ctex"
+path.etc2="res://.godot/imported/Character_09.png-131e6720a77de833809fcd761bebc7ad.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/characters/character_npc_gas_station/Character_09.png"
-dest_files=["res://.godot/imported/Character_09.png-131e6720a77de833809fcd761bebc7ad.s3tc.ctex"]
+dest_files=["res://.godot/imported/Character_09.png-131e6720a77de833809fcd761bebc7ad.s3tc.ctex", "res://.godot/imported/Character_09.png-131e6720a77de833809fcd761bebc7ad.etc2.ctex"]
 
 [params]
 

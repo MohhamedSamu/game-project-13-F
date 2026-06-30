@@ -24,11 +24,16 @@ enum ArrivalMode {
 	MARKER,
 }
 
+const SPAWN_SIDE_MARKER := 0
+const SPAWN_SIDE_PLAYER_RIGHT := 1
+const SPAWN_SIDE_PLAYER_LEFT := 2
+
 @export_group("Audio")
 ## Solo soft o medium. Hard queda reservado para jumpscares letales.
 @export var audio_tier: AllowedAudioTier = AllowedAudioTier.SOFT
 
 @export_group("Trigger")
+@export var use_trigger_zone: bool = true
 @export var trigger_once: bool = true
 ## Si no está vacío, no se repite tras activarse (persistente en GameManager).
 @export var trigger_flag: String = ""
@@ -45,6 +50,11 @@ enum ArrivalMode {
 @export var arrival_mode: ArrivalMode = ArrivalMode.PLAYER_RELATIVE
 @export_range(0.5, 4.0, 0.1) var arrival_distance: float = 1.6
 @export var face_player_on_arrival: bool = true
+
+@export_group("Spawn del actor")
+@export_enum("Spawn Marker:0", "Player Right:1", "Player Left:2") var spawn_side: int = SPAWN_SIDE_MARKER
+@export_range(0.5, 12.0, 0.1) var spawn_lateral_distance: float = 3.0
+@export_range(-8.0, 8.0, 0.1) var spawn_forward_offset: float = 1.2
 ## Ajuste fino extra (normalmente 0; Mixamo ya se corrige en código).
 @export_range(-180.0, 180.0, 1.0) var actor_yaw_offset_deg: float = 0.0
 @export_range(1.0, 2.5, 0.05) var actor_focus_height: float = 1.55
@@ -116,13 +126,28 @@ func _ready() -> void:
 	_hide_editor_gizmos()
 	call_deferred("_hide_actor_until_trigger")
 	if _trigger_zone != null:
-		_trigger_zone.player_entered.connect(_on_player_entered_trigger)
+		if use_trigger_zone:
+			_trigger_zone.player_entered.connect(_on_player_entered_trigger)
+		else:
+			_trigger_zone.monitoring = false
 
 
-func _hide_editor_gizmos() -> void:
-	var arrival_gizmo := get_node_or_null("ScareArrivalPoint/ArrivalGizmo") as Node3D
-	if arrival_gizmo != null:
-		arrival_gizmo.visible = false
+func trigger_jumpscare(player: Node3D = null) -> void:
+	if Engine.is_editor_hint():
+		return
+	if _triggered and trigger_once:
+		return
+	if GameManager.dialogue_active or GameManager.minigame_active or GameManager.level_intro_active:
+		return
+	if player == null:
+		player = GameManager.get_player() as Node3D
+	if player == null:
+		return
+	_run_soft_jumpscare(player)
+
+
+func _on_player_entered_trigger(player: Node3D) -> void:
+	trigger_jumpscare(player)
 
 
 func _notification(what: int) -> void:
@@ -160,9 +185,18 @@ func _snap_node_to_spawn(target: Node3D) -> void:
 		return
 	spawn_xf.origin = _project_to_floor(spawn_xf.origin)
 	if target.is_inside_tree() and _spawn_point.is_inside_tree():
-		target.global_transform = spawn_xf
+		_apply_spawn_transform(target, spawn_xf, true)
 	elif target.get_parent() == _spawn_point.get_parent():
-		target.transform = spawn_xf
+		_apply_spawn_transform(target, spawn_xf, false)
+
+
+func _apply_spawn_transform(target: Node3D, spawn_xf: Transform3D, use_global: bool) -> void:
+	if use_global:
+		target.global_position = spawn_xf.origin
+		target.global_rotation = spawn_xf.basis.get_euler()
+	else:
+		target.position = spawn_xf.origin
+		target.rotation = spawn_xf.basis.get_euler()
 
 
 func _update_actor_preview_visibility() -> void:
@@ -185,6 +219,12 @@ func _load_trigger_state() -> void:
 		_triggered = true
 
 
+func _hide_editor_gizmos() -> void:
+	var arrival_gizmo := get_node_or_null("ScareArrivalPoint/ArrivalGizmo") as Node3D
+	if arrival_gizmo != null:
+		arrival_gizmo.visible = false
+
+
 func _hide_actor_until_trigger() -> void:
 	if not is_inside_tree():
 		return
@@ -195,16 +235,6 @@ func _hide_actor_until_trigger() -> void:
 	_set_actor_visible(false)
 	if _actor_preview != null:
 		_actor_preview.visible = false
-
-
-func _on_player_entered_trigger(player: Node3D) -> void:
-	if Engine.is_editor_hint():
-		return
-	if _triggered and trigger_once:
-		return
-	if GameManager.dialogue_active or GameManager.minigame_active:
-		return
-	_run_soft_jumpscare(player)
 
 
 func _run_soft_jumpscare(player: Node3D) -> void:
@@ -230,7 +260,7 @@ func _run_soft_jumpscare_async(player: Node3D) -> void:
 		GameManager.set_flag(trigger_flag, true)
 
 	var arrival := _compute_arrival_position(player)
-	_snap_node_to_spawn(actor)
+	_place_actor_at_spawn(actor, player)
 	if face_player_on_arrival and actor.is_inside_tree():
 		_face_actor_toward(actor, arrival)
 
@@ -390,14 +420,53 @@ func _compute_arrival_position(player: Node3D) -> Vector3:
 	elif not player.is_inside_tree():
 		arrival = global_position
 	else:
-		var forward := -player.global_transform.basis.z
-		forward.y = 0.0
-		if forward.length_squared() < 0.0001:
-			forward = Vector3.FORWARD
-		else:
-			forward = forward.normalized()
+		var forward := _player_flat_forward(player)
 		arrival = player.global_position + forward * arrival_distance
 	return _project_to_floor(arrival)
+
+
+func _place_actor_at_spawn(actor: Node3D, player: Node3D) -> void:
+	if actor == null:
+		return
+	var side := _normalized_spawn_side()
+	if side == SPAWN_SIDE_MARKER or player == null or not player.is_inside_tree():
+		_snap_node_to_spawn(actor)
+		return
+	var lateral := _player_flat_right(player)
+	var side_sign := 1.0 if side == SPAWN_SIDE_PLAYER_RIGHT else -1.0
+	var forward := _player_flat_forward(player)
+	var spawn_pos := (
+		player.global_position
+		+ lateral * spawn_lateral_distance * side_sign
+		+ forward * spawn_forward_offset
+	)
+	spawn_pos = _project_to_floor(spawn_pos)
+	if actor.is_inside_tree():
+		actor.global_position = spawn_pos
+		if _spawn_point != null and _spawn_point.is_inside_tree():
+			actor.global_rotation = _spawn_point.global_rotation
+
+
+func _normalized_spawn_side() -> int:
+	if spawn_side == SPAWN_SIDE_PLAYER_RIGHT or spawn_side == SPAWN_SIDE_PLAYER_LEFT:
+		return spawn_side
+	return SPAWN_SIDE_MARKER
+
+
+func _player_flat_forward(player: Node3D) -> Vector3:
+	var forward := -player.global_transform.basis.z
+	forward.y = 0.0
+	if forward.length_squared() < 0.0001:
+		return Vector3.FORWARD
+	return forward.normalized()
+
+
+func _player_flat_right(player: Node3D) -> Vector3:
+	var right := player.global_transform.basis.x
+	right.y = 0.0
+	if right.length_squared() < 0.0001:
+		return Vector3.RIGHT
+	return right.normalized()
 
 
 func _project_to_floor(world_pos: Vector3) -> Vector3:
@@ -426,7 +495,7 @@ func _face_actor_toward(actor: Node3D, world_target: Vector3) -> void:
 		return
 	var look_basis := Basis.looking_at(direction.normalized(), Vector3.UP)
 	look_basis = look_basis.rotated(Vector3.UP, _MIXAMO_YAW_CORRECTION + deg_to_rad(actor_yaw_offset_deg))
-	actor.global_transform = Transform3D(look_basis, pos)
+	actor.global_rotation = look_basis.get_euler()
 
 
 func _play_random_scream() -> void:

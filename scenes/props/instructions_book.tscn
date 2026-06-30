@@ -1,0 +1,25 @@
+[gd_scene load_steps=4 format=3 uid="uid://fppwy0hngyjr"]
+
+[ext_resource type="Script" uid="uid://2a3f2to11mwr" path="res://scripts/props/instructions_book_pickup.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://bgfdaowg13sh4" path="res://assets/models/props/Book.fbx" id="2_book"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_book"]
+size = Vector3(1.14844, 0.296631, 0.820068)
+
+[node name="InstructionsBook" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="RigidBody3D" type="RigidBody3D" parent="."]
+mass = 0.35
+continuous_cd = true
+linear_damp = 0.8
+angular_damp = 0.85
+
+[node name="Model" type="Node3D" parent="RigidBody3D"]
+transform = Transform3D(0.1, 0, 0, 0, 0.1, 0, 0, 0, 0.1, 0, 0, 0)
+
+[node name="BookMesh" parent="RigidBody3D/Model" instance=ExtResource("2_book")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0491943, 0.00456607, 0)
+shape = SubResource("BoxShape3D_book")

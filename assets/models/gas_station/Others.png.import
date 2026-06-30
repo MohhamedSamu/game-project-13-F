@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://bu4pdb2akjsxw"
 path.s3tc="res://.godot/imported/Others.png-efd57d1c1127bfdec54eba38d65c113c.s3tc.ctex"
+path.etc2="res://.godot/imported/Others.png-efd57d1c1127bfdec54eba38d65c113c.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Others.png"
-dest_files=["res://.godot/imported/Others.png-efd57d1c1127bfdec54eba38d65c113c.s3tc.ctex"]
+dest_files=["res://.godot/imported/Others.png-efd57d1c1127bfdec54eba38d65c113c.s3tc.ctex", "res://.godot/imported/Others.png-efd57d1c1127bfdec54eba38d65c113c.etc2.ctex"]
 
 [params]
 

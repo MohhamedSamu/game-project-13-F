@@ -8,6 +8,7 @@ signal dialogue_beat_played(npc_id: String, beat_id: String)
 var dialogue_active: bool = false
 var minigame_active: bool = false
 var level_intro_active: bool = false
+var instructions_overlay_active: bool = false
 var player: Node = null
 var has_met_clown: bool = false
 var flags: Dictionary = {}
@@ -273,12 +274,41 @@ func lock_player() -> void:
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
+
+func lock_player_for_instructions() -> void:
+	_set_crosshair_dialogue_hidden(true)
+	InnerThoughts.hide_thought()
+
+	if player and player.has_method("stop_movement_immediately"):
+		player.stop_movement_immediately()
+
+	if player and player.has_method("set_input_enabled"):
+		player.set_input_enabled(false)
+
+	if player and player.has_method("release_mouse"):
+		player.release_mouse()
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+
+
 func unlock_player() -> void:
 	dialogue_active = false
 	_set_crosshair_dialogue_hidden(false)
 
 	if player and player.has_method("clear_camera_focus"):
 		player.clear_camera_focus()
+
+	if player and player.has_method("set_input_enabled"):
+		player.set_input_enabled(true)
+
+	if player and player.has_method("capture_mouse"):
+		player.capture_mouse()
+	else:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+
+func unlock_player_from_instructions() -> void:
+	_set_crosshair_dialogue_hidden(false)
 
 	if player and player.has_method("set_input_enabled"):
 		player.set_input_enabled(true)

@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://upevy62m70ss"
 path.s3tc="res://.godot/imported/Sweets_others.jpg-0f820debc8f64a84884d6332736f694e.s3tc.ctex"
+path.etc2="res://.godot/imported/Sweets_others.jpg-0f820debc8f64a84884d6332736f694e.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Sweets_others.jpg"
-dest_files=["res://.godot/imported/Sweets_others.jpg-0f820debc8f64a84884d6332736f694e.s3tc.ctex"]
+dest_files=["res://.godot/imported/Sweets_others.jpg-0f820debc8f64a84884d6332736f694e.s3tc.ctex", "res://.godot/imported/Sweets_others.jpg-0f820debc8f64a84884d6332736f694e.etc2.ctex"]
 
 [params]
 

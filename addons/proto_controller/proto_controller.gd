@@ -5,6 +5,8 @@
 
 extends CharacterBody3D
 
+signal pickup_acquired(pickup: Node3D, item_id: StringName)
+
 ## Can we move around?
 @export var can_move : bool = true
 ## Are we affected by gravity?
@@ -124,12 +126,15 @@ var minigame_mode: bool = false
 var _external_camera: Camera3D = null
 var _saved_body_visible: bool = true
 var camera_focus_target: Node3D = null
+var camera_focus_world_point: Vector3 = Vector3.ZERO
+var camera_focus_world_active: bool = false
 var focusing_camera: bool = false
 var repositioning_for_dialogue: bool = false
 var dialogue_reposition_goal: Vector3 = Vector3.ZERO
 var _interaction_crosshair: Control
 var _held_pickup: Node3D
 var _focus_interactable: Node
+var _highlighted_interactable: Node
 
 ## IMPORTANT REFERENCES
 @onready var head: Node3D = $Head
@@ -171,10 +176,24 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if minigame_mode:
 		return
+	# Libro en la mano: clic abre las instrucciones (cerrar: overlay con clic o [E]).
+	if (
+		not GameManager.instructions_overlay_active
+		and input_enabled
+		and _held_pickup != null
+		and _held_pickup.has_method("use_held_item")
+		and event is InputEventMouseButton
+		and event.pressed
+		and event.button_index == MOUSE_BUTTON_LEFT
+	):
+		_held_pickup.use_held_item()
+		get_viewport().set_input_as_handled()
+		return
 	# Mouse capturing (no recapturar durante diálogo: el ratón debe seguir visible).
 	if (
 		not GameManager.dialogue_active
 		and not GameManager.level_intro_active
+		and not GameManager.instructions_overlay_active
 		and input_enabled
 		and not minigame_mode
 		and event is InputEventMouseButton
@@ -207,7 +226,7 @@ func _physics_process(delta: float) -> void:
 		if Input.is_action_just_pressed(input_drop_item):
 			_try_drop_held()
 		if Input.is_action_just_pressed(input_flashlight_toggle):
-			_try_toggle_held_flashlight()
+			_try_use_held_item()
 
 	if not input_enabled:
 		if repositioning_for_dialogue:
@@ -395,7 +414,10 @@ func _update_interaction_focus() -> void:
 	_focus_interactable = null
 	_ensure_crosshair_ref()
 	if GameManager.dialogue_active:
-		_apply_crosshair_ui(false, "")
+		_clear_interaction_focus_ui()
+		return
+	if GameManager.instructions_overlay_active:
+		_clear_interaction_focus_ui()
 		return
 	var focus: Node = null
 	var hit := _interaction_raycast()
@@ -409,13 +431,19 @@ func _update_interaction_focus() -> void:
 	if focus == null:
 		focus = _find_nearby_pickup_aim()
 	if focus == null:
-		_apply_crosshair_ui(false, "")
+		if _held_pickup != null and _held_pickup.has_method("get_use_prompt"):
+			var use_prompt: Variant = _held_pickup.get_use_prompt()
+			if use_prompt is String and not (use_prompt as String).is_empty():
+				_apply_crosshair_ui(true, use_prompt as String)
+				_apply_interaction_highlight(null)
+				return
+		_clear_interaction_focus_ui()
 		return
 	if focus.has_method("can_interact") and not focus.can_interact():
-		_apply_crosshair_ui(false, "")
+		_clear_interaction_focus_ui()
 		return
 	if focus.is_in_group("pickup") and not _is_pickup_aimed_at(focus):
-		_apply_crosshair_ui(false, "")
+		_clear_interaction_focus_ui()
 		return
 	_focus_interactable = focus
 	var prompt: String = ""
@@ -424,6 +452,32 @@ func _update_interaction_focus() -> void:
 	else:
 		prompt = _interaction_prompt(focus)
 	_apply_crosshair_ui(true, prompt)
+	_apply_interaction_highlight(focus if focus.is_in_group("pickup") else null)
+
+
+func _clear_interaction_focus_ui() -> void:
+	_apply_crosshair_ui(false, "")
+	_apply_interaction_highlight(null)
+
+
+func _apply_interaction_highlight(focus: Node) -> void:
+	if _highlighted_interactable == focus:
+		return
+	if _highlighted_interactable != null:
+		_set_interactable_highlight(_highlighted_interactable, false)
+	_highlighted_interactable = focus
+	if focus != null:
+		_set_interactable_highlight(focus, true)
+
+
+func _set_interactable_highlight(node: Node, active: bool) -> void:
+	if node == null:
+		return
+	var highlight := node.find_child("InteractableHighlight", true, false)
+	if highlight != null and highlight.has_method("set_highlight"):
+		highlight.set_highlight(active)
+	elif node.has_method("set_interaction_highlight"):
+		node.set_interaction_highlight(active)
 
 
 func _is_aiming_at_dialogue_focus(interactable: Node) -> bool:
@@ -596,6 +650,8 @@ func _apply_crosshair_ui(active: bool, prompt: String) -> void:
 
 
 func _try_interact_focused() -> void:
+	if _try_toggle_held_instructions():
+		return
 	if _focus_interactable == null:
 		return
 	if _focus_interactable.has_method("can_interact") and not _focus_interactable.can_interact():
@@ -608,9 +664,21 @@ func _try_interact_focused() -> void:
 	):
 		_focus_interactable.pickup_to_hand(hand_right)
 		_held_pickup = _focus_interactable as Node3D
+		pickup_acquired.emit(_held_pickup, _resolve_pickup_item_id(_held_pickup))
 		return
 	if _focus_interactable.has_method("interact"):
 		_focus_interactable.interact()
+
+
+func _try_toggle_held_instructions() -> bool:
+	if _held_pickup == null or not _held_pickup.has_method("use_held_item"):
+		return false
+	if GameManager.instructions_overlay_active:
+		return false
+	if _focus_interactable != null and _focus_interactable != _held_pickup:
+		return false
+	_held_pickup.use_held_item()
+	return true
 
 
 func _try_drop_held() -> void:
@@ -625,9 +693,18 @@ func _try_drop_held() -> void:
 		_held_pickup = null
 
 
-func _try_toggle_held_flashlight() -> void:
-	if _held_pickup != null and _held_pickup.has_method("toggle_spotlight"):
+func _try_use_held_item() -> void:
+	if _held_pickup == null or GameManager.instructions_overlay_active:
+		return
+	if _held_pickup.has_method("toggle_spotlight"):
 		_held_pickup.toggle_spotlight()
+
+
+func force_held_flashlight_near() -> void:
+	if _held_pickup == null:
+		return
+	if _held_pickup.has_method("force_near_light"):
+		_held_pickup.force_near_light()
 
 
 func is_holding_item(item_id: StringName) -> bool:
@@ -648,6 +725,16 @@ func consume_held_item(item_id: StringName) -> bool:
 	if is_instance_valid(item):
 		item.queue_free()
 	return true
+
+
+func _resolve_pickup_item_id(pickup: Node3D) -> StringName:
+	if pickup == null:
+		return StringName()
+	if pickup.has_method("get_item_id"):
+		return pickup.get_item_id()
+	if "item_id" in pickup:
+		return pickup.item_id
+	return StringName()
 
 
 func _load_footstep_library() -> void:
@@ -835,11 +922,20 @@ func check_input_mappings():
 		can_freefly = false
 
 func focus_camera_on(target: Node3D) -> void:
+	camera_focus_world_active = false
 	camera_focus_target = target
 	focusing_camera = target != null
 
 
+func focus_camera_on_world_point(world_point: Vector3) -> void:
+	camera_focus_world_active = true
+	camera_focus_world_point = world_point
+	camera_focus_target = null
+	focusing_camera = true
+
+
 func clear_camera_focus() -> void:
+	camera_focus_world_active = false
 	camera_focus_target = null
 	focusing_camera = false
 	clear_dialogue_reposition()
@@ -898,11 +994,14 @@ func _update_dialogue_reposition(delta: float) -> void:
 
 
 func _update_dialogue_camera_focus(delta: float) -> void:
-	if camera_focus_target == null:
+	var target_pos: Vector3
+	if camera_focus_world_active:
+		target_pos = camera_focus_world_point
+	elif camera_focus_target != null:
+		target_pos = camera_focus_target.global_position
+	else:
 		focusing_camera = false
 		return
-
-	var target_pos := camera_focus_target.global_position
 	var camera_pos := camera_3d.global_position
 	var direction := (target_pos - camera_pos).normalized()
 
@@ -921,7 +1020,8 @@ func _update_dialogue_camera_focus(delta: float) -> void:
 	head.rotate_x(look_rotation.x)
 
 	if (
-		abs(angle_difference(look_rotation.y, target_yaw)) < dialogue_focus_stop_threshold
+		not camera_focus_world_active
+		and abs(angle_difference(look_rotation.y, target_yaw)) < dialogue_focus_stop_threshold
 		and abs(angle_difference(look_rotation.x, target_pitch)) < dialogue_focus_stop_threshold
 	):
 		focusing_camera = false

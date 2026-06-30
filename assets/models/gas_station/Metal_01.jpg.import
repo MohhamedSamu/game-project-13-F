@@ -4,15 +4,16 @@ importer="texture"
 type="CompressedTexture2D"
 uid="uid://d013uu1h488y2"
 path.s3tc="res://.godot/imported/Metal_01.jpg-c53614abbeb16722a9d2d67c5c226f12.s3tc.ctex"
+path.etc2="res://.godot/imported/Metal_01.jpg-c53614abbeb16722a9d2d67c5c226f12.etc2.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc"],
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/models/gas_station/Metal_01.jpg"
-dest_files=["res://.godot/imported/Metal_01.jpg-c53614abbeb16722a9d2d67c5c226f12.s3tc.ctex"]
+dest_files=["res://.godot/imported/Metal_01.jpg-c53614abbeb16722a9d2d67c5c226f12.s3tc.ctex", "res://.godot/imported/Metal_01.jpg-c53614abbeb16722a9d2d67c5c226f12.etc2.ctex"]
 
 [params]
 

@@ -1,0 +1,88 @@
+[gd_scene load_steps=5 format=3 uid="uid://dne3y5lt04wfc"]
+
+[ext_resource type="Script" path="res://scripts/ui/instructions_overlay.gd" id="1_script"]
+[ext_resource type="FontFile" uid="uid://dqt0hrd2fvvrb" path="res://assets/fonts/jackwrite/Jackwrite.ttf" id="2_font"]
+[ext_resource type="Shader" path="res://assets/shaders/ui_blur_overlay.gdshader" id="3_blur"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_blur"]
+shader = ExtResource("3_blur")
+shader_parameter/blur_scale = 1.75
+shader_parameter/tint_color = Color(0.02, 0.03, 0.06, 0.74)
+
+[node name="InstructionsOverlay" type="CanvasLayer"]
+layer = 115
+script = ExtResource("1_script")
+
+[node name="Root" type="Control" parent="."]
+unique_name_in_owner = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="BackBufferCopy" type="BackBufferCopy" parent="Root"]
+copy_mode = 2
+
+[node name="BlurOverlay" type="ColorRect" parent="Root"]
+material = SubResource("ShaderMaterial_blur")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="ContentAnchor" type="MarginContainer" parent="Root"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -420.0
+offset_top = -220.0
+offset_right = 420.0
+offset_bottom = 220.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 16
+
+[node name="BodyLabel" type="Label" parent="Root/ContentAnchor"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.93, 0.91, 0.86, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 0.55)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 26
+text = "Instrucciones"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="HintLabel" type="Label" parent="Root"]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -220.0
+offset_top = -52.0
+offset_right = 220.0
+offset_bottom = -24.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_colors/font_color = Color(0.62, 0.62, 0.62, 0.95)
+theme_override_fonts/font = ExtResource("2_font")
+theme_override_font_sizes/font_size = 16
+text = "Clic o [E] para cerrar"
+horizontal_alignment = 1
