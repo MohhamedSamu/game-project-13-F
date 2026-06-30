@@ -96,8 +96,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.101098, 0.101097)
-shader_parameter/cirrus_position2 = Vector2(0.101098, 0.101097)
+shader_parameter/cirrus_position1 = Vector2(0.19176, 0.19176)
+shader_parameter/cirrus_position2 = Vector2(0.19176, 0.19176)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -107,7 +107,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.50544, 0.505439)
+shader_parameter/cumulus_position = Vector2(10.9705, 10.9705)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -280,6 +280,7 @@ script = ExtResource("12_seclzone")
 
 [node name="OmniLight3D" type="OmniLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10.368, 7.18185, 18.2344)
+light_energy = 5.0
 omni_range = 10.5357
 
 [node name="SpotLight3D" type="SpotLight3D" parent="iluminacion"]
@@ -452,39 +453,52 @@ omni_range = 9.37149
 
 [node name="OmniLight3D3" type="OmniLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.86712, 3.29084, 5.89729)
+light_energy = 5.0
 omni_range = 15.3476
 
 [node name="OmniLight3D4" type="OmniLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18.1774, 3.29084, 5.89729)
+light_energy = 5.0
 omni_range = 10.7454
 
 [node name="OmniLight3D5" type="OmniLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6.62887, 3.29084, 5.89729)
+light_energy = 5.0
 omni_range = 10.5896
 
 [node name="OmniLight3DSuper1" type="OmniLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1878, 3.32771, -13.6577)
+light_energy = 2.5
 omni_range = 7.79539
 
 [node name="OmniLight3DSuper2" type="OmniLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1878, 3.32771, -17.1317)
+light_energy = 2.5
 omni_range = 7.79539
 
 [node name="OmniLight3DSuper3" type="OmniLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.1878, 3.32771, -20.1683)
+light_energy = 2.5
 omni_range = 7.79539
 
 [node name="OmniLight3DSuperStorage" type="OmniLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.20771, 3.32771, -24.6607)
+light_energy = 2.5
 omni_range = 10.0741
 
 [node name="OmniLight3DSuper4" type="OmniLight3D" parent="iluminacion"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.00012, 3.32771, -18.7588)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.00012, 3.32771, -19.4161)
+light_energy = 2.5
 omni_range = 7.79539
 
 [node name="OmniLight3DSuper5" type="OmniLight3D" parent="iluminacion"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.0393, 2.92036, -15.9113)
 omni_range = 9.56865
+
+[node name="OmniLight3DSuper6" type="OmniLight3D" parent="iluminacion"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8.25777, 3.32771, -14.6039)
+light_energy = 2.5
+omni_range = 7.79539
 
 [node name="Sky3D" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_yxkvy")
