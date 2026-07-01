@@ -58,10 +58,10 @@ const COMPLETION_FLAG := &"bathroom_sink_horror_done"
 @export_range(0.5, 8.0, 0.1) var stream_duration: float = 2.4
 
 @export_group("Iluminación")
-@export_range(0.2, 6.0, 0.1) var horror_light_energy: float = 1.2
+@export_range(0.2, 6.0, 0.1) var horror_light_energy: float = 0.4
 @export var horror_light_color: Color = Color(1.0, 0.78, 0.72, 1.0)
-@export_range(0.05, 1.0, 0.05) var flicker_max_energy_multiplier: float = 0.4
-@export_range(0.01, 0.6, 0.01) var flicker_min_energy_multiplier: float = 0.1
+@export_range(0.05, 1.0, 0.05) var flicker_max_energy_multiplier: float = 0.28
+@export_range(0.01, 0.6, 0.01) var flicker_min_energy_multiplier: float = 0.06
 
 var _camera: Camera3D
 var _stream_markers: Node3D
@@ -72,6 +72,7 @@ var _demonic_laughter_player: AudioStreamPlayer
 var _camera_home_transform: Transform3D
 var _sequence_running: bool = false
 var _interactable: InteractableDialogueComponent
+var _original_bathroom_light_state: Dictionary = {}
 
 
 func _ready() -> void:
@@ -90,6 +91,7 @@ func _ready() -> void:
 	_prepare_creature_hidden()
 	if _interactable != null:
 		_interactable.prompt_text = prompt_text
+	_cache_bathroom_light_state()
 
 
 func can_handle_interaction() -> bool:
@@ -345,6 +347,7 @@ func clear_horror_presentation() -> void:
 	_stop_all_faucet_audio()
 	_stop_horror_audio()
 	_stop_light_flicker()
+	_restore_bathroom_light_state()
 
 
 func _stop_all_streams() -> void:
@@ -492,3 +495,35 @@ func _configure_horror_lights() -> void:
 			continue
 		light.light_energy = horror_light_energy
 		light.light_color = horror_light_color
+
+
+func _cache_bathroom_light_state() -> void:
+	if not _original_bathroom_light_state.is_empty():
+		return
+
+	for light_name: StringName in [&"OmniLight3DBath1", &"OmniLight3DBath2"]:
+		var light := get_node_or_null(NodePath(String(light_name))) as OmniLight3D
+		if light == null:
+			continue
+		_original_bathroom_light_state[light.get_instance_id()] = {
+			"light": light,
+			"energy": light.light_energy,
+			"color": light.light_color,
+		}
+
+
+func _restore_bathroom_light_state() -> void:
+	if _original_bathroom_light_state.is_empty():
+		return
+
+	for entry in _original_bathroom_light_state.values():
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var data := entry as Dictionary
+		var light := data.get("light") as OmniLight3D
+		if light == null:
+			continue
+		if data.has("energy"):
+			light.light_energy = float(data["energy"])
+		if data.has("color"):
+			light.light_color = data["color"]

@@ -19,7 +19,7 @@ const ANIMATION_SOURCES: Dictionary = {
 	"kneeling_down": {
 		"fbx": "res://assets/characters/character_npc_gas_station/animations/Kneeling_Down.fbx",
 		"loop": false,
-		"lock_hips": false,
+		"lock_hips": true,
 	},
 	"kneeling_inspecting": {
 		"fbx": "res://assets/characters/character_npc_gas_station/animations/Kneeling_Inspecting.fbx",

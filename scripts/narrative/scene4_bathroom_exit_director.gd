@@ -12,6 +12,7 @@ const MIXAMO_YAW_CORRECTION := PI
 @export_range(0.5, 2.0, 0.05) var walk_animation_speed_scale: float = 1.0
 @export_range(0.2, 3.0, 0.05) var turn_duration: float = 0.8
 @export_range(0.2, 3.0, 0.05) var door_open_wait: float = 1.0
+@export_range(0.0, 3.0, 0.05) var door_close_advance_seconds: float = 1.5
 @export var idle_animation: StringName = &"idle"
 @export var sitting_animation: StringName = &"sitting"
 @export_range(-1.0, 1.5, 0.01) var sitting_height_offset: float = 0.8
@@ -119,6 +120,13 @@ func enter_toilet_cubicle() -> void:
 	await _turn_npc_over_time(npc, look_target, turn_duration)
 
 	# 5. Sentarse.
+	if door_setup != null:
+		_queue_close_door_before_animation_ends(
+			door_setup,
+			npc,
+			sitting_animation,
+			door_close_advance_seconds
+		)
 	_play_sitting(npc)
 	await _await_animation(npc, sitting_animation)
 	_snap_npc_to_seat(npc, door_inside)
@@ -126,7 +134,7 @@ func enter_toilet_cubicle() -> void:
 
 	# 6. Cerrar puerta y desaparecer.
 	if door_setup != null:
-		await door_setup.close_door_and_wait()
+		await door_setup.wait_for_animation_if_running()
 
 	_finalize_npc_exit(npc)
 	_mark_scene_complete()
@@ -332,6 +340,34 @@ func _await_animation(npc: Node3D, anim_name: StringName) -> void:
 	if animation_player.current_animation != String(anim_name):
 		return
 	await animation_player.animation_finished
+
+
+func _queue_close_door_before_animation_ends(
+	door_setup: DoorInteractSetup,
+	npc: Node3D,
+	anim_name: StringName,
+	advance_seconds: float
+) -> void:
+	if door_setup == null:
+		return
+
+	var animation_player := _get_animation_player(npc)
+	if animation_player == null:
+		door_setup.close_door()
+		return
+
+	var animation := animation_player.get_animation(String(anim_name))
+	if animation == null:
+		door_setup.close_door()
+		return
+
+	var delay := maxf(animation.length - advance_seconds, 0.0)
+	if delay <= 0.0:
+		door_setup.close_door()
+		return
+
+	var timer := get_tree().create_timer(delay)
+	timer.timeout.connect(door_setup.close_door, CONNECT_ONE_SHOT)
 
 
 func _face_horizontal(npc: Node3D, flat_direction: Vector3) -> void:

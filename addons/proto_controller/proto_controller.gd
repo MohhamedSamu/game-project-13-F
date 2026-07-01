@@ -443,8 +443,6 @@ func _update_interaction_focus() -> void:
 	if focus == null:
 		focus = _find_ray_target_aim_interactable()
 	if focus == null:
-		focus = _find_proximity_interactable()
-	if focus == null:
 		focus = _find_nearby_pickup_aim()
 	if focus == null:
 		if _held_pickup != null and _held_pickup.has_method("get_use_prompt"):
@@ -525,18 +523,6 @@ func _find_ray_target_aim_interactable() -> Node:
 			continue
 		if node.has_method("is_player_aiming_at_ray_target") and node.is_player_aiming_at_ray_target(camera_3d, interaction_distance):
 			return node
-	return null
-
-
-func _find_proximity_interactable() -> Node:
-	for node in get_tree().get_nodes_in_group("interactable"):
-		if not node.has_method("is_player_in_proximity"):
-			continue
-		if not node.is_player_in_proximity():
-			continue
-		if node.has_method("can_interact") and not node.can_interact():
-			continue
-		return node
 	return null
 
 

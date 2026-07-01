@@ -4,18 +4,18 @@
 [ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]
 [ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="3_dlgfocus"]
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_prox"]
-size = Vector3(2.8, 1.6, 1.35)
+[sub_resource type="SphereShape3D" id="SphereShape3D_prox"]
+radius = 1.7
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_ray"]
-size = Vector3(2.4, 1.2, 0.55)
+[sub_resource type="SphereShape3D" id="SphereShape3D_ray"]
+radius = 0.8
 
 [node name="BathroomSinkInteractSetup" type="Node3D"]
 script = ExtResource("1_setup")
 horror_setup_path = NodePath("../../Jumpscares/BathroomSinkHorror")
 
 [node name="DialogueFocusPoint" type="Marker3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.35, 0.9, 0)
 script = ExtResource("3_dlgfocus")
 use_stand_position = false
 
@@ -23,19 +23,19 @@ use_stand_position = false
 script = ExtResource("2_ixdlg")
 prompt_text = "Presiona [E] para lavarte las manos"
 require_specific_ray_target = true
-proximity_radius = 1.54
+proximity_radius = 1.7
 interaction_handler = NodePath("..")
 use_camera_focus = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-shape = SubResource("BoxShape3D_prox")
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.35, 0.9, 0)
+shape = SubResource("SphereShape3D_prox")
 
 [node name="InteractionRayTarget" type="Area3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.35, 0.9, 0)
 collision_layer = 4
 collision_mask = 0
 monitoring = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionRayTarget"]
-shape = SubResource("BoxShape3D_ray")
+shape = SubResource("SphereShape3D_ray")

@@ -112,7 +112,8 @@ func start_flicker() -> void:
 func ensure_ready() -> bool:
 	_resolve_controlled_lights()
 	if not _has_valid_lights():
-		_resolve_scene_root_lights()
+		if auto_find_lights:
+			_resolve_scene_root_lights()
 	if not _has_valid_lights():
 		return false
 	if not _initialized:
