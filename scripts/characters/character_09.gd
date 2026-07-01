@@ -27,8 +27,15 @@ func _ensure_derived_animations_if_needed() -> void:
 		push_warning("Character09: no hay biblioteca de animaciones en el AnimationPlayer.")
 		return
 	Bake.bake_animation_into_library(library, "idle")
+	_ensure_sitting_animation(library)
 	_ensure_standing_up_short(library)
 	_ensure_walking_in_place(library)
+
+
+func _ensure_sitting_animation(library: AnimationLibrary) -> void:
+	if library.has_animation("sitting"):
+		library.remove_animation("sitting")
+	Bake.bake_animation_into_library(library, "sitting")
 
 
 func _get_primary_library(animation_player: AnimationPlayer) -> AnimationLibrary:

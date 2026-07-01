@@ -5,6 +5,10 @@ extends Node3D
 const WANTS_SINK_FLAG := &"wants_bathroom_sink"
 const COMPLETION_FLAG := &"bathroom_sink_horror_done"
 
+@export_group("Interacción")
+@export var prompt_text: String = "Presiona [E] para lavarte las manos"
+@export var bathroom_door_path: NodePath
+
 @export_group("Referencias")
 @export var horror_camera_path: NodePath = ^"HorrorCamera"
 @export var stream_markers_parent_path: NodePath = ^"StreamMarkers"
@@ -53,6 +57,12 @@ const COMPLETION_FLAG := &"bathroom_sink_horror_done"
 @export_range(0.1, 2.0, 0.05) var tap_delay_duration: float = 0.45
 @export_range(0.5, 8.0, 0.1) var stream_duration: float = 2.4
 
+@export_group("Iluminación")
+@export_range(0.2, 6.0, 0.1) var horror_light_energy: float = 1.2
+@export var horror_light_color: Color = Color(1.0, 0.78, 0.72, 1.0)
+@export_range(0.05, 1.0, 0.05) var flicker_max_energy_multiplier: float = 0.4
+@export_range(0.01, 0.6, 0.01) var flicker_min_energy_multiplier: float = 0.1
+
 var _camera: Camera3D
 var _stream_markers: Node3D
 var _light_flicker: DamagedLightFlicker
@@ -61,6 +71,7 @@ var _demon_voices_player: AudioStreamPlayer
 var _demonic_laughter_player: AudioStreamPlayer
 var _camera_home_transform: Transform3D
 var _sequence_running: bool = false
+var _interactable: InteractableDialogueComponent
 
 
 func _ready() -> void:
@@ -72,10 +83,33 @@ func _ready() -> void:
 	_demonic_laughter_player = get_node_or_null("Audio/DemonicLaughterPlayer") as AudioStreamPlayer
 	if not is_in_group(&"bathroom_sink_horror"):
 		add_to_group(&"bathroom_sink_horror")
+	_cache_interaction_refs()
 	if _camera != null:
 		_camera.current = false
 		_camera_home_transform = _camera.transform
 	_prepare_creature_hidden()
+	if _interactable != null:
+		_interactable.prompt_text = prompt_text
+
+
+func can_handle_interaction() -> bool:
+	if not _is_bathroom_accessible():
+		return false
+	if not GameManager.get_flag(WANTS_SINK_FLAG):
+		return false
+	return is_sequence_available() and not is_sequence_running()
+
+
+func get_interaction_prompt() -> String:
+	if can_handle_interaction():
+		return prompt_text
+	return ""
+
+
+func handle_interaction() -> void:
+	if not can_handle_interaction():
+		return
+	run_sequence()
 
 
 func is_sequence_available() -> bool:
@@ -408,11 +442,53 @@ func _play_demonic_laughter() -> void:
 
 
 func _start_light_flicker() -> void:
+	_configure_horror_lights()
 	if _light_flicker == null:
 		return
 	if _light_flicker.has_method("ensure_ready"):
 		if not _light_flicker.ensure_ready():
 			push_warning("BathroomSinkHorrorSetup: no se encontraron luces del baño para parpadeo.")
 			return
+	_light_flicker.max_energy_multiplier = flicker_max_energy_multiplier
+	_light_flicker.min_energy_multiplier = flicker_min_energy_multiplier
 	if _light_flicker.has_method("start_flicker"):
 		_light_flicker.start_flicker()
+
+
+func _cache_interaction_refs() -> void:
+	var sink_interaction := get_node_or_null("SinkInteraction") as Node3D
+	if sink_interaction == null:
+		return
+	_interactable = sink_interaction.get_node_or_null(
+		"InteractableDialogueComponent"
+	) as InteractableDialogueComponent
+
+
+func _is_bathroom_accessible() -> bool:
+	if bathroom_door_path.is_empty():
+		return true
+	var door := _resolve_scene_node(bathroom_door_path) as DoorInteractSetup
+	if door == null:
+		return true
+	return door.opened
+
+
+func _resolve_scene_node(path: NodePath) -> Node:
+	if path.is_empty():
+		return null
+	var local := get_node_or_null(path)
+	if local != null:
+		return local
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return null
+	return scene_root.get_node_or_null(path)
+
+
+func _configure_horror_lights() -> void:
+	for light_name: StringName in [&"OmniLight3DBath1", &"OmniLight3DBath2"]:
+		var light := get_node_or_null(NodePath(String(light_name))) as OmniLight3D
+		if light == null:
+			continue
+		light.light_energy = horror_light_energy
+		light.light_color = horror_light_color

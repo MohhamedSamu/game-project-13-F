@@ -57,6 +57,10 @@ const SPAWN_SIDE_PLAYER_LEFT := 2
 
 @export_group("Spawn del actor")
 @export_enum("Spawn Marker:0", "Player Right:1", "Player Left:2") var spawn_side: int = SPAWN_SIDE_MARKER
+## Si está asignado, el actor aparece en este Marker3D en lugar de junto al jugador.
+@export var spawn_marker_path: NodePath
+## Si está asignado, la carrera termina en este Marker3D.
+@export var arrival_marker_path: NodePath
 @export_range(0.5, 12.0, 0.1) var spawn_lateral_distance: float = 3.0
 @export_range(-8.0, 8.0, 0.1) var spawn_forward_offset: float = 1.2
 ## Resta distancia hacia atrás del jugador (suma separación extra al spawn).
@@ -138,8 +142,6 @@ func _ready() -> void:
 		_trigger_zone.monitoring = false
 	call_deferred("_hide_actor_until_trigger")
 	call_deferred("_sync_trigger_zone")
-	if not require_flag.is_empty():
-		add_to_group(&"scene4_bathroom_exit_jumpscare")
 	if _trigger_zone != null:
 		if use_trigger_zone:
 			_trigger_zone.player_entered.connect(_on_player_entered_trigger)
@@ -235,6 +237,12 @@ func refresh_armed_state() -> void:
 	_sync_trigger_zone()
 
 
+func reset_dev_state() -> void:
+	_triggered = false
+	_owns_active_dialogue = false
+	_sync_trigger_zone()
+
+
 func _can_trigger() -> bool:
 	if not require_flag.is_empty() and not GameManager.get_flag(require_flag):
 		return false
@@ -297,6 +305,7 @@ func _run_soft_jumpscare_async(player: Node3D) -> void:
 		return
 
 	jumpscare_starting.emit()
+	_refresh_exit_setup_markers()
 	_stop_linked_bathroom_horror_audio()
 
 	if player != null and player.has_method("stop_movement_immediately"):
@@ -309,6 +318,9 @@ func _run_soft_jumpscare_async(player: Node3D) -> void:
 		GameManager.set_flag(trigger_flag, true)
 
 	_prepare_external_actor_for_jumpscare(actor)
+
+	if _uses_external_scare_actor() and keep_external_actor_in_place:
+		_set_actor_visible(false)
 
 	if play_scream_on_trigger:
 		_play_random_scream(player)
@@ -324,16 +336,22 @@ func _run_soft_jumpscare_async(player: Node3D) -> void:
 	if player != null and player.is_inside_tree():
 		look_pos = player.global_position
 	var run_duration := _compute_scare_run_duration(actor.global_position, arrival)
-	_play_actor_animation(run_animation, run_animation_speed_scale)
+	_play_actor_animation(_resolve_charge_animation(), run_animation_speed_scale)
 	_start_scare_run(actor, arrival, look_pos, run_duration)
 	if _scare_tween != null:
 		await _scare_tween.finished
 	_end_scare_run_physics()
-	if actor.is_inside_tree():
+	_stop_charge_animation()
+	if actor.is_inside_tree() and _uses_marker_run_path():
+		var arrival_marker := _resolve_arrival_marker()
+		if arrival_marker != null and arrival_marker.is_inside_tree():
+			actor.global_position = arrival_marker.global_position
+	elif actor.is_inside_tree():
 		var grounded := _project_to_floor(actor.global_position)
 		actor.global_position = grounded
-	if face_player_on_arrival and actor.is_inside_tree() and player != null and player.is_inside_tree():
-		_face_actor_toward(actor, player.global_position)
+	if face_player_on_arrival and actor.is_inside_tree():
+		var face_target := player.global_position if player != null and player.is_inside_tree() else arrival
+		_face_actor_toward(actor, face_target)
 	_play_actor_animation(dialogue_animation)
 	_start_dialogue(player)
 
@@ -345,9 +363,12 @@ func _start_dialogue(player: Node3D) -> void:
 	if game_player != null and game_player.has_method("focus_camera_on"):
 		game_player.focus_camera_on(focus)
 	_owns_active_dialogue = true
-	if not DialogueController.dialogue_finished.is_connected(_on_jumpscare_dialogue_finished):
-		DialogueController.dialogue_finished.connect(_on_jumpscare_dialogue_finished, CONNECT_ONE_SHOT)
+	if DialogueController.dialogue_finished.is_connected(_on_jumpscare_dialogue_finished):
+		DialogueController.dialogue_finished.disconnect(_on_jumpscare_dialogue_finished)
+	DialogueController.dialogue_finished.connect(_on_jumpscare_dialogue_finished, CONNECT_ONE_SHOT)
 	DialogueController.start_dialogue(dialogue_resource, dialogue_title, focus)
+	if not GameManager.dialogue_active:
+		_owns_active_dialogue = false
 
 
 func _resolve_scare_actor() -> Node3D:
@@ -363,6 +384,12 @@ func _resolve_dialogue_focus(actor: Node3D) -> Node3D:
 		var custom_focus := get_node_or_null(camera_focus_path) as Node3D
 		if custom_focus != null:
 			return custom_focus
+
+	var setup := _get_exit_setup()
+	if setup != null and _is_scene4_bathroom_exit_jumpscare():
+		var setup_focus := setup.get_dialogue_focus_marker()
+		if setup_focus != null:
+			return setup_focus
 
 	var actor_focus := actor.get_node_or_null("DialogueFocusPoint") as Node3D
 	if actor_focus != null:
@@ -408,7 +435,9 @@ func _prepare_external_actor_for_jumpscare(actor: Node3D) -> void:
 		return
 	if not keep_external_actor_in_place:
 		return
-	if actor.has_method("pause_for_jumpscare"):
+	if actor is GasStationNPC:
+		(actor as GasStationNPC).begin_scripted_sequence()
+	elif actor.has_method("pause_for_jumpscare"):
 		actor.call("pause_for_jumpscare")
 	_reset_actor_physics_state(actor)
 
@@ -459,11 +488,18 @@ func _on_jumpscare_dialogue_finished() -> void:
 
 
 func _run_post_dialogue_sequence() -> void:
-	if not _owns_active_dialogue:
+	var should_emit := _owns_active_dialogue
+	if not should_emit and _triggered and is_in_group(&"scene4_bathroom_exit_jumpscare"):
+		should_emit = true
+	if not should_emit:
 		return
 	_owns_active_dialogue = false
 	jumpscare_dialogue_finished.emit()
-	_play_actor_animation(after_dialogue_animation)
+	if (
+		not after_dialogue_animation.is_empty()
+		and not (_uses_external_scare_actor() and keep_external_actor_in_place)
+	):
+		_play_actor_animation(after_dialogue_animation)
 	if exit_after_dialogue:
 		jumpscare_rise_started.emit()
 		await _run_exit_rise_sequence()
@@ -496,6 +532,9 @@ func _run_exit_rise_sequence() -> void:
 
 
 func _compute_arrival_position(player: Node3D) -> Vector3:
+	var marker := _resolve_arrival_marker()
+	if marker != null and marker.is_inside_tree():
+		return marker.global_position
 	var arrival: Vector3
 	if arrival_mode == ArrivalMode.MARKER and _arrival_point != null and _arrival_point.is_inside_tree():
 		arrival = _arrival_point.global_position
@@ -509,6 +548,21 @@ func _compute_arrival_position(player: Node3D) -> Vector3:
 
 func _place_actor_at_spawn(actor: Node3D, player: Node3D) -> void:
 	if actor == null:
+		return
+	var spawn_marker := _resolve_spawn_marker()
+	if spawn_marker != null and spawn_marker.is_inside_tree():
+		actor.global_position = spawn_marker.global_position
+		var arrival_marker := _resolve_arrival_marker()
+		if arrival_marker != null and face_player_on_arrival:
+			_face_actor_toward(actor, arrival_marker.global_position)
+		else:
+			actor.global_rotation = spawn_marker.global_rotation
+		_reset_actor_physics_state(actor)
+		return
+	if _uses_external_scare_actor() and _is_scene4_bathroom_exit_jumpscare():
+		push_warning(
+			"SoftJumpscareSetup: asigna spawn_marker en Scene4BathroomExitSetup para el NPC externo."
+		)
 		return
 	var side := _normalized_spawn_side()
 	if side == SPAWN_SIDE_MARKER or player == null or not player.is_inside_tree():
@@ -550,6 +604,91 @@ func _player_flat_right(player: Node3D) -> Vector3:
 	if right.length_squared() < 0.0001:
 		return Vector3.RIGHT
 	return right.normalized()
+
+
+func _resolve_charge_animation() -> String:
+	if not _uses_marker_run_path():
+		return run_animation
+	var actor := _resolve_scare_actor()
+	if actor == null:
+		return run_animation
+	if _actor_has_animation(actor, &"walking_in_place"):
+		return "walking_in_place"
+	return run_animation
+
+
+func _stop_charge_animation() -> void:
+	var player := _resolve_animation_player()
+	if player == null:
+		return
+	player.speed_scale = 1.0
+
+
+func _actor_has_animation(actor: Node3D, anim_name: StringName) -> bool:
+	var player := _resolve_animation_player_for_actor(actor)
+	if player == null:
+		return false
+	return player.has_animation(String(anim_name))
+
+
+func _resolve_animation_player_for_actor(actor: Node3D) -> AnimationPlayer:
+	if actor == null:
+		return null
+	if not animation_player_path.is_empty():
+		var explicit := actor.get_node_or_null(animation_player_path) as AnimationPlayer
+		if explicit != null:
+			return explicit
+	return _find_animation_player(actor)
+
+
+func _is_scene4_bathroom_exit_jumpscare() -> bool:
+	return is_in_group(&"scene4_bathroom_exit_jumpscare")
+
+
+func _resolve_spawn_marker() -> Marker3D:
+	if not spawn_marker_path.is_empty():
+		var explicit := get_node_or_null(spawn_marker_path) as Marker3D
+		if explicit != null:
+			return explicit
+	if not _is_scene4_bathroom_exit_jumpscare():
+		return null
+	var setup := _get_exit_setup()
+	if setup != null:
+		return setup.get_run_start_marker()
+	return null
+
+
+func _resolve_arrival_marker() -> Marker3D:
+	if not arrival_marker_path.is_empty():
+		var explicit := get_node_or_null(arrival_marker_path) as Marker3D
+		if explicit != null:
+			return explicit
+	if not _is_scene4_bathroom_exit_jumpscare():
+		return null
+	var setup := _get_exit_setup()
+	if setup != null:
+		return setup.get_scare_stop_marker()
+	return null
+
+
+func _get_exit_setup() -> Scene4BathroomExitSetup:
+	for node in get_tree().get_nodes_in_group(&"scene4_bathroom_exit_setup"):
+		return node as Scene4BathroomExitSetup
+	return null
+
+
+func _refresh_exit_setup_markers() -> void:
+	if not _is_scene4_bathroom_exit_jumpscare():
+		return
+	var setup := _get_exit_setup()
+	if setup != null:
+		setup.apply_to_jumpscare(self)
+
+
+func _uses_marker_run_path() -> bool:
+	if not _is_scene4_bathroom_exit_jumpscare():
+		return false
+	return _resolve_spawn_marker() != null and _resolve_arrival_marker() != null
 
 
 func _project_to_floor(world_pos: Vector3, fallback_y: float = NAN) -> Vector3:
@@ -649,12 +788,24 @@ func _start_scare_run(actor: Node3D, arrival: Vector3, look_target: Vector3, dur
 		body.set_physics_process(false)
 		body.velocity = Vector3.ZERO
 	var start := actor.global_position
-	start = _project_to_floor(start, _resolve_floor_fallback_y(GameManager.get_player() as Node3D))
-	arrival = _project_to_floor(arrival, start.y)
+	if _uses_marker_run_path():
+		var spawn_marker := _resolve_spawn_marker()
+		var arrival_marker := _resolve_arrival_marker()
+		if spawn_marker != null and spawn_marker.is_inside_tree():
+			start = spawn_marker.global_position
+		if arrival_marker != null and arrival_marker.is_inside_tree():
+			arrival = arrival_marker.global_position
+	else:
+		start = _project_to_floor(start, _resolve_floor_fallback_y(GameManager.get_player() as Node3D))
+		arrival = _project_to_floor(arrival, start.y)
 	actor.global_position = start
 	_scare_tween = create_tween()
-	_scare_tween.set_trans(Tween.TRANS_LINEAR)
-	_scare_tween.set_ease(Tween.EASE_IN_OUT)
+	if _uses_marker_run_path():
+		_scare_tween.set_trans(Tween.TRANS_QUAD)
+		_scare_tween.set_ease(Tween.EASE_OUT)
+	else:
+		_scare_tween.set_trans(Tween.TRANS_LINEAR)
+		_scare_tween.set_ease(Tween.EASE_IN_OUT)
 	_scare_tween.tween_method(
 		func(t: float) -> void:
 			_update_scare_run_step(actor, start, arrival, look_target, t),
@@ -673,14 +824,19 @@ func _update_scare_run_step(
 ) -> void:
 	if not actor.is_inside_tree():
 		return
-	var flat_start := Vector2(start.x, start.z)
-	var flat_arrival := Vector2(arrival.x, arrival.z)
-	var flat_pos := flat_start.lerp(flat_arrival, t)
-	var grounded := _project_to_floor(
-		Vector3(flat_pos.x, start.y, flat_pos.y),
-		start.y
-	)
-	actor.global_position = grounded
+	if _uses_marker_run_path():
+		actor.global_position = start.lerp(arrival, t)
+		if t >= 1.0:
+			actor.global_position = arrival
+	else:
+		var flat_start := Vector2(start.x, start.z)
+		var flat_arrival := Vector2(arrival.x, arrival.z)
+		var flat_pos := flat_start.lerp(flat_arrival, t)
+		var grounded := _project_to_floor(
+			Vector3(flat_pos.x, start.y, flat_pos.y),
+			start.y
+		)
+		actor.global_position = grounded
 	if not face_player_on_arrival:
 		return
 	var face_target := arrival if t < 0.92 else look_target

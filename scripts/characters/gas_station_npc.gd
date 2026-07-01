@@ -123,6 +123,7 @@ var _resume_pump_index: int = 0
 var _resume_look_yaw: float = 0.0
 var _routine_resume_active: bool = false
 var _pending_kneel_interrupt_dialogue: bool = false
+var _scripted_sequence_active: bool = false
 
 
 func _ready() -> void:
@@ -152,6 +153,9 @@ func _wait_for_character_animations() -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if _scripted_sequence_active:
+		return
+
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
@@ -260,6 +264,68 @@ func pause_for_jumpscare() -> void:
 	behavior_enabled = false
 	_dialogue_prep_active = false
 	_dialogue_turn_active = false
+
+
+func begin_scripted_sequence() -> void:
+	_scripted_sequence_active = true
+	_pending_resume_after_repeat_dialogue = false
+	_routine_resume_active = false
+	_pending_kneel_interrupt_dialogue = false
+	_dialogue_prep_active = false
+	_dialogue_turn_active = false
+	_use_camera_focus_for_dialogue = false
+	pause_for_jumpscare()
+	velocity = Vector3.ZERO
+	set_physics_process(false)
+	_set_npc_interactions_enabled(false)
+
+
+func finish_scripted_exit() -> void:
+	_scripted_sequence_active = true
+	behavior_enabled = false
+	velocity = Vector3.ZERO
+	set_physics_process(false)
+	_set_npc_interactions_enabled(false)
+	_set_npc_collision_enabled(false)
+	visible = false
+
+
+func is_scripted_sequence_active() -> bool:
+	return _scripted_sequence_active
+
+
+func get_animation_player() -> AnimationPlayer:
+	return _get_animation_player()
+
+
+func play_animation(animation_name: String) -> void:
+	var animation_player := _get_animation_player()
+	if animation_player == null:
+		return
+	var anim_name := StringName(animation_name)
+	if anim_name == WALK_ANIM and _has_animation(WALK_IN_PLACE_ANIM):
+		anim_name = WALK_IN_PLACE_ANIM
+	if not animation_player.has_animation(anim_name):
+		push_warning("GasStationNPC: animación '%s' no encontrada." % String(anim_name))
+		return
+	_play_anim(anim_name, 0.15)
+
+
+func _set_npc_interactions_enabled(enabled: bool) -> void:
+	var interact := get_node_or_null("InteractableDialogueComponent") as InteractableDialogueComponent
+	if interact != null:
+		interact.enabled = enabled
+		interact.monitoring = enabled
+	var proximity := get_node_or_null("ProximityDialogueComponent") as ProximityDialogueComponent
+	if proximity != null:
+		proximity.enabled = enabled
+		proximity.monitoring = enabled
+
+
+func _set_npc_collision_enabled(enabled: bool) -> void:
+	var collision := get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if collision != null:
+		collision.disabled = not enabled
 
 
 func _begin_pump_cycle() -> void:
@@ -614,6 +680,8 @@ func _finish_dialogue_prep_stand_up() -> void:
 
 
 func _on_any_dialogue_finished_recover() -> void:
+	if _scripted_sequence_active:
+		return
 	_recover_animation_driven_state()
 	if _pending_resume_after_repeat_dialogue and _work_behavior_started:
 		_pending_resume_after_repeat_dialogue = false
@@ -899,6 +967,8 @@ func cancel_dialogue_prep() -> void:
 
 
 func should_play_kneel_interrupt_dialogue() -> bool:
+	if _scripted_sequence_active:
+		return false
 	if not _work_behavior_started or not GameManager.get_flag(start_behavior_flag):
 		return false
 	if GameManager.was_dialogue_beat_played("gas_station_npc", KNEEL_INTERRUPT_BEAT_ID):
@@ -907,6 +977,8 @@ func should_play_kneel_interrupt_dialogue() -> bool:
 
 
 func consume_dialogue_interaction_override() -> Dictionary:
+	if _scripted_sequence_active:
+		return {}
 	if not _pending_kneel_interrupt_dialogue:
 		return {}
 	_pending_kneel_interrupt_dialogue = false
@@ -924,6 +996,8 @@ func _uses_repeat_dialogue_prep() -> bool:
 
 
 func prepare_dialogue_interaction(interactor: Node3D) -> void:
+	if _scripted_sequence_active:
+		return
 	if interactor == null or _dialogue_turn_active or _dialogue_prep_active:
 		return
 

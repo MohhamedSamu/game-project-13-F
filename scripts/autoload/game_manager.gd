@@ -59,6 +59,20 @@ func _on_player_tree_exited() -> void:
 	player = null
 
 
+func clear_flag(flag_name: String) -> void:
+	flags.erase(flag_name)
+
+
+func reset_scene4_bathroom_dev_state() -> void:
+	clear_flag("scene4_gas_npc_after_bath_done")
+	clear_flag("scene4_bathroom_exit_jumpscare_done")
+	var tree := get_tree()
+	if tree != null:
+		tree.call_group(&"scene4_bathroom_exit_jumpscare", &"reset_dev_state")
+		tree.call_group(&"scene4_bathroom_exit_jumpscare", &"refresh_armed_state")
+	print("GameManager: flags escena 4 baño reseteadas.")
+
+
 func set_flag(flag_name: String, value: bool = true) -> void:
 	flags[flag_name] = value
 

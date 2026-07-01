@@ -122,6 +122,7 @@ var _closed_axis_rotation: float = 0.0
 var _door_tween: Tween
 
 signal first_unlocked
+signal door_animation_finished
 
 
 func _enter_tree() -> void:
@@ -317,6 +318,14 @@ func open_door() -> void:
 	_animate_door_to(target_angle)
 
 
+func open_door_and_wait() -> void:
+	if opened:
+		return
+	open_door()
+	if _is_animating:
+		await door_animation_finished
+
+
 func close_door() -> void:
 	if not opened or _door_pivot == null or _is_animating:
 		return
@@ -325,6 +334,19 @@ func close_door() -> void:
 
 	opened = false
 	_animate_door_to(_closed_axis_rotation)
+
+
+func close_door_and_wait() -> void:
+	if not opened:
+		return
+	close_door()
+	if _is_animating:
+		await door_animation_finished
+
+
+func wait_for_animation_if_running() -> void:
+	if _is_animating:
+		await door_animation_finished
 
 
 func _animate_door_to(target_angle: float) -> void:
@@ -343,6 +365,7 @@ func _animate_door_to(target_angle: float) -> void:
 func _on_door_animation_finished() -> void:
 	_is_animating = false
 	_door_tween = null
+	door_animation_finished.emit()
 
 
 func _kill_door_tween() -> void:

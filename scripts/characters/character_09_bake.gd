@@ -66,6 +66,11 @@ const ANIMATION_SOURCES: Dictionary = {
 		"loop": true,
 		"lock_hips": true,
 	},
+	"sitting": {
+		"fbx": "res://assets/characters/character_npc_gas_station/animations/Sitting.fbx",
+		"loop": false,
+		"lock_hips": false,
+	},
 }
 
 const ROOT_MOTION_BONE_HINTS: PackedStringArray = [

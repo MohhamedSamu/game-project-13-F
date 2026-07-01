@@ -1,7 +1,8 @@
 @tool
 class_name BathroomSinkInteractSetup
 extends Node3D
-## Interacción [E] en lavamanos: dispara la secuencia de sangre si el jugador salió del inodoro.
+## Obsoleto: la interacción y las cajas de colisión viven en [BathroomSinkHorrorSetup] / SinkInteraction.
+## Mantener solo si necesitas un nodo intermedio en otro nivel; en level_2 ya no se usa.
 
 const WANTS_SINK_FLAG := &"wants_bathroom_sink"
 
@@ -11,8 +12,8 @@ const WANTS_SINK_FLAG := &"wants_bathroom_sink"
 @export_group("Interacción")
 @export var prompt_text: String = "Presiona [E] para lavarte las manos"
 @export var focus_offset: Vector3 = Vector3(0.0, 0.9, 0.0)
-@export_range(0.2, 3.0, 0.05) var focus_radius: float = 0.55
-@export_range(0.5, 4.0, 0.05) var proximity_radius: float = 1.35
+@export var focus_box_size: Vector3 = Vector3(2.4, 1.2, 0.55)
+@export var proximity_box_size: Vector3 = Vector3(2.8, 1.6, 1.35)
 
 @export_group("Acceso")
 @export var bathroom_door_path: NodePath
@@ -62,7 +63,8 @@ func _rebuild() -> void:
 		return
 	_cache_child_refs()
 	if _interactable != null:
-		_interactable.proximity_radius = proximity_radius
+		var reach := maxf(proximity_box_size.x, proximity_box_size.z) * 0.55
+		_interactable.proximity_radius = reach
 		_interactable.require_specific_ray_target = true
 		_interactable.requires_focus_hitbox = false
 		_interactable.prompt_text = prompt_text
@@ -71,14 +73,34 @@ func _rebuild() -> void:
 	if _focus_target != null:
 		_focus_target.position = focus_offset
 	if _ray_shape != null:
-		var ray_sphere := _unique_ray_sphere()
-		ray_sphere.radius = focus_radius
+		var ray_box := _unique_ray_box()
+		ray_box.size = focus_box_size
 	if _ray_target != null:
 		_ray_target.position = focus_offset
 	if _proximity_shape != null:
 		_proximity_shape.position = focus_offset
-		var proximity_sphere := _unique_proximity_sphere()
-		proximity_sphere.radius = proximity_radius
+		var proximity_box := _unique_proximity_box()
+		proximity_box.size = proximity_box_size
+
+
+func _unique_ray_box() -> BoxShape3D:
+	if not _owns_ray_shape:
+		var shared := _ray_shape.shape as BoxShape3D
+		var box := shared.duplicate() if shared else BoxShape3D.new()
+		_ray_shape.shape = box
+		_owns_ray_shape = true
+		return box
+	return _ray_shape.shape as BoxShape3D
+
+
+func _unique_proximity_box() -> BoxShape3D:
+	if not _owns_proximity_shape:
+		var shared := _proximity_shape.shape as BoxShape3D
+		var box := shared.duplicate() if shared else BoxShape3D.new()
+		_proximity_shape.shape = box
+		_owns_proximity_shape = true
+		return box
+	return _proximity_shape.shape as BoxShape3D
 
 
 func can_handle_interaction() -> bool:
@@ -122,23 +144,3 @@ func _resolve_scene_node(path: NodePath) -> Node:
 	if scene_root == null:
 		return null
 	return scene_root.get_node_or_null(path)
-
-
-func _unique_ray_sphere() -> SphereShape3D:
-	if not _owns_ray_shape:
-		var shared := _ray_shape.shape as SphereShape3D
-		var sphere := shared.duplicate() if shared else SphereShape3D.new()
-		_ray_shape.shape = sphere
-		_owns_ray_shape = true
-		return sphere
-	return _ray_shape.shape as SphereShape3D
-
-
-func _unique_proximity_sphere() -> SphereShape3D:
-	if not _owns_proximity_shape:
-		var shared := _proximity_shape.shape as SphereShape3D
-		var sphere := shared.duplicate() if shared else SphereShape3D.new()
-		_proximity_shape.shape = sphere
-		_owns_proximity_shape = true
-		return sphere
-	return _proximity_shape.shape as SphereShape3D
