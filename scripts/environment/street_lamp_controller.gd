@@ -185,6 +185,10 @@ func get_mode() -> LampMode:
 	return _current_mode
 
 
+func is_controller_ready() -> bool:
+	return _initialized
+
+
 func _resolve_flicker_audio() -> void:
 	_flicker_audio = get_node_or_null(flicker_sound_player_path) as AudioStreamPlayer3D
 	if not flicker_sound_enabled:

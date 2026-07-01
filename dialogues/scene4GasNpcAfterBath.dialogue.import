@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://dtgl4xb28py6v"
+path="res://.godot/imported/scene4GasNpcAfterBath.dialogue-3225824a7ece164de4dd528c839e3b9c.tres"
+
+[deps]
+
+source_file="res://dialogues/scene4GasNpcAfterBath.dialogue"
+dest_files=["res://.godot/imported/scene4GasNpcAfterBath.dialogue-3225824a7ece164de4dd528c839e3b9c.tres"]
+
+[params]
+
+defaults=true

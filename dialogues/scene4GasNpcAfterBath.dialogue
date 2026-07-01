@@ -1,0 +1,17 @@
+~ start
+
+Player: ¡Quítese! ¡Este baño está embrujado!
+
+Old Man: ¿Qué dices?
+
+Player: ¡Está saliendo sangre por el lavamanos! Hay una cara de venado demoníaca en la pared.
+
+Old Man: "..."
+
+do Scene4BathroomExitDirector.peek_into_empty_bathroom()
+
+Old Man: Qué ni hay venados en esta zona, porque estamos en Apopa...
+Old Man: Y tampoco hay ni agua, porque... estamos en Apopa.
+Old Man: Qué mejor vaya a comer algo y tomar una soda, porque parece que está alucinando cosas.
+
+=> END

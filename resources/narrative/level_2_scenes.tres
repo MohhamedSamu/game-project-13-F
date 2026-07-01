@@ -13,7 +13,7 @@ objective_ids = PackedStringArray("gas_npc_intro_done", "tried_bathroom_door")
 script = ExtResource("2_scene_def")
 scene_id = "explore_gas_station"
 display_name = "Exploración de la estación"
-objective_ids = PackedStringArray("tried_bathroom_door")
+objective_ids = PackedStringArray("tried_bathroom_door", "scene4_bathroom_incident_done")
 
 [sub_resource type="Resource" id="scene_supermarket"]
 script = ExtResource("2_scene_def")

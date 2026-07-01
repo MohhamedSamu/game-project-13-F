@@ -98,10 +98,28 @@ func set_flicker_enabled(value: bool) -> void:
 
 
 func start_flicker() -> void:
-	if not flicker_enabled or _flicker_running or not _has_valid_lights():
+	if not flicker_enabled:
+		return
+	if not ensure_ready():
+		push_warning("DamagedLightFlicker: no hay luces válidas en %s." % get_path())
+		return
+	if _flicker_running:
 		return
 	_flicker_running = true
 	_flicker_loop()
+
+
+func ensure_ready() -> bool:
+	_resolve_controlled_lights()
+	if not _has_valid_lights():
+		_resolve_scene_root_lights()
+	if not _has_valid_lights():
+		return false
+	if not _initialized:
+		_cache_original_energies()
+		_mark_lights_flicker_managed()
+		_initialized = true
+	return true
 
 
 func stop_flicker(restore_lights := true) -> void:
@@ -313,6 +331,34 @@ func _find_light_at_path(path: NodePath) -> Light3D:
 		if node is Light3D:
 			return node as Light3D
 	return null
+
+
+func _resolve_scene_root_lights() -> void:
+	_try_append_bathroom_lights(get_parent())
+
+	var root := get_tree().current_scene
+	if root == null:
+		return
+	for path in controlled_light_paths:
+		var sub := String(path)
+		if sub.begins_with("../"):
+			sub = sub.trim_prefix("../")
+			while sub.begins_with("../"):
+				sub = sub.trim_prefix("../")
+		var node := root.get_node_or_null(NodePath(sub))
+		if node is Light3D and not controlled_lights.has(node):
+			controlled_lights.append(node)
+	_try_append_bathroom_lights(root.get_node_or_null(NodePath("iluminacion")))
+	_try_append_bathroom_lights(root.get_node_or_null(NodePath("Jumpscares/BathroomSinkHorror")))
+
+
+func _try_append_bathroom_lights(container: Node) -> void:
+	if container == null:
+		return
+	for light_name: StringName in [&"OmniLight3DBath1", &"OmniLight3DBath2"]:
+		var node := container.get_node_or_null(NodePath(String(light_name)))
+		if node is Light3D and not controlled_lights.has(node):
+			controlled_lights.append(node)
 
 
 func _find_descendant_by_name(root: Node, target_name: StringName) -> Node:

@@ -87,6 +87,10 @@ const DEVELOP_FREEFLY_SPEED := 25.0
 @export var input_flashlight_toggle: String = "flashlight_toggle"
 ## Si llevas algo y miras otro objeto recogible.
 @export var prompt_need_drop_before_pickup: String = "Ya llevas un objeto en la mano. Pulsa [Q] para soltarlo antes de coger otro ([E])."
+@export var pickup_acquire_sound: AudioStream = preload(
+	"res://assets/audio/SFX/varios/sh2-recieve-item.mp3"
+)
+@export_range(-80.0, 12.0) var pickup_acquire_volume_db: float = -2.0
 
 @export_group("Footsteps")
 ## Sonidos en subcarpetas de [code]footsteps_root[/code] (p. ej. Dirt, Grass). Vacío = no carga.
@@ -141,6 +145,7 @@ var _highlighted_interactable: Node
 @onready var footstep_player: AudioStreamPlayer3D = $FootstepPlayer
 @onready var jump_player: AudioStreamPlayer3D = $JumpPlayer
 @onready var land_player: AudioStreamPlayer3D = $LandPlayer
+@onready var pickup_player: AudioStreamPlayer = $PickupPlayer
 @onready var camera_3d: Camera3D = $Head/Camera3D
 @onready var hand_right: Marker3D = $Head/Camera3D/HandRight
 
@@ -673,10 +678,20 @@ func _try_interact_focused() -> void:
 	):
 		_focus_interactable.pickup_to_hand(hand_right)
 		_held_pickup = _focus_interactable as Node3D
+		_play_pickup_acquire_sound()
 		pickup_acquired.emit(_held_pickup, _resolve_pickup_item_id(_held_pickup))
 		return
 	if _focus_interactable.has_method("interact"):
 		_focus_interactable.interact()
+
+
+func _play_pickup_acquire_sound() -> void:
+	if pickup_player == null or pickup_acquire_sound == null:
+		return
+	pickup_player.stream = pickup_acquire_sound
+	pickup_player.volume_db = pickup_acquire_volume_db
+	pickup_player.stop()
+	pickup_player.play()
 
 
 func _try_toggle_held_instructions() -> bool:
@@ -1095,3 +1110,34 @@ func restore_player_camera() -> void:
 	camera_3d.current = true
 	minigame_mode = false
 	visible = _saved_body_visible
+
+
+func apply_look_direction(direction: Vector3) -> void:
+	if direction.length_squared() < 0.0001:
+		return
+
+	var normalized := direction.normalized()
+	look_rotation.y = atan2(-normalized.x, -normalized.z)
+
+	transform.basis = Basis()
+	rotate_y(look_rotation.y)
+
+	var local_direction := global_transform.basis.inverse() * normalized
+	var target_pitch := atan2(local_direction.y, -local_direction.z)
+	look_rotation.x = clampf(target_pitch, deg_to_rad(-85), deg_to_rad(85))
+
+	head.transform.basis = Basis()
+	head.rotate_x(look_rotation.x)
+	clear_camera_focus()
+
+
+func apply_look_from_external_camera(external_camera: Camera3D) -> void:
+	if external_camera == null:
+		return
+	apply_look_direction(-external_camera.global_basis.z)
+
+
+func apply_look_at_world_point(world_point: Vector3) -> void:
+	if camera_3d == null:
+		return
+	apply_look_direction(world_point - camera_3d.global_position)

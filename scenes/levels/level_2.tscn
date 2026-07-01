@@ -1,4 +1,4 @@
-[gd_scene load_steps=48 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=54 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -43,6 +43,12 @@
 [ext_resource type="Resource" uid="uid://lgrw7g6xd3py" path="res://dialogues/scene1PoliceNpc.dialogue" id="41_2e0t0"]
 [ext_resource type="Script" uid="uid://qk8ema8mgfum" path="res://scripts/narrative/scene1_police_exit_walk.gd" id="42_exitwalk"]
 [ext_resource type="PackedScene" uid="uid://bidhv73yicyeu" path="res://scenes/characters/supermarket_npc/supermarket_npc.tscn" id="44_super"]
+[ext_resource type="Script" uid="uid://dg1n6iaejs6lq" path="res://scripts/narrative/bathroom_door_power_failure_setup.gd" id="45_pwrfail"]
+[ext_resource type="PackedScene" uid="uid://c01kxetyoo24o" path="res://scenes/jumpscare/bathroom_sink_horror_setup.tscn" id="46_sinkhorror"]
+[ext_resource type="PackedScene" uid="uid://cjvmkcpoi4joa" path="res://scenes/interactables/bathroom_sink_interact_setup.tscn" id="47_sinkinteract"]
+[ext_resource type="PackedScene" uid="uid://brupuvv6o02a3" path="res://scenes/characters/creature1/creature1.tscn" id="47_wrgna"]
+[ext_resource type="Resource" uid="uid://dtgl4xb28py6v" path="res://dialogues/scene4GasNpcAfterBath.dialogue" id="48_8ghkn"]
+[ext_resource type="Script" uid="uid://itlolctqm38c" path="res://scripts/narrative/scene4_gas_npc_exit_walk.gd" id="49_scene4exit"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wwjag"]
 shader = ExtResource("12_lkn2k")
@@ -97,8 +103,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.0753788, 0.0753787)
-shader_parameter/cirrus_position2 = Vector2(0.0753788, 0.0753787)
+shader_parameter/cirrus_position1 = Vector2(0.000471407, 0.000471402)
+shader_parameter/cirrus_position2 = Vector2(0.000471407, 0.000471402)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -108,7 +114,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.376878, 0.376877)
+shader_parameter/cumulus_position = Vector2(0.00235703, 0.00235701)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -163,6 +169,10 @@ transform = Transform3D(0.0146561, 0.519973, -0.854057, 0.0047239, 0.854103, 0.5
 transform = Transform3D(-0.0155328, 0, -0.999879, 0, 1, 0, 0.999879, 0, -0.0155328, 24.7889, 0.39352, -16.1152)
 fixed_camera_path = NodePath("../ToiletPeeCamera")
 proximity_radius = 1.875
+bathroom_door_path = NodePath("../BathroomDoorSetup")
+
+[node name="BathroomSinkInteractSetup" parent="Gas_station" instance=ExtResource("47_sinkinteract")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.6745, 0.39352, -17.1862)
 bathroom_door_path = NodePath("../BathroomDoorSetup")
 
 [node name="SupermarketDoor1InteractSetup" parent="Gas_station" instance=ExtResource("8_door")]
@@ -636,6 +646,19 @@ script = ExtResource("36_intro_setup")
 intro_sequence = ExtResource("37_level2_intro")
 scene_profile = ExtResource("35_level2_scenes")
 
+[node name="BathroomDoorPowerFailure" type="Node" parent="."]
+script = ExtResource("45_pwrfail")
+door_path = NodePath("../Gas_station/BathroomDoorSetup")
+lamp_path = NodePath("../StreetLamps/StreetLampConfigurable3")
+lamp_off_duration = 5.0
+
+[node name="PowerFailureSFX" type="AudioStreamPlayer3D" parent="BathroomDoorPowerFailure"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.1055, 10.08, -29.0911)
+volume_db = 8.0
+unit_size = 8.0
+max_distance = 48.0
+bus = &"SFX"
+
 [node name="fallenTrees" type="Node3D" parent="."]
 
 [node name="TreePackProp" parent="fallenTrees" instance=ExtResource("38_s7kn7")]
@@ -647,6 +670,25 @@ transform = Transform3D(-0.958745, -0.258819, -0.117566, 0.121713, -4.33864e-08,
 tree_variant = &"Tree_1"
 
 [node name="Jumpscares" type="Node3D" parent="."]
+
+[node name="BathroomSinkHorror" parent="Jumpscares" instance=ExtResource("46_sinkhorror")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 20.5702, 0.00875831, -15.2051)
+
+[node name="OmniLight3DBath1" type="OmniLight3D" parent="Jumpscares/BathroomSinkHorror"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.8953, 6.2, 0.628901)
+light_color = Color(1, 0.93, 0.8, 1)
+light_energy = 4.5
+omni_range = 8.0
+
+[node name="OmniLight3DBath2" type="OmniLight3D" parent="Jumpscares/BathroomSinkHorror"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 1.8953, 6.2, 2.9289)
+light_color = Color(1, 0.93, 0.8, 1)
+light_energy = 4.5
+omni_range = 8.0
+
+[node name="W3_001" parent="Jumpscares/BathroomSinkHorror" instance=ExtResource("47_wrgna")]
+transform = Transform3D(49.9927, 3.19005e-10, 0.853427, -0.853427, 3.73044e-08, 49.9927, -3.17868e-10, -50, 3.73045e-08, -7.025, 1.31301, 0.437571)
+visible = false
 
 [node name="EasterEggJumpscare" type="Node3D" parent="Jumpscares"]
 
@@ -696,7 +738,33 @@ audio_tier = 1
 spawn_side = 2
 dialogue_resource = ExtResource("41_2e0t0")
 scare_actor_path = NodePath("../PoliceNpc")
+keep_external_actor_in_place = null
 run_animation = "running"
 dialogue_animation = "breathing_idle"
 after_dialogue_animation = "start_walking"
 exit_after_dialogue = false
+show_actor_preview = null
+
+[node name="Scene4BathroomExitJumpscare" parent="Jumpscares" groups=["scene4_bathroom_exit_jumpscare"] instance=ExtResource("31_rvwo1")]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 19.5028, 0.024999, -18.1183)
+audio_tier = 1
+trigger_flag = "scene4_gas_npc_after_bath_done"
+require_flag = "bathroom_sink_horror_done"
+play_scream_on_trigger = true
+spawn_side = 2
+spawn_lateral_distance = 5.5
+spawn_forward_offset = 0.4
+spawn_backward_offset = 2.0
+dialogue_resource = ExtResource("48_8ghkn")
+scare_actor_path = NodePath("../../GasStationNPC")
+keep_external_actor_in_place = true
+run_animation = "walking"
+dialogue_animation = "talking"
+after_dialogue_animation = "walking"
+exit_after_dialogue = false
+
+[node name="Scene4GasNpcExitWalk" type="Node" parent="Jumpscares"]
+script = ExtResource("49_scene4exit")
+jumpscare_path = NodePath("Scene4BathroomExitJumpscare")
+gas_npc_path = NodePath("../../GasStationNPC")
+return_point_path = NodePath("../../NPCMarkers/GasNPC_Pump1Point")

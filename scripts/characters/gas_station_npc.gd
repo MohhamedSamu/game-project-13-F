@@ -243,6 +243,25 @@ func start_work_behavior_after_intro() -> void:
 	_try_start_work_behavior()
 
 
+func resume_inspect_at_pump(pump_index: int = 0) -> void:
+	behavior_enabled = true
+	_work_behavior_started = true
+	_intro_sequence_complete = true
+	_current_pump_index = pump_index
+	_halt_horizontal_movement()
+	var point := _get_pump_point(pump_index)
+	if point == null:
+		return
+	_arrive_at_marker(point)
+
+
+func pause_for_jumpscare() -> void:
+	_halt_horizontal_movement()
+	behavior_enabled = false
+	_dialogue_prep_active = false
+	_dialogue_turn_active = false
+
+
 func _begin_pump_cycle() -> void:
 	var point := _get_pump_point(_current_pump_index)
 	if point == null:

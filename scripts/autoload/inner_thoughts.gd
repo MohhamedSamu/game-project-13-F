@@ -26,11 +26,17 @@ func _ready() -> void:
 	hide_thought()
 
 
-func show_thought(text: String, duration: float = DEFAULT_DURATION) -> void:
+func show_thought(
+	text: String,
+	duration: float = DEFAULT_DURATION,
+	allow_during_minigame: bool = false
+) -> void:
 	if text.is_empty():
 		hide_thought()
 		return
-	if GameManager.dialogue_active or GameManager.minigame_active or GameManager.level_intro_active:
+	if not allow_during_minigame and (
+		GameManager.dialogue_active or GameManager.minigame_active or GameManager.level_intro_active
+	):
 		return
 	if GameManager.instructions_overlay_active:
 		return

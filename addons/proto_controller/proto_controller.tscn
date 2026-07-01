@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://bs72ogkvdd7d6"]
+[gd_scene load_steps=7 format=3 uid="uid://bs72ogkvdd7d6"]
 
 [ext_resource type="Script" uid="uid://c20xlu66w544h" path="res://addons/proto_controller/proto_controller.gd" id="1_ucva2"]
 [ext_resource type="PackedScene" uid="uid://c8ptjt56kbhg3" path="res://scenes/camera/found_footage_filter.tscn" id="2_filter"]
+[ext_resource type="AudioStream" uid="uid://crppbsxbw8o1c" path="res://assets/audio/SFX/varios/sh2-recieve-item.mp3" id="3_pickup"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_iof21"]
 albedo_color = Color(0.91806, 0.575202, 0.222449, 1)
@@ -19,6 +20,7 @@ floor_max_angle = 0.959931
 floor_snap_length = 0.15
 script = ExtResource("1_ucva2")
 can_sprint = true
+pickup_acquire_sound = ExtResource("3_pickup")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
@@ -56,6 +58,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 unit_size = 4.0
 max_distance = 12.0
 bus = &"SFX"
+
+[node name="PickupPlayer" type="AudioStreamPlayer" parent="."]
+bus = &"SFX"
+stream = ExtResource("3_pickup")
 
 [node name="FoundFootageFilter" parent="." instance=ExtResource("2_filter")]
 intensity = 0.25

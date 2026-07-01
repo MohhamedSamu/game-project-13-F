@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://djfujol2upf3y"]
+
+[ext_resource type="Script" path="res://scripts/jumpscare/blood_stream_emitter.gd" id="1_emitter"]
+
+[node name="BloodStreamEmitter" type="Node3D"]
+script = ExtResource("1_emitter")
+stream_length = 0.3
+stream_radius = 0.021
+grow_duration = 0.5
+wobble_amplitude = 0.006
+wobble_speed = 7.0
+wobble_frequency = 5.5
+lump_strength = 0.28
+lump_frequency = 4.0
+
+[node name="BloodStreamMesh" type="MeshInstance3D" parent="."]
+visible = false
+cast_shadow = 0

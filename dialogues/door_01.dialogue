@@ -1,6 +1,5 @@
 ~ locked
-Player: La manija no cede.
-Player: Está cerrada con llave.
+Player: La manija no cede. Está cerrada con llave.
 Player: Tendré que buscar esa llave en algún lado...
 do GameManager.complete_objective("tried_bathroom_door")
 do GameManager.set_level_scene("need_supermarket_key")

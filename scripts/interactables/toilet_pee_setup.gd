@@ -8,6 +8,7 @@ enum State { IDLE, ENTERING, ACTIVE, EXITING }
 const _FOCUS_PREVIEW_COLOR := Color(0.35, 0.78, 1.0, 0.38)
 const _PROXIMITY_PREVIEW_COLOR := Color(0.45, 0.95, 0.55, 0.16)
 const _BLADDER_EMPTY_EPSILON := 1.0
+const _WANTS_SINK_FLAG := &"wants_bathroom_sink"
 
 @export_group("Cámara")
 ## Cámara fija colocada en el nivel padre (configurable desde el inspector).
@@ -65,6 +66,8 @@ const _BLADDER_EMPTY_EPSILON := 1.0
 @export var bladder_drain_duration: float = 20.0
 @export var show_bladder_ui: bool = true
 @export var empty_bladder_thought: String = "ya no tenía deseos de usar el inodoro"
+@export var wash_hands_thought: String = "me quería lavar las manos"
+@export var wash_hands_partial_thought: String = "ahora me lavo las manos"
 
 @export_group("Audio")
 @export_subgroup("Zipper")
@@ -465,6 +468,7 @@ func _run_exit_sequence() -> void:
 	if _get_bladder_percent() <= _BLADDER_EMPTY_EPSILON:
 		GameManager.complete_objective("visited_bathroom")
 	GameManager.unlock_player_minigame()
+	_on_toilet_minigame_exit()
 
 
 func _get_fixed_camera() -> Camera3D:
@@ -537,10 +541,19 @@ func _update_empty_bladder_thought() -> void:
 	var in_proximity := _interactable.is_player_in_proximity()
 	if in_proximity and not _was_in_empty_proximity:
 		_was_in_empty_proximity = true
-		InnerThoughts.show_thought(empty_bladder_thought)
+		var thought := wash_hands_thought if GameManager.get_flag(_WANTS_SINK_FLAG) else empty_bladder_thought
+		InnerThoughts.show_thought(thought)
 	elif not in_proximity and _was_in_empty_proximity:
 		_was_in_empty_proximity = false
 		InnerThoughts.hide_thought()
+
+
+func _on_toilet_minigame_exit() -> void:
+	GameManager.set_flag(_WANTS_SINK_FLAG, true)
+	if _is_bladder_empty():
+		InnerThoughts.show_thought(wash_hands_thought)
+	else:
+		InnerThoughts.show_thought(wash_hands_partial_thought)
 
 
 func _get_bladder_drain_rate() -> float:
