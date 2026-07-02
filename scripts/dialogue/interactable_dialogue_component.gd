@@ -138,15 +138,6 @@ func _is_player_in_range() -> bool:
 	var player := GameManager.player
 	if player == null:
 		return false
-	if _uses_box_proximity():
-		if not (player is CharacterBody3D) or not overlaps_body(player as CharacterBody3D):
-			player_near = false
-			return false
-		if require_specific_ray_target and require_line_of_sight:
-			var center := _get_proximity_center()
-			if not _has_clear_line_of_sight(_get_line_of_sight_origin(player), center):
-				return false
-		return true
 	var center := _get_proximity_center()
 	if player.global_position.distance_to(center) > proximity_radius:
 		player_near = false
@@ -154,11 +145,6 @@ func _is_player_in_range() -> bool:
 	if require_specific_ray_target and require_line_of_sight and not _has_clear_line_of_sight(_get_line_of_sight_origin(player), center):
 		return false
 	return true
-
-
-func _uses_box_proximity() -> bool:
-	var shape_node := get_node_or_null("CollisionShape3D") as CollisionShape3D
-	return shape_node != null and shape_node.shape is BoxShape3D
 
 
 func is_player_in_proximity() -> bool:

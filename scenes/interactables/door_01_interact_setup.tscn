@@ -13,15 +13,8 @@ dialogue_resource = ExtResource("2_dlg")
 [node name="DoorPivot" parent="." index="0"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.077, -0.0335)
 
-[node name="DialogueFocusPoint" parent="." index="1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.448, -0.0335)
-
 [node name="InteractableDialogueComponent" parent="." index="2"]
 dialogue_resource = ExtResource("2_dlg")
 
 [node name="CollisionShape3D" parent="InteractionRayTarget" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.448, -0.0335)
 shape = SubResource("BoxShape3D_5lmpn")
-
-[node name="OpenSoundPlayer" parent="Audio" index="0"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.448, -0.0335)

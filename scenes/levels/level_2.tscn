@@ -33,7 +33,7 @@
 [ext_resource type="PackedScene" uid="uid://qaglqwcm6djo" path="res://scenes/jumpscare/soft_jumpscare_setup.tscn" id="31_rvwo1"]
 [ext_resource type="PackedScene" uid="uid://cvl7jes7ecmi3" path="res://scenes/props/streetlamp/streetlamp_configurable.tscn" id="31_wwjag"]
 [ext_resource type="Resource" uid="uid://bnfp7cjx823mb" path="res://dialogues/demo/clown_jumpscare_easter_egg.dialogue" id="32_rvwo1"]
-[ext_resource type="Script" uid="uid://cm3m07xxeyilg" path="res://scripts/jumpscare/jumpscare_lamp_sequence.gd" id="33_lampseq"]
+[ext_resource type="Script" path="res://scripts/jumpscare/jumpscare_lamp_sequence.gd" id="33_lampseq"]
 [ext_resource type="Script" uid="uid://c404ed67nv3sg" path="res://scripts/narrative/level_narrative_setup.gd" id="34_narrative"]
 [ext_resource type="Resource" uid="uid://7wctwyi0bbxw" path="res://resources/narrative/level_2_scenes.tres" id="35_level2_scenes"]
 [ext_resource type="Script" uid="uid://b44m4nskn4uyr" path="res://scripts/narrative/level_intro_setup.gd" id="36_intro_setup"]
@@ -105,8 +105,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.00631686, 0.00631677)
-shader_parameter/cirrus_position2 = Vector2(0.00631686, 0.00631677)
+shader_parameter/cirrus_position1 = Vector2(0.00999379, 0.00999368)
+shader_parameter/cirrus_position2 = Vector2(0.00999379, 0.00999368)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -116,7 +116,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.0315842, 0.0315841)
+shader_parameter/cumulus_position = Vector2(0.0499693, 0.0499686)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
