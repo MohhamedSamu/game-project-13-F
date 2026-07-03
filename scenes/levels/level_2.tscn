@@ -280,21 +280,22 @@ mesh_hold_rotation_deg = null
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3179, 0, -12.0213)
 
 [node name="InvisibleWallBath1" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 21.9748, 0.131246, -5.04654)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 21.9748, 0.131246, -5.04207)
 wall_length = 5.0
+wall_height = 3.0
 
 [node name="InvisibleWallBath2" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 21.9725, 0.131246, -0.819903)
-wall_length = 1.4
-wall_enabled = false
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 21.9748, 0.131246, -0.528528)
+wall_length = 2.0
+wall_height = 3.0
 
 [node name="InvisibleWallBath3" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
-transform = Transform3D(1, 0, 1.06581e-14, 0, 1, 0, -1.06581e-14, 0, 1, 22.7735, 0.131246, -1.40452)
-wall_length = 1.4
+transform = Transform3D(1, 0, 1.06581e-14, 0, 1, 0, -1.06581e-14, 0, 1, 22.7735, 0.131246, -1.44407)
+wall_length = 1.6
 
 [node name="InvisibleWallBath4" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
-transform = Transform3D(1, 0, 1.06581e-14, 0, 1, 0, -1.06581e-14, 0, 1, 22.7768, 0.131246, -2.64758)
-wall_length = 1.4
+transform = Transform3D(1, 0, 1.06581e-14, 0, 1, 0, -1.06581e-14, 0, 1, 22.7652, 0.131246, -2.64097)
+wall_length = 1.6
 
 [node name="InvisibleWallBath5" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 19.4588, 0.131246, -6.52799)
