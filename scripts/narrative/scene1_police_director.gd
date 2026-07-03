@@ -12,6 +12,7 @@ var _saved_dialogue_focus: Node3D = null
 
 
 func play_fourth_wall_night_transition() -> void:
+	MusicDirector.stop_music()
 	var sky := _find_sky3d()
 	if sky == null:
 		push_warning("Scene1PoliceDirector: no se encontró Sky3D.")

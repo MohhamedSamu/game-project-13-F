@@ -1,5 +1,7 @@
 ~ start
 
+do MusicDirector.stop_music()
+
 Juan: Oye, esa es mi linterna. ¿Qué haces?
 
 - La necesitaba, acabo de recogerla.

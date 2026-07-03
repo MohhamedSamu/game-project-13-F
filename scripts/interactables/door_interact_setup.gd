@@ -29,6 +29,7 @@ const DOOR_REFERENCE_SCALE := 100.0
 ## Solo el desbloqueo con llave persiste entre visitas al nivel; abierto/cerrado no.
 @export var open_state_flag: String = ""
 @export var restore_as_open: bool = false
+@export var keep_open_after_unlock: bool = false
 
 @export_group("Interacción")
 @export_range(0.5, 8.0, 0.1) var proximity_radius: float = 3.5:
@@ -228,6 +229,8 @@ func can_handle_interaction() -> bool:
 func get_interaction_prompt() -> String:
 	if _is_animating:
 		return ""
+	if keep_open_after_unlock and unlocked and opened:
+		return ""
 	if opened:
 		return prompt_close
 	if lock_mode == LockMode.ITEM_REQUIRED and not unlocked:
@@ -245,6 +248,9 @@ func handle_interaction() -> void:
 
 func try_interact() -> void:
 	if GameManager.dialogue_active or _is_animating:
+		return
+
+	if keep_open_after_unlock and unlocked and opened:
 		return
 
 	if lock_mode == LockMode.ITEM_REQUIRED and not unlocked:
@@ -328,6 +334,8 @@ func open_door_and_wait() -> void:
 
 func close_door() -> void:
 	if not opened or _door_pivot == null or _is_animating:
+		return
+	if keep_open_after_unlock and unlocked:
 		return
 	if not _door_attached:
 		return
