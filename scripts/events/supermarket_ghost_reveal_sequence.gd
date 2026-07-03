@@ -166,17 +166,17 @@ func _flicker_lights_short() -> void:
 		return
 
 	var elapsed := 0.0
-	var multipliers := [1.0, 0.0, 0.35, 0.0, 0.65, 0.12, 0.0, 0.45, 0.0, 0.8, 0.0]
+	var multipliers: Array[float] = [1.0, 0.0, 0.35, 0.0, 0.65, 0.12, 0.0, 0.45, 0.0, 0.8, 0.0]
 
 	while elapsed < pre_blackout_flicker_time:
-		var multiplier := multipliers[randi() % multipliers.size()]
+		var multiplier: float = multipliers[randi() % multipliers.size()]
 		if randf() < 0.35:
 			multiplier = 0.0
 		elif randf() < 0.2:
 			multiplier = randf_range(0.15, 0.55)
 
-		var step := randf_range(0.04, 0.18)
-		var remaining := pre_blackout_flicker_time - elapsed
+		var step: float = randf_range(0.04, 0.18)
+		var remaining: float = pre_blackout_flicker_time - elapsed
 		if step > remaining:
 			step = remaining
 		if step <= 0.0:
@@ -236,14 +236,21 @@ func _resolve_cashier_interact() -> void:
 	_cashier_interact = null
 	if cashier_npc == null:
 		return
+
+	var interact := cashier_npc.get_node_or_null("InteractableDialogueComponent")
+	if interact is Area3D:
+		_cashier_interact = interact as Area3D
+		return
+
 	for child in cashier_npc.get_children():
-		if child is Area3D and child.get_script() != null:
-			var script_path := child.get_script().resource_path
-			if script_path.ends_with("interactable_dialogue_component.gd"):
-				_cashier_interact = child
-				return
-		if child.name == "InteractableDialogueComponent" and child is Area3D:
-			_cashier_interact = child
+		if not (child is Area3D):
+			continue
+		var child_script: Script = child.get_script()
+		if child_script == null:
+			continue
+		var script_path: String = child_script.resource_path
+		if script_path.ends_with("interactable_dialogue_component.gd"):
+			_cashier_interact = child as Area3D
 			return
 
 
@@ -251,7 +258,7 @@ func _lock_player() -> void:
 	if not lock_player_movement:
 		return
 
-	var player := GameManager.get_player()
+	var player: Node = GameManager.get_player()
 	if player == null:
 		return
 
@@ -279,7 +286,7 @@ func _unlock_player() -> void:
 	if not lock_player_movement:
 		return
 
-	var player := GameManager.get_player()
+	var player: Node = GameManager.get_player()
 	if player == null:
 		return
 
@@ -301,7 +308,7 @@ func _unlock_player() -> void:
 func _dip_ambient_if_enabled() -> void:
 	if not dip_ambient_during_sequence:
 		return
-	var bus_index := AudioServer.get_bus_index(String(ambient_bus_name))
+	var bus_index: int = AudioServer.get_bus_index(String(ambient_bus_name))
 	if bus_index < 0:
 		return
 	_saved_ambient_volume_db = AudioServer.get_bus_volume_db(bus_index)
@@ -311,7 +318,7 @@ func _dip_ambient_if_enabled() -> void:
 func _restore_ambient_if_needed() -> void:
 	if not dip_ambient_during_sequence:
 		return
-	var bus_index := AudioServer.get_bus_index(String(ambient_bus_name))
+	var bus_index: int = AudioServer.get_bus_index(String(ambient_bus_name))
 	if bus_index < 0:
 		return
 	AudioServer.set_bus_volume_db(bus_index, _saved_ambient_volume_db)

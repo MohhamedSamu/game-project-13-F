@@ -1,10 +1,10 @@
 [gd_scene load_steps=5 format=3 uid="uid://br6koanwp7ia"]
 
 [ext_resource type="PackedScene" uid="uid://c6f1b5qksdhf5" path="res://assets/characters/oldLadyGhost/Characters_psx/Models/Killers/Character_Monster_03.fbx" id="1_fbx"]
-[ext_resource type="Script" path="res://scripts/characters/old_lady_ghost_model.gd" id="2_script"]
+[ext_resource type="Script" uid="uid://43ocn0lqyejn" path="res://scripts/characters/old_lady_ghost_model.gd" id="2_script"]
 [ext_resource type="Texture2D" uid="uid://bqdlup2xjm6bv" path="res://assets/characters/oldLadyGhost/Characters_psx/Textures/Character_Monster_03.png" id="3_qlxk4"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k810j"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qlxk4"]
 resource_name = "Character_Monster_03"
 vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("3_qlxk4")
@@ -45,7 +45,7 @@ bones/30/rotation = Quaternion(0.490584, 0.0399504, 0.0289954, 0.869995)
 bones/31/rotation = Quaternion(0.36829, -0.00791126, 0.00318117, 0.929672)
 
 [node name="Character_Monster_03" parent="Skeleton3D" index="0"]
-surface_material_override/0 = SubResource("StandardMaterial3D_k810j")
+surface_material_override/0 = SubResource("StandardMaterial3D_qlxk4")
 
 [node name="AnimationPlayer" parent="." index="1"]
 autoplay = "old_lady_idle"
