@@ -34,6 +34,7 @@ func _begin() -> void:
 	if sequence == null or sequence.pages.is_empty():
 		_finish_intro()
 		return
+	MusicDirector.play_intro_music_loop()
 	_active = true
 	_page_index = 0
 	_revealed_count = 1

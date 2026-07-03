@@ -87,6 +87,7 @@ var mutation_cooldown: Timer = Timer.new()
 @export var adult_male_angry_profile: DialogueVoiceProfile = preload("res://resources/dialogue_voices/adult_male_angry.tres")
 @export var muted_character_names: PackedStringArray = ["PLAYER", "Player", "player"]
 const PLAYER_DIALOGUE_COLOR := Color(0.796, 0.694, 0.404, 1.0)
+const DEFAULT_DIALOGUE_COLOR := Color(1, 1, 1, 1)
 
 @export_group("Dialogue Typing")
 ## Segundos entre cada carácter revelado. Más alto = typewriter más lento (addon: 0.02).
@@ -284,6 +285,7 @@ func apply_dialogue_line() -> void:
 		(character_row as CanvasItem).visible = has_character
 	character_label.visible = has_character
 	character_label.text = _format_character_label(dialogue_line.character)
+	_apply_dialogue_speaker_style(dialogue_line.character)
 
 	dialogue_label.hide()
 	dialogue_label.dialogue_line = dialogue_line
@@ -411,6 +413,13 @@ func _format_character_label(character_name: String) -> String:
 	if character_name.strip_edges().to_upper() != "PLAYER":
 		return display_name
 	return "[color=#%s]%s[/color]" % [PLAYER_DIALOGUE_COLOR.to_html(false), display_name]
+
+
+func _apply_dialogue_speaker_style(character_name: String) -> void:
+	if character_name.strip_edges().to_upper() == "PLAYER":
+		dialogue_label.add_theme_color_override(&"default_color", PLAYER_DIALOGUE_COLOR)
+		return
+	dialogue_label.add_theme_color_override(&"default_color", DEFAULT_DIALOGUE_COLOR)
 
 
 func _apply_dialogue_typing_speed() -> void:
