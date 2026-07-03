@@ -8,12 +8,27 @@ const VIEWMODEL_SHADER := preload("res://assets/shaders/held_viewmodel.gdshader"
 
 static func apply(root: Node) -> void:
 	_disable_physics(root)
-	for mesh: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
-		_apply_viewmodel_mesh(mesh)
+	_for_each_mesh_instance(root, _apply_viewmodel_mesh)
 
 
 static func freeze_as_static_prop(root: Node) -> void:
 	_disable_physics(root)
+
+
+static func restore_for_world_display(root: Node) -> void:
+	_for_each_mesh_instance(root, _restore_world_mesh)
+
+
+static func _for_each_mesh_instance(root: Node, callback: Callable) -> void:
+	if root is MeshInstance3D:
+		callback.call(root)
+	for mesh: MeshInstance3D in root.find_children("*", "MeshInstance3D", true, false):
+		callback.call(mesh)
+
+
+static func _restore_world_mesh(mesh: MeshInstance3D) -> void:
+	mesh.material_override = null
+	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_ON
 
 
 static func _disable_physics(node: Node) -> void:
@@ -33,12 +48,27 @@ static func _disable_physics(node: Node) -> void:
 static func _apply_viewmodel_mesh(mesh: MeshInstance3D) -> void:
 	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var tex := _resolve_albedo_texture(mesh)
+	var color := _resolve_albedo_color(mesh)
 	var mat := ShaderMaterial.new()
 	mat.shader = VIEWMODEL_SHADER
-	if tex != null:
-		mat.set_shader_parameter("albedo_texture", tex)
 	mat.render_priority = 128
+	mat.set_shader_parameter("albedo_color", color)
+	mat.set_shader_parameter("albedo_alpha", color.a)
+	if tex != null:
+		mat.set_shader_parameter("use_albedo_texture", true)
+		mat.set_shader_parameter("albedo_texture", tex)
+	else:
+		mat.set_shader_parameter("use_albedo_texture", false)
 	mesh.material_override = mat
+
+
+static func _resolve_albedo_color(mesh: MeshInstance3D) -> Color:
+	var mat: Material = mesh.material_override
+	if mat == null and mesh.mesh != null and mesh.mesh.get_surface_count() > 0:
+		mat = mesh.mesh.surface_get_material(0)
+	if mat is StandardMaterial3D:
+		return (mat as StandardMaterial3D).albedo_color
+	return Color.WHITE
 
 
 static func _resolve_albedo_texture(mesh: MeshInstance3D) -> Texture2D:

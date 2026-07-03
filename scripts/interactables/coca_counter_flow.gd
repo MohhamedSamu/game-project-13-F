@@ -81,3 +81,4 @@ static func _find_place_setup() -> Node:
 
 static func _on_counter_dialogue_finished() -> void:
 	GameManager.set_flag("needs_churro", true)
+	InnerThoughts.show_thought(ChurroCounterFlow.THOUGHT_AFTER_COCA)

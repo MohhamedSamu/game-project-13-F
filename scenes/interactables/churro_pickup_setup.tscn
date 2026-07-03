@@ -1,0 +1,38 @@
+[gd_scene load_steps=5 format=3 uid="uid://k36c6vytk3rd"]
+
+[ext_resource type="Script" path="res://scripts/interactables/churro_pickup_setup.gd" id="1_setup"]
+[ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_prox"]
+radius = 0.35
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_ray"]
+radius = 0.35
+
+[node name="ChurroPickupSetup" type="Node3D"]
+script = ExtResource("1_setup")
+hand_hold_offset = Vector3(0.05, -0.12, -0.32)
+hand_hold_rotation_deg = Vector3(20, 90, -8)
+hand_size_multiplier = 0.55
+mesh_hold_rotation_deg = null
+
+[node name="InteractableDialogueComponent" type="Area3D" parent="." node_paths=PackedStringArray("interaction_handler")]
+script = ExtResource("2_ixdlg")
+prompt_text = "Presiona [E] para agarrar churro"
+require_specific_ray_target = true
+proximity_radius = 2.2
+interaction_handler = NodePath("..")
+require_line_of_sight = false
+use_camera_focus = false
+auto_find_focus_target = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent"]
+shape = SubResource("SphereShape3D_prox")
+
+[node name="InteractionRayTarget" type="Area3D" parent="."]
+collision_layer = 4
+collision_mask = 0
+monitoring = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionRayTarget"]
+shape = SubResource("SphereShape3D_ray")

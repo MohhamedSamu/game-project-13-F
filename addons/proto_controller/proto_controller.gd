@@ -525,14 +525,22 @@ func _find_dialogue_aim_interactable() -> Node:
 func _find_ray_target_aim_interactable() -> Node:
 	if camera_3d == null:
 		return null
+	var best: Node = null
+	var best_distance := INF
 	for node in get_tree().get_nodes_in_group("interactable"):
 		if not node.has_method("requires_specific_ray_target") or not node.requires_specific_ray_target():
 			continue
 		if node.has_method("can_interact") and not node.can_interact():
 			continue
-		if node.has_method("is_player_aiming_at_ray_target") and node.is_player_aiming_at_ray_target(camera_3d, interaction_distance):
-			return node
-	return null
+		if not node.has_method("is_player_aiming_at_ray_target"):
+			continue
+		if not node.is_player_aiming_at_ray_target(camera_3d, interaction_distance):
+			continue
+		var aim_distance := camera_3d.global_position.distance_to(node.global_position)
+		if aim_distance < best_distance:
+			best_distance = aim_distance
+			best = node
+	return best
 
 
 func _pickup_aim_world_position(node: Node) -> Vector3:
@@ -779,6 +787,33 @@ func give_left_hand_item(item_scene: PackedScene) -> bool:
 	return true
 
 
+func give_left_hand_visual(
+	item: Node3D,
+	hold_offset: Vector3 = left_hand_hold_offset,
+	hold_rotation_deg: Vector3 = left_hand_hold_rotation_deg,
+	hold_scale: float = left_hand_hold_scale
+) -> bool:
+	if item == null or hand_left == null:
+		return false
+	if has_left_hand_item():
+		return false
+	hand_left.add_child(item)
+	_attach_left_hand_item(item, hold_offset, hold_rotation_deg, hold_scale)
+	_held_left_item = item
+	_play_pickup_acquire_sound()
+	return true
+
+
+func detach_left_hand_item() -> Node3D:
+	if not has_left_hand_item():
+		return null
+	var item := _held_left_item
+	_held_left_item = null
+	if is_instance_valid(item) and item.get_parent() == hand_left:
+		hand_left.remove_child(item)
+	return item
+
+
 func clear_left_hand_item() -> bool:
 	if not has_left_hand_item():
 		return false
@@ -789,15 +824,20 @@ func clear_left_hand_item() -> bool:
 	return true
 
 
-func _attach_left_hand_item(item: Node3D) -> void:
+func _attach_left_hand_item(
+	item: Node3D,
+	hold_offset: Vector3 = left_hand_hold_offset,
+	hold_rotation_deg: Vector3 = left_hand_hold_rotation_deg,
+	hold_scale: float = left_hand_hold_scale
+) -> void:
 	var euler := Vector3(
-		deg_to_rad(left_hand_hold_rotation_deg.x),
-		deg_to_rad(left_hand_hold_rotation_deg.y),
-		deg_to_rad(left_hand_hold_rotation_deg.z)
+		deg_to_rad(hold_rotation_deg.x),
+		deg_to_rad(hold_rotation_deg.y),
+		deg_to_rad(hold_rotation_deg.z)
 	)
-	var uniform_scale := Vector3.ONE * left_hand_hold_scale
+	var uniform_scale := Vector3.ONE * hold_scale
 	var basis := Basis.from_euler(euler).scaled(uniform_scale)
-	item.transform = Transform3D(basis, left_hand_hold_offset)
+	item.transform = Transform3D(basis, hold_offset)
 	var rb := item.find_child("RigidBody3D", true, false) as RigidBody3D
 	if rb != null:
 		rb.transform = Transform3D.IDENTITY
@@ -825,6 +865,10 @@ func _update_left_hand_dialogue_visibility() -> void:
 	if _held_left_item == null or not is_instance_valid(_held_left_item):
 		return
 	_held_left_item.visible = not GameManager.dialogue_active
+
+
+func update_left_hand_dialogue_visibility() -> void:
+	_update_left_hand_dialogue_visibility()
 
 
 func _resolve_pickup_item_id(pickup: Node3D) -> StringName:

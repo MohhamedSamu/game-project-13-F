@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://ck2hpfv2hoooy"
+path="res://.godot/imported/churro_counter.dialogue-180729cc849db9d4a55aa57db24508df.tres"
+
+[deps]
+
+source_file="res://dialogues/churro_counter.dialogue"
+dest_files=["res://.godot/imported/churro_counter.dialogue-180729cc849db9d4a55aa57db24508df.tres"]
+
+[params]
+
+defaults=true

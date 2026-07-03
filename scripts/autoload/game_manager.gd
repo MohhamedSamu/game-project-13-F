@@ -85,6 +85,30 @@ func can_place_coca_on_counter() -> bool:
 	return get_flag("has_coca_in_left_hand") and not get_flag("coca_placed_on_counter")
 
 
+func can_pickup_churro() -> bool:
+	if not get_flag("needs_churro"):
+		return false
+	if not get_flag("coca_placed_on_counter"):
+		return false
+	if get_flag("churro_taken") or get_flag("churro_placed_on_counter"):
+		return false
+	var player := get_player()
+	if player != null and player.has_method("has_left_hand_item"):
+		return not player.has_left_hand_item()
+	return true
+
+
+func can_place_churro_on_counter() -> bool:
+	if get_flag("churro_placed_on_counter"):
+		return false
+	if not get_flag("has_churro_in_left_hand"):
+		return false
+	var player := get_player()
+	if player != null and player.has_method("has_left_hand_item"):
+		return player.has_left_hand_item()
+	return true
+
+
 func begin_level(
 	level_id: String,
 	initial_scene_id: String = "default",
@@ -300,6 +324,9 @@ func lock_player() -> void:
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
+	if player and player.has_method("update_left_hand_dialogue_visibility"):
+		player.update_left_hand_dialogue_visibility()
+
 
 func lock_player_for_instructions() -> void:
 	_set_crosshair_dialogue_hidden(true)
@@ -332,6 +359,9 @@ func unlock_player() -> void:
 
 	if player and is_instance_valid(player) and player.has_method("set_input_enabled"):
 		player.set_input_enabled(true)
+
+	if player and is_instance_valid(player) and player.has_method("update_left_hand_dialogue_visibility"):
+		player.update_left_hand_dialogue_visibility()
 
 	if player and is_instance_valid(player) and player.has_method("capture_mouse"):
 		player.capture_mouse()

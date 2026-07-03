@@ -1,0 +1,30 @@
+[gd_scene load_steps=5 format=3 uid="uid://e7k3churro_counter_place"]
+
+[ext_resource type="Script" uid="uid://c5n2churro_counter_place" path="res://scripts/interactables/churro_counter_place_setup.gd" id="1_setup"]
+[ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]
+[ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="3_dlgfocus"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_counter"]
+size = Vector3(1.4, 0.35, 0.9)
+
+[node name="ChurroCounterPlaceSetup" type="Node3D"]
+script = ExtResource("1_setup")
+
+[node name="ChurroCounterPlacePoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.05, 0)
+
+[node name="CashierFocusPoint" type="Marker3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.55, -1.2)
+script = ExtResource("3_dlgfocus")
+
+[node name="CounterInteractArea" type="Area3D" parent="." node_paths=PackedStringArray("interaction_handler")]
+script = ExtResource("2_ixdlg")
+prompt_text = "Presiona [E] para dejar el churro"
+use_camera_focus = false
+auto_find_focus_target = false
+proximity_radius = 2.2
+interaction_handler = NodePath("..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CounterInteractArea"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.12, 0)
+shape = SubResource("BoxShape3D_counter")
