@@ -35,4 +35,3 @@ func _start_narrative() -> void:
 	if scene_profile != null and not scene_profile.initial_scene_id.is_empty():
 		initial_scene = scene_profile.initial_scene_id
 	GameManager.begin_level(level_id, initial_scene, scene_profile)
-	MusicDirector.play_intro_music_once()

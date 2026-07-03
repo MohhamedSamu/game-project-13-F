@@ -3,6 +3,8 @@ extends Node
 const INTRO_MUSIC := preload("res://assets/audio/horrorMusic/intro de demo.mp3")
 const FLASHLIGHT_ITEM_ID: StringName = &"flashlight"
 const FLASHLIGHT_DIALOGUE_MULTIPLIER: float = 0.5
+const MUSIC_DIALOGUE_FADE_SECONDS: float = 0.35
+const MUSIC_DIALOGUE_MUTED_DB: float = -80.0
 const AMBIENCE_TRACKS: Array[AudioStream] = [
 	preload("res://assets/audio/horrorMusic/horror-ambience-1.mp3"),
 	preload("res://assets/audio/horrorMusic/horror-ambience-2.mp3"),
@@ -28,6 +30,8 @@ var _mode: Mode = Mode.NONE
 var _last_ambience_index: int = -1
 var _rng := RandomNumberGenerator.new()
 var _dialogue_flashlight_state: Dictionary = {}
+var _dialogue_music_state: Dictionary = {}
+var _music_fade_tween: Tween
 
 
 func _ready() -> void:
@@ -54,11 +58,15 @@ func _connect_dialogue_signals() -> void:
 
 
 func play_intro_music_once() -> void:
+	play_intro_music_loop()
+
+
+func play_intro_music_loop() -> void:
 	_stop_and_reset()
 	_mode = Mode.INTRO
 	if INTRO_MUSIC == null:
 		return
-	_player.stream = INTRO_MUSIC
+	_player.stream = _make_looping_stream(INTRO_MUSIC)
 	_player.play()
 
 
@@ -98,12 +106,14 @@ func is_playing_ambient() -> bool:
 
 
 func _on_dialogue_started(_resource: Resource) -> void:
+	_apply_dialogue_music_fade_out()
 	_restore_dialogue_flashlight_state()
 	_apply_dialogue_flashlight_state()
 
 
 func _on_dialogue_finished() -> void:
 	_restore_dialogue_flashlight_state()
+	_restore_dialogue_music_with_fade_in()
 
 
 func _apply_dialogue_flashlight_state() -> void:
@@ -149,6 +159,59 @@ func _restore_dialogue_flashlight_state() -> void:
 		flashlight.set_light_energy_multiplier(saved_multiplier)
 	if flashlight.has_method("set_light_mode") and saved_mode is int:
 		flashlight.set_light_mode(saved_mode)
+
+
+func _apply_dialogue_music_fade_out() -> void:
+	if _player == null or not _player.playing:
+		return
+	if not _dialogue_music_state.is_empty():
+		return
+
+	_dialogue_music_state = {
+		"mode": _mode,
+		"stream": _player.stream,
+		"volume": _player.volume_db,
+		"paused": _player.stream_paused,
+	}
+
+	_kill_music_fade_tween()
+	_music_fade_tween = create_tween()
+	_music_fade_tween.tween_property(_player, "volume_db", MUSIC_DIALOGUE_MUTED_DB, MUSIC_DIALOGUE_FADE_SECONDS)
+	_music_fade_tween.tween_callback(_pause_music_after_dialogue_fade)
+
+
+func _pause_music_after_dialogue_fade() -> void:
+	if _player == null:
+		return
+	_player.stream_paused = true
+
+
+func _restore_dialogue_music_with_fade_in() -> void:
+	if _dialogue_music_state.is_empty():
+		return
+	if _player == null:
+		_dialogue_music_state.clear()
+		return
+
+	var saved_volume: float = float(_dialogue_music_state.get("volume", 0.0))
+	var saved_paused: bool = bool(_dialogue_music_state.get("paused", false))
+	_player.stream_paused = saved_paused
+	_player.volume_db = MUSIC_DIALOGUE_MUTED_DB
+
+	_kill_music_fade_tween()
+	_music_fade_tween = create_tween()
+	_music_fade_tween.tween_property(_player, "volume_db", saved_volume, MUSIC_DIALOGUE_FADE_SECONDS)
+	_music_fade_tween.tween_callback(_finish_restoring_dialogue_music)
+
+
+func _finish_restoring_dialogue_music() -> void:
+	_dialogue_music_state.clear()
+
+
+func _kill_music_fade_tween() -> void:
+	if _music_fade_tween != null and _music_fade_tween.is_valid():
+		_music_fade_tween.kill()
+	_music_fade_tween = null
 
 
 func _play_next_ambience_track() -> void:
@@ -199,3 +262,15 @@ func _stop_and_reset() -> void:
 	if _player != null:
 		_player.stop()
 	_mode = Mode.NONE
+
+
+func _make_looping_stream(source: AudioStream) -> AudioStream:
+	if source is AudioStreamMP3:
+		var looped := (source as AudioStreamMP3).duplicate()
+		looped.loop = true
+		return looped
+	if source is AudioStreamWAV:
+		var looped_wav := (source as AudioStreamWAV).duplicate()
+		looped_wav.loop_mode = AudioStreamWAV.LOOP_FORWARD
+		return looped_wav
+	return source
