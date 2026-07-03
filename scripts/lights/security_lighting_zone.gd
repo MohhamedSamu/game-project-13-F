@@ -48,6 +48,9 @@ func _attach_omni_script(omni: OmniLight3D) -> void:
 	if saved_range > 0.01:
 		omni.set("night_omni_range", saved_range)
 	omni.set("day_light_energy", 0.0)
+	omni.set("light_specular_amount", 0.0)
+	if omni.name.begins_with("OmniLight3DSuper"):
+		omni.set("night_light_size", 0.0)
 	if omni.has_method("apply_time_profile"):
 		omni.apply_time_profile(1.0, 1.0)
 

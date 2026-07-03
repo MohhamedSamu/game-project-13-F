@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dhbowpye6tvdk"
-path.s3tc="res://.godot/imported/Ceiling_Fan_01.png-4267e407cbd0a2b059b782897da76769.s3tc.ctex"
-path.etc2="res://.godot/imported/Ceiling_Fan_01.png-4267e407cbd0a2b059b782897da76769.etc2.ctex"
+path.s3tc="res://.godot/imported/Ceiling_Fan_01.png-798ebab5905bb3485201385317a3f3fc.s3tc.ctex"
+path.etc2="res://.godot/imported/Ceiling_Fan_01.png-798ebab5905bb3485201385317a3f3fc.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Ceiling_Fan_01.png"
-dest_files=["res://.godot/imported/Ceiling_Fan_01.png-4267e407cbd0a2b059b782897da76769.s3tc.ctex", "res://.godot/imported/Ceiling_Fan_01.png-4267e407cbd0a2b059b782897da76769.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Ceiling_Fan_01.png"
+dest_files=["res://.godot/imported/Ceiling_Fan_01.png-798ebab5905bb3485201385317a3f3fc.s3tc.ctex", "res://.godot/imported/Ceiling_Fan_01.png-798ebab5905bb3485201385317a3f3fc.etc2.ctex"]
 
 [params]
 

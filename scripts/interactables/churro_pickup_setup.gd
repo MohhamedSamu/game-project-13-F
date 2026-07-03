@@ -33,6 +33,8 @@ func _align_to_target_churro() -> void:
 		return
 	global_position = _get_churro_interaction_point()
 	global_basis = target_churro_node.global_transform.basis.orthonormalized()
+	if Engine.is_editor_hint():
+		return
 	if _interact != null:
 		_interact.refresh_ray_target()
 

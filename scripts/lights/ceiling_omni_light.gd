@@ -21,12 +21,13 @@ extends OmniLight3D
 @export var cast_shadows: bool = true
 @export_range(0.0, 2.0, 0.01) var shadow_bias_setting: float = 0.12
 @export_range(0.0, 8.0, 0.1) var shadow_normal_bias_setting: float = 2.0
+@export_range(0.0, 1.0, 0.01) var light_specular_amount: float = 0.18
 
 func _ready() -> void:
 	add_to_group("security_lights")
 	distance_fade_enabled = false
 	light_indirect_energy = 0.0
-	light_specular = 0.18
+	light_specular = light_specular_amount
 	_apply_shadow_settings()
 	apply_time_profile(1.0, 1.0)
 

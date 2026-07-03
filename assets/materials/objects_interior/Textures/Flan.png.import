@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://d0gof28q8ul2e"
-path.s3tc="res://.godot/imported/Flan.png-2c901fe8ec0f9e246b6c6a8a3926e775.s3tc.ctex"
-path.etc2="res://.godot/imported/Flan.png-2c901fe8ec0f9e246b6c6a8a3926e775.etc2.ctex"
+path.s3tc="res://.godot/imported/Flan.png-9806086995e6f9c9b404fb765963e0d2.s3tc.ctex"
+path.etc2="res://.godot/imported/Flan.png-9806086995e6f9c9b404fb765963e0d2.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Flan.png"
-dest_files=["res://.godot/imported/Flan.png-2c901fe8ec0f9e246b6c6a8a3926e775.s3tc.ctex", "res://.godot/imported/Flan.png-2c901fe8ec0f9e246b6c6a8a3926e775.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Flan.png"
+dest_files=["res://.godot/imported/Flan.png-9806086995e6f9c9b404fb765963e0d2.s3tc.ctex", "res://.godot/imported/Flan.png-9806086995e6f9c9b404fb765963e0d2.etc2.ctex"]
 
 [params]
 

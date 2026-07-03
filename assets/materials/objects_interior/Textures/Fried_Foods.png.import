@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://s6kjvlqw3l14"
-path.s3tc="res://.godot/imported/Fried_Foods.png-0df9b00d9e0ee69a42361d300dc79c23.s3tc.ctex"
-path.etc2="res://.godot/imported/Fried_Foods.png-0df9b00d9e0ee69a42361d300dc79c23.etc2.ctex"
+path.s3tc="res://.godot/imported/Fried_Foods.png-bb81dd01075610188a197662bbea1894.s3tc.ctex"
+path.etc2="res://.godot/imported/Fried_Foods.png-bb81dd01075610188a197662bbea1894.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Fried_Foods.png"
-dest_files=["res://.godot/imported/Fried_Foods.png-0df9b00d9e0ee69a42361d300dc79c23.s3tc.ctex", "res://.godot/imported/Fried_Foods.png-0df9b00d9e0ee69a42361d300dc79c23.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Fried_Foods.png"
+dest_files=["res://.godot/imported/Fried_Foods.png-bb81dd01075610188a197662bbea1894.s3tc.ctex", "res://.godot/imported/Fried_Foods.png-bb81dd01075610188a197662bbea1894.etc2.ctex"]
 
 [params]
 

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bsgh4fgbrjt4c"
-path.s3tc="res://.godot/imported/Table_01.png-8d29a5ff9befeb78d30cd43989d9c15b.s3tc.ctex"
-path.etc2="res://.godot/imported/Table_01.png-8d29a5ff9befeb78d30cd43989d9c15b.etc2.ctex"
+path.s3tc="res://.godot/imported/Table_01.png-ef31affddcb7a2ea70088ce544825a59.s3tc.ctex"
+path.etc2="res://.godot/imported/Table_01.png-ef31affddcb7a2ea70088ce544825a59.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Table_01.png"
-dest_files=["res://.godot/imported/Table_01.png-8d29a5ff9befeb78d30cd43989d9c15b.s3tc.ctex", "res://.godot/imported/Table_01.png-8d29a5ff9befeb78d30cd43989d9c15b.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Table_01.png"
+dest_files=["res://.godot/imported/Table_01.png-ef31affddcb7a2ea70088ce544825a59.s3tc.ctex", "res://.godot/imported/Table_01.png-ef31affddcb7a2ea70088ce544825a59.etc2.ctex"]
 
 [params]
 

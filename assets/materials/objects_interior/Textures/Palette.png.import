@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://ccc4pw0swchfg"
-path.s3tc="res://.godot/imported/Palette.png-d5372966098e6c27524070775303e023.s3tc.ctex"
-path.etc2="res://.godot/imported/Palette.png-d5372966098e6c27524070775303e023.etc2.ctex"
+path.s3tc="res://.godot/imported/Palette.png-fd4d73c48222e598a69571f2a88de3ba.s3tc.ctex"
+path.etc2="res://.godot/imported/Palette.png-fd4d73c48222e598a69571f2a88de3ba.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Palette.png"
-dest_files=["res://.godot/imported/Palette.png-d5372966098e6c27524070775303e023.s3tc.ctex", "res://.godot/imported/Palette.png-d5372966098e6c27524070775303e023.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Palette.png"
+dest_files=["res://.godot/imported/Palette.png-fd4d73c48222e598a69571f2a88de3ba.s3tc.ctex", "res://.godot/imported/Palette.png-fd4d73c48222e598a69571f2a88de3ba.etc2.ctex"]
 
 [params]
 

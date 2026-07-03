@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://boknreilppxld"
-path.s3tc="res://.godot/imported/Garbage_bags.png-35eae5ab735244ebcf867bfa080e2ace.s3tc.ctex"
-path.etc2="res://.godot/imported/Garbage_bags.png-35eae5ab735244ebcf867bfa080e2ace.etc2.ctex"
+path.s3tc="res://.godot/imported/Garbage_bags.png-c28b59bc644ebb93295f30fccb75dfcf.s3tc.ctex"
+path.etc2="res://.godot/imported/Garbage_bags.png-c28b59bc644ebb93295f30fccb75dfcf.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Garbage_bags.png"
-dest_files=["res://.godot/imported/Garbage_bags.png-35eae5ab735244ebcf867bfa080e2ace.s3tc.ctex", "res://.godot/imported/Garbage_bags.png-35eae5ab735244ebcf867bfa080e2ace.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Garbage_bags.png"
+dest_files=["res://.godot/imported/Garbage_bags.png-c28b59bc644ebb93295f30fccb75dfcf.s3tc.ctex", "res://.godot/imported/Garbage_bags.png-c28b59bc644ebb93295f30fccb75dfcf.etc2.ctex"]
 
 [params]
 

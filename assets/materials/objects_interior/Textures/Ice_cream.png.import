@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://kuajoqgshigd"
-path.s3tc="res://.godot/imported/Ice_cream.png-944b769440d98382c24969a1dbc478d8.s3tc.ctex"
-path.etc2="res://.godot/imported/Ice_cream.png-944b769440d98382c24969a1dbc478d8.etc2.ctex"
+path.s3tc="res://.godot/imported/Ice_cream.png-73468804ac7ddc8b0a798d1ee9f8854a.s3tc.ctex"
+path.etc2="res://.godot/imported/Ice_cream.png-73468804ac7ddc8b0a798d1ee9f8854a.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Ice_cream.png"
-dest_files=["res://.godot/imported/Ice_cream.png-944b769440d98382c24969a1dbc478d8.s3tc.ctex", "res://.godot/imported/Ice_cream.png-944b769440d98382c24969a1dbc478d8.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Ice_cream.png"
+dest_files=["res://.godot/imported/Ice_cream.png-73468804ac7ddc8b0a798d1ee9f8854a.s3tc.ctex", "res://.godot/imported/Ice_cream.png-73468804ac7ddc8b0a798d1ee9f8854a.etc2.ctex"]
 
 [params]
 

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bncp1f42xsdr6"
-path.s3tc="res://.godot/imported/WallpaperForties.jpg-a3c33727cf6aa54221f92da0fe5bb632.s3tc.ctex"
-path.etc2="res://.godot/imported/WallpaperForties.jpg-a3c33727cf6aa54221f92da0fe5bb632.etc2.ctex"
+path.s3tc="res://.godot/imported/WallpaperForties.jpg-c28fadf992137063fa55241365913f27.s3tc.ctex"
+path.etc2="res://.godot/imported/WallpaperForties.jpg-c28fadf992137063fa55241365913f27.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/WallpaperForties.jpg"
-dest_files=["res://.godot/imported/WallpaperForties.jpg-a3c33727cf6aa54221f92da0fe5bb632.s3tc.ctex", "res://.godot/imported/WallpaperForties.jpg-a3c33727cf6aa54221f92da0fe5bb632.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/WallpaperForties.jpg"
+dest_files=["res://.godot/imported/WallpaperForties.jpg-c28fadf992137063fa55241365913f27.s3tc.ctex", "res://.godot/imported/WallpaperForties.jpg-c28fadf992137063fa55241365913f27.etc2.ctex"]
 
 [params]
 

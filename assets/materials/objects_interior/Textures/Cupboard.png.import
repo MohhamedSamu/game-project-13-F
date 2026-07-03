@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cmd7fkvdtscrm"
-path.s3tc="res://.godot/imported/Cupboard.png-3b3d88ec989678d216183e7b2d40e70e.s3tc.ctex"
-path.etc2="res://.godot/imported/Cupboard.png-3b3d88ec989678d216183e7b2d40e70e.etc2.ctex"
+path.s3tc="res://.godot/imported/Cupboard.png-7a1c12fdbe6e6445f24f6028416cec4e.s3tc.ctex"
+path.etc2="res://.godot/imported/Cupboard.png-7a1c12fdbe6e6445f24f6028416cec4e.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Cupboard.png"
-dest_files=["res://.godot/imported/Cupboard.png-3b3d88ec989678d216183e7b2d40e70e.s3tc.ctex", "res://.godot/imported/Cupboard.png-3b3d88ec989678d216183e7b2d40e70e.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Cupboard.png"
+dest_files=["res://.godot/imported/Cupboard.png-7a1c12fdbe6e6445f24f6028416cec4e.s3tc.ctex", "res://.godot/imported/Cupboard.png-7a1c12fdbe6e6445f24f6028416cec4e.etc2.ctex"]
 
 [params]
 

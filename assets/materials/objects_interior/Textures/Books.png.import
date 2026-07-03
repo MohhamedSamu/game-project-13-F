@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dc7lwrjt1hq2t"
-path.s3tc="res://.godot/imported/Books.png-c236d72709e2a1872d1ed3071a23a87f.s3tc.ctex"
-path.etc2="res://.godot/imported/Books.png-c236d72709e2a1872d1ed3071a23a87f.etc2.ctex"
+path.s3tc="res://.godot/imported/Books.png-0192206d73e7ced33c1548419eadc980.s3tc.ctex"
+path.etc2="res://.godot/imported/Books.png-0192206d73e7ced33c1548419eadc980.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Books.png"
-dest_files=["res://.godot/imported/Books.png-c236d72709e2a1872d1ed3071a23a87f.s3tc.ctex", "res://.godot/imported/Books.png-c236d72709e2a1872d1ed3071a23a87f.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Books.png"
+dest_files=["res://.godot/imported/Books.png-0192206d73e7ced33c1548419eadc980.s3tc.ctex", "res://.godot/imported/Books.png-0192206d73e7ced33c1548419eadc980.etc2.ctex"]
 
 [params]
 

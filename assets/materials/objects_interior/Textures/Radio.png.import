@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cinl5rekv161u"
-path.s3tc="res://.godot/imported/Radio.png-48ea35e5f1fe438f5eb4aa75c0a2b559.s3tc.ctex"
-path.etc2="res://.godot/imported/Radio.png-48ea35e5f1fe438f5eb4aa75c0a2b559.etc2.ctex"
+path.s3tc="res://.godot/imported/Radio.png-b1de6a9c0799b183efa2dab62b5b4fbc.s3tc.ctex"
+path.etc2="res://.godot/imported/Radio.png-b1de6a9c0799b183efa2dab62b5b4fbc.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Radio.png"
-dest_files=["res://.godot/imported/Radio.png-48ea35e5f1fe438f5eb4aa75c0a2b559.s3tc.ctex", "res://.godot/imported/Radio.png-48ea35e5f1fe438f5eb4aa75c0a2b559.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Radio.png"
+dest_files=["res://.godot/imported/Radio.png-b1de6a9c0799b183efa2dab62b5b4fbc.s3tc.ctex", "res://.godot/imported/Radio.png-b1de6a9c0799b183efa2dab62b5b4fbc.etc2.ctex"]
 
 [params]
 

@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cv10fqr8yt7gx"
-path.s3tc="res://.godot/imported/Wood_01.jpg-e61dd3fd7d2f5683b0ab70f70b477784.s3tc.ctex"
-path.etc2="res://.godot/imported/Wood_01.jpg-e61dd3fd7d2f5683b0ab70f70b477784.etc2.ctex"
+path.s3tc="res://.godot/imported/Wood_01.jpg-b1ffe278581191aaf4b6815c30930adf.s3tc.ctex"
+path.etc2="res://.godot/imported/Wood_01.jpg-b1ffe278581191aaf4b6815c30930adf.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Wood_01.jpg"
-dest_files=["res://.godot/imported/Wood_01.jpg-e61dd3fd7d2f5683b0ab70f70b477784.s3tc.ctex", "res://.godot/imported/Wood_01.jpg-e61dd3fd7d2f5683b0ab70f70b477784.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Wood_01.jpg"
+dest_files=["res://.godot/imported/Wood_01.jpg-b1ffe278581191aaf4b6815c30930adf.s3tc.ctex", "res://.godot/imported/Wood_01.jpg-b1ffe278581191aaf4b6815c30930adf.etc2.ctex"]
 
 [params]
 

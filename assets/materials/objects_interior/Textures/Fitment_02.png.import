@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://di8mssel2y4ax"
-path.s3tc="res://.godot/imported/Fitment_02.png-e055673fbb80ffd7a3bc4c1f18e5eff7.s3tc.ctex"
-path.etc2="res://.godot/imported/Fitment_02.png-e055673fbb80ffd7a3bc4c1f18e5eff7.etc2.ctex"
+path.s3tc="res://.godot/imported/Fitment_02.png-c88603745200d38ea0b25b76fd4e9a19.s3tc.ctex"
+path.etc2="res://.godot/imported/Fitment_02.png-c88603745200d38ea0b25b76fd4e9a19.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Fitment_02.png"
-dest_files=["res://.godot/imported/Fitment_02.png-e055673fbb80ffd7a3bc4c1f18e5eff7.s3tc.ctex", "res://.godot/imported/Fitment_02.png-e055673fbb80ffd7a3bc4c1f18e5eff7.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Fitment_02.png"
+dest_files=["res://.godot/imported/Fitment_02.png-c88603745200d38ea0b25b76fd4e9a19.s3tc.ctex", "res://.godot/imported/Fitment_02.png-c88603745200d38ea0b25b76fd4e9a19.etc2.ctex"]
 
 [params]
 
