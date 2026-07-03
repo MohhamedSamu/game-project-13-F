@@ -21,6 +21,12 @@ extends StaticBody3D
 		wall_thickness = maxf(value, 0.05)
 		_request_rebuild()
 
+@export_group("Estado")
+@export var wall_enabled: bool = true:
+	set(value):
+		wall_enabled = value
+		_request_rebuild()
+
 @export_group("Editor")
 ## Malla semitransparente en el editor (no aparece al jugar).
 @export var show_editor_preview: bool = true:
@@ -68,6 +74,7 @@ func _rebuild() -> void:
 	box.size = Vector3(wall_length, wall_height, wall_thickness)
 	_shape_node.transform = Transform3D.IDENTITY
 	_shape_node.position = Vector3(0.0, wall_height * 0.5, 0.0)
+	_shape_node.disabled = not wall_enabled
 
 	_sync_editor_preview()
 	_update_preview_visibility()
@@ -94,6 +101,16 @@ func _update_preview_visibility() -> void:
 	if _preview == null:
 		return
 	_preview.visible = Engine.is_editor_hint() and show_editor_preview
+
+
+func set_wall_enabled(value: bool) -> void:
+	wall_enabled = value
+	if _shape_node != null:
+		_shape_node.disabled = not wall_enabled
+
+
+func is_wall_enabled() -> bool:
+	return wall_enabled
 
 
 func _unique_box_shape() -> BoxShape3D:

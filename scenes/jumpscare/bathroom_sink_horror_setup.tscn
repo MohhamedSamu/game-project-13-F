@@ -71,3 +71,6 @@ bus = &"Music"
 [node name="DemonicLaughterPlayer" type="AudioStreamPlayer" parent="Audio"]
 stream = ExtResource("7_laugh")
 bus = &"SFX"
+
+[node name="PursuitPlayer" type="AudioStreamPlayer" parent="Audio"]
+bus = &"SFX"

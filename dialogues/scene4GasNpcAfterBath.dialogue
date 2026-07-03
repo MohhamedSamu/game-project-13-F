@@ -1,19 +1,19 @@
 ~ start
 
-Player: ¡Quítese! ¡Este baño está embrujado!
+Player: ¡QUITESE! ¡Ese baño está MALDITO.
 
-Old Man: ¿Qué dices?
+Old Man: ¿Cómo que maldito?
 
-Player: ¡Está saliendo sangre por el lavamanos! Hay una cara de venado demoníaca en la pared.
+Player: ¡Está saliendo sangre del lavamanos! ¡Y hay una cara de venado en la pared!
 
-Old Man: "..."
+Old Man: ...
 
 do Scene4BathroomExitDirector.peek_into_empty_bathroom()
 
-Old Man: Qué ni hay venados en esta zona, porque estamos en Apopa...
-Old Man: Y tampoco hay ni agua, porque... estamos en Apopa.
-Old Man: Qué mejor vaya a comer algo y tomar una soda, porque parece que está alucinando cosas.
-Old Man: Bueno, te dejo porque la oficina me llama y tengo que hacer algunas llamadas.
+Old Man: Aquí no hay venados, muchacho. estamos en Apopa.
+Old Man: Y tampoco hay agua, porque... estamos en Apopa.
+Old Man: Mejor váyase a comer algo y a tomarse una soda. Usted ya anda viendo cosas.
+Old Man: Yo me voy, porque la oficina me está llamando y tengo que hacer unas llamadas.
 
 do Scene4BathroomExitDirector.trigger_toilet_cubicle_exit()
 

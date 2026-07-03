@@ -54,6 +54,7 @@ func _on_dialogue_closed_fallback() -> void:
 		return
 	_awaiting_post_dialogue_exit = false
 	await Scene4BathroomExitDirector.enter_toilet_cubicle()
+	MusicDirector.exit_tension_and_resume_ambient(30.0)
 
 
 func _on_jumpscare_starting() -> void:
@@ -75,3 +76,4 @@ func _lock_gas_station_npc() -> void:
 func _on_jumpscare_dialogue_finished() -> void:
 	_awaiting_post_dialogue_exit = false
 	await Scene4BathroomExitDirector.enter_toilet_cubicle()
+	MusicDirector.exit_tension_and_resume_ambient(30.0)

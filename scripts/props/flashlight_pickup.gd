@@ -44,11 +44,14 @@ var _saved_layer: int = 1
 var _saved_mask: int = 1
 var _spot_far: SpotLight3D
 var _spot_near: SpotLight3D
+var _spot_far_base_energy: float = 0.0
+var _spot_near_base_energy: float = 0.0
 var _visual: Node3D
 var _visual_default_transform: Transform3D
 var _lights: Node3D
 var _lights_ground_transform: Transform3D
 var _mode: LightMode = LightMode.FAR
+var _light_energy_multiplier: float = 1.0
 var _held_in_hand: bool = false
 var _sfx_player: AudioStreamPlayer3D
 
@@ -76,6 +79,10 @@ func _ready() -> void:
 	_sfx_player = find_child("ToggleSFX", true, false) as AudioStreamPlayer3D
 	_fix_negative_rb_scale()
 	_disable_mesh_shadow_casting()
+	if _spot_far != null:
+		_spot_far_base_energy = _spot_far.light_energy
+	if _spot_near != null:
+		_spot_near_base_energy = _spot_near.light_energy
 	_apply_lights_ground_transform()
 	_apply_light_state()
 	InteractableHighlight.ensure_on(self)
@@ -124,8 +131,10 @@ func _apply_lights_hold_transform() -> void:
 func _apply_light_state() -> void:
 	if _spot_far != null:
 		_spot_far.visible = _mode == LightMode.FAR
+		_spot_far.light_energy = _spot_far_base_energy * _light_energy_multiplier if _spot_far.visible else 0.0
 	if _spot_near != null:
 		_spot_near.visible = _mode == LightMode.NEAR
+		_spot_near.light_energy = _spot_near_base_energy * _light_energy_multiplier if _spot_near.visible else 0.0
 
 
 func get_interaction_prompt() -> String:
@@ -216,6 +225,19 @@ func _basis_beam_along_forward(fwd: Vector3) -> Basis:
 
 func set_light_mode(mode: LightMode) -> void:
 	_mode = mode
+	_apply_light_state()
+
+
+func get_light_mode() -> LightMode:
+	return _mode
+
+
+func get_light_energy_multiplier() -> float:
+	return _light_energy_multiplier
+
+
+func set_light_energy_multiplier(multiplier: float) -> void:
+	_light_energy_multiplier = maxf(multiplier, 0.0)
 	_apply_light_state()
 
 

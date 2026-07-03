@@ -39,6 +39,7 @@ func _connect_jumpscare() -> void:
 
 
 func _on_jumpscare_dialogue_finished() -> void:
+	MusicDirector.play_ambience()
 	await _run_exit_walk()
 
 
