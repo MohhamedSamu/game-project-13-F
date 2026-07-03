@@ -14,16 +14,16 @@ Juan: Oye, esa es mi linterna. ¿Qué haces?
 ~ explain_keep
 
 Juan: Mira, quédatela. El gobierno me las regala de todos modos.
-Juan: Tiene tres modos: luz lejana, luz cercana y apagado.
+Juan: Tiene tres modos que puedes cambiar: luz lejana, luz cercana y apagado.
 
-- ¿Voy a necesitar una linterna a pleno mediodía?
+- ¿De verdad voy a necesitar una linterna a pleno mediodía?
 
 Juan: Tienes razón... No sería un juego de miedo si no fuera de noche.
 
 do Scene1PoliceDirector.play_fourth_wall_night_transition()
 
 Juan: Ahora sí. Mejor.
-Juan: Como te decía, la vas a necesitar. Yo me voy... El del surtidor me cae mal igual.
+Juan: Como te decía, la vas a necesitar. Yo me voy... El del surtidor de la gasolinera me cae mal igual.
 
 - Antes de eso, ¿gasolinera? ¿Está cerca?
 
