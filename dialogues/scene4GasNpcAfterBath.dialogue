@@ -1,6 +1,6 @@
 ~ start
 
-Player: ¡Espérese! Ese baño está maldito.
+Player: ¡QUITESE! Ese baño está MALDITO.
 
 Old Man: ¿Cómo que maldito?
 
@@ -11,7 +11,7 @@ Old Man: ...
 do Scene4BathroomExitDirector.peek_into_empty_bathroom()
 
 Old Man: Aquí no hay venados, muchacho. estamos en Apopa.
-Old Man: Y agua tampoco hay aquí, porque... estamos en Apopa.
+Old Man: Y tampoco hay agua, porque... estamos en Apopa.
 Old Man: Mejor váyase a comer algo y a tomarse una soda. Usted ya anda viendo cosas.
 Old Man: Yo me voy, porque la oficina me está llamando y tengo que hacer unas llamadas.
 

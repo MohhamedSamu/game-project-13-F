@@ -106,8 +106,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.00403053, 0.00403049)
-shader_parameter/cirrus_position2 = Vector2(0.00403053, 0.00403049)
+shader_parameter/cirrus_position1 = Vector2(0.0499559, 0.0499557)
+shader_parameter/cirrus_position2 = Vector2(0.0499559, 0.0499557)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -117,7 +117,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.0201526, 0.0201525)
+shader_parameter/cumulus_position = Vector2(5.2506, 5.25059)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -716,7 +716,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39.325, 8.46172, 26.5)
 [node name="JuanExitPath" type="Node3D" parent="Jumpscares/Scene1FlashlightPickup"]
 
 [node name="JuanExitWP1_BetweenTrees" type="Marker3D" parent="Jumpscares/Scene1FlashlightPickup/JuanExitPath"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 89.9786, 0.01, 22.4793)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 89.9786, 0.01, 23.9665)
 
 [node name="JuanExitWP2_UnderLamp" type="Marker3D" parent="Jumpscares/Scene1FlashlightPickup/JuanExitPath"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.8151, 0.01, 30.4678)
