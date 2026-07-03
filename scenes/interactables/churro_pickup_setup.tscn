@@ -14,7 +14,6 @@ script = ExtResource("1_setup")
 hand_hold_offset = Vector3(0.05, -0.12, -0.32)
 hand_hold_rotation_deg = Vector3(20, 90, -8)
 hand_size_multiplier = 0.55
-mesh_hold_rotation_deg = null
 
 [node name="InteractableDialogueComponent" type="Area3D" parent="." node_paths=PackedStringArray("interaction_handler")]
 script = ExtResource("2_ixdlg")

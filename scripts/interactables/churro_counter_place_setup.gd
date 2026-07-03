@@ -2,6 +2,8 @@ extends Node3D
 
 @export var counter_item_rotation_deg: Vector3 = Vector3(-90.0, 0.0, 0.0)
 @export_range(0.1, 3.0, 0.01) var counter_item_scale: float = 1.0
+## Velocidad de giro de cámara al dejar el churro (menor = más lento; default jugador ≈ 2.5).
+@export var place_camera_focus_speed: float = 1.35
 
 @onready var _place_point: Marker3D = $ChurroCounterPlacePoint
 @onready var _cashier_focus: Marker3D = $CashierFocusPoint
@@ -12,6 +14,14 @@ var _counter_churro: Node3D
 
 func _ready() -> void:
 	add_to_group("churro_counter_place")
+	sync_interact_area()
+
+
+func sync_interact_area() -> void:
+	if _interact == null:
+		return
+	var active := can_handle_interaction()
+	_interact.monitorable = active
 
 
 func get_cashier_focus() -> Node3D:

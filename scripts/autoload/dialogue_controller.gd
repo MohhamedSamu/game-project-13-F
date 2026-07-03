@@ -9,16 +9,18 @@ func start_dialogue(
 	dialogue_resource: DialogueResource,
 	title: String = "start",
 	focus_target: Node3D = null,
-	use_camera_focus: bool = true
+	use_camera_focus: bool = true,
+	camera_focus_speed: float = -1.0
 ) -> void:
-	_run_start_dialogue(dialogue_resource, title, focus_target, use_camera_focus)
+	_run_start_dialogue(dialogue_resource, title, focus_target, use_camera_focus, camera_focus_speed)
 
 
 func _run_start_dialogue(
 	dialogue_resource: DialogueResource,
 	title: String,
 	focus_target: Node3D,
-	use_camera_focus: bool = true
+	use_camera_focus: bool = true,
+	camera_focus_speed: float = -1.0
 ) -> void:
 	if GameManager.dialogue_active:
 		return
@@ -38,9 +40,9 @@ func _run_start_dialogue(
 		use_camera_focus
 		and GameManager.player
 		and focus_target
-		and GameManager.player.has_method("focus_camera_on")
+		and 		GameManager.player.has_method("focus_camera_on")
 	):
-		GameManager.player.focus_camera_on(focus_target)
+		GameManager.player.focus_camera_on(focus_target, camera_focus_speed)
 
 	var stand_owner := _find_dialogue_stand_owner(focus_target)
 	if stand_owner is DialogueFocusPoint and not (stand_owner as DialogueFocusPoint).use_stand_position:

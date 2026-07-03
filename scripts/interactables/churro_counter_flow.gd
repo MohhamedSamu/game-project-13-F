@@ -15,6 +15,7 @@ static func on_churro_received_in_hand() -> void:
 	GameManager.set_flag("has_churro_in_left_hand", true)
 	GameManager.set_flag("churro_taken", true)
 	GameManager.set_flag("needs_churro", false)
+	CounterPlaceCamera.refresh_counter_interact_areas()
 	InnerThoughts.hide_thought()
 
 
@@ -62,7 +63,8 @@ static func _execute_place(
 	if DialogueController.dialogue_finished.is_connected(_on_counter_dialogue_finished):
 		DialogueController.dialogue_finished.disconnect(_on_counter_dialogue_finished)
 	DialogueController.dialogue_finished.connect(_on_counter_dialogue_finished, CONNECT_ONE_SHOT)
-	DialogueController.start_dialogue(DIALOGUE, "start", focus, use_camera_focus)
+	var focus_speed := CounterPlaceCamera.resolve_focus_speed(place_setup, use_camera_focus)
+	DialogueController.start_dialogue(DIALOGUE, "start", focus, use_camera_focus, focus_speed)
 
 
 static func _find_place_setup() -> Node:
@@ -75,3 +77,4 @@ static func _find_place_setup() -> Node:
 static func _on_counter_dialogue_finished() -> void:
 	GameManager.set_flag("churro_placed_on_counter", true)
 	GameManager.set_flag("ready_for_cashier_jumpscare", true)
+	CounterPlaceCamera.refresh_counter_interact_areas()

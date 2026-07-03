@@ -138,6 +138,7 @@ var camera_focus_target: Node3D = null
 var camera_focus_world_point: Vector3 = Vector3.ZERO
 var camera_focus_world_active: bool = false
 var focusing_camera: bool = false
+var _active_dialogue_focus_speed: float = -1.0
 var repositioning_for_dialogue: bool = false
 var dialogue_reposition_goal: Vector3 = Vector3.ZERO
 var _interaction_crosshair: Control
@@ -417,7 +418,19 @@ func _interaction_raycast() -> Dictionary:
 		if hit.is_empty():
 			return {}
 		var collider: Object = hit.get("collider")
-		if _resolve_interactable(collider) != null:
+		var interactable := _resolve_interactable(collider)
+		if interactable != null:
+			if interactable.has_method("can_interact") and not interactable.can_interact():
+				var blocked_rid := _collision_object_rid(collider)
+				if blocked_rid.is_valid():
+					exclude_rids.append(blocked_rid)
+				else:
+					return {}
+				var blocked_pos: Vector3 = hit.position
+				var blocked_step := origin.distance_to(blocked_pos) + RAY_SKIN
+				traveled += blocked_step
+				origin = blocked_pos + dir * RAY_SKIN
+				continue
 			return hit
 		var body_rid := _collision_object_rid(collider)
 		if not body_rid.is_valid():
@@ -1065,9 +1078,10 @@ func check_input_mappings():
 		push_error("Freefly disabled. No InputAction found for input_freefly: " + input_freefly)
 		can_freefly = false
 
-func focus_camera_on(target: Node3D) -> void:
+func focus_camera_on(target: Node3D, speed_override: float = -1.0) -> void:
 	camera_focus_world_active = false
 	camera_focus_target = target
+	_active_dialogue_focus_speed = speed_override
 	focusing_camera = target != null
 
 
@@ -1081,6 +1095,7 @@ func focus_camera_on_world_point(world_point: Vector3) -> void:
 func clear_camera_focus() -> void:
 	camera_focus_world_active = false
 	camera_focus_target = null
+	_active_dialogue_focus_speed = -1.0
 	focusing_camera = false
 	clear_dialogue_reposition()
 
@@ -1148,14 +1163,15 @@ func _update_dialogue_camera_focus(delta: float) -> void:
 		return
 	var camera_pos := camera_3d.global_position
 	var direction := (target_pos - camera_pos).normalized()
+	var focus_speed := dialogue_focus_speed if _active_dialogue_focus_speed < 0.0 else _active_dialogue_focus_speed
 
 	var target_yaw := atan2(-direction.x, -direction.z)
-	look_rotation.y = lerp_angle(look_rotation.y, target_yaw, dialogue_focus_speed * delta)
+	look_rotation.y = lerp_angle(look_rotation.y, target_yaw, focus_speed * delta)
 
 	var local_direction := global_transform.basis.inverse() * direction
 	var target_pitch := atan2(local_direction.y, -local_direction.z)
 	target_pitch = clamp(target_pitch, deg_to_rad(-85), deg_to_rad(85))
-	look_rotation.x = lerp_angle(look_rotation.x, target_pitch, dialogue_focus_speed * delta)
+	look_rotation.x = lerp_angle(look_rotation.x, target_pitch, focus_speed * delta)
 
 	transform.basis = Basis()
 	rotate_y(look_rotation.y)

@@ -109,8 +109,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.199481, 0.199481)
-shader_parameter/cirrus_position2 = Vector2(0.199481, 0.199481)
+shader_parameter/cirrus_position1 = Vector2(0.509298, 0.509298)
+shader_parameter/cirrus_position2 = Vector2(0.509298, 0.509298)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -120,7 +120,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(5.99767, 5.99766)
+shader_parameter/cumulus_position = Vector2(7.54563, 7.54563)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -211,67 +211,67 @@ open_angle_degrees = -90.0
 [node name="ChurroPickup_Frying_02_001" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 2.20964, 1.54641, -17.3977)
 target_churro_node = NodePath("../../Frying_02_001")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_02_002" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 2.37679, 1.54641, -17.507)
 target_churro_node = NodePath("../../Frying_02_002")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_02_003" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 2.5628, 1.54641, -17.3977)
 target_churro_node = NodePath("../../Frying_02_003")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_03_001" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 3.34959, 1.54112, -17.5145)
 target_churro_node = NodePath("../../Frying_03_001")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_03_002" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 2.90101, 1.54112, -17.4136)
 target_churro_node = NodePath("../../Frying_03_002")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_03_003" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 3.24605, 1.54112, -17.4136)
 target_churro_node = NodePath("../../Frying_03_003")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_17_001" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 4.50119, 1.54678, -17.4409)
 target_churro_node = NodePath("../../Frying_17_001")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_17_002" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 5.00518, 1.54678, -17.5235)
 target_churro_node = NodePath("../../Frying_17_002")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_17_003" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 4.8541, 1.54678, -17.4409)
 target_churro_node = NodePath("../../Frying_17_003")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_13_001" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 4.33427, 1.54239, -17.5102)
 target_churro_node = NodePath("../../Frying_13_001")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_13_002" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 3.85545, 1.54239, -17.4162)
 target_churro_node = NodePath("../../Frying_13_002")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_13_003" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 4.18499, 1.54239, -17.4162)
 target_churro_node = NodePath("../../Frying_13_003")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_08_001" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 3.58846, 1.54732, -17.3995)
 target_churro_node = NodePath("../../Frying_08_001")
-mesh_hold_rotation_deg = null
+mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="invisibleObjects" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3179, 0, -12.0213)
@@ -639,7 +639,7 @@ pump_2_look_target = NodePath("../NPCMarkers/GasNPC_Pump2LookTarget")
 transform = Transform3D(0.11752, 0, -0.99307, 0, 1, 0, 0.99307, 0, 0.11752, 7.79153, 0.126631, -14.0619)
 
 [node name="CocaCounterPlaceSetup" parent="." instance=ExtResource("53_cocacounter")]
-transform = Transform3D(0.11752, 0, -0.99307, 0, 1, 0, 0.99307, 0, 0.11752, 6.80401, 1.26395, -14.2426)
+transform = Transform3D(0.11752, 0, -0.99307, 0, 1, 0, 0.99307, 0, 0.11752, 6.80401, 1.26395, -14.099)
 
 [node name="ChurroCounterPlaceSetup" parent="." instance=ExtResource("55_churro_counter")]
 transform = Transform3D(-0.0604736, 0, -0.998169, 0, 1, 0, 0.998169, 0, -0.0604736, 6.80401, 1.26395, -14.1508)
