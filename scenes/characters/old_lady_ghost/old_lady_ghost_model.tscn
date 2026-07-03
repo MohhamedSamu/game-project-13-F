@@ -48,4 +48,4 @@ bones/31/rotation = Quaternion(0.36829, -0.00791126, 0.00318117, 0.929672)
 surface_material_override/0 = SubResource("StandardMaterial3D_qlxk4")
 
 [node name="AnimationPlayer" parent="." index="1"]
-autoplay = "old_lady_idle"
+process_mode = 3

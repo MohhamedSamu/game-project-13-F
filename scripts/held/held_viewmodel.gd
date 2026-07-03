@@ -51,7 +51,7 @@ static func _apply_viewmodel_mesh(mesh: MeshInstance3D) -> void:
 	var color := _resolve_albedo_color(mesh)
 	var mat := ShaderMaterial.new()
 	mat.shader = VIEWMODEL_SHADER
-	mat.render_priority = 128
+	mat.render_priority = BaseMaterial3D.RENDER_PRIORITY_MAX
 	mat.set_shader_parameter("albedo_color", color)
 	mat.set_shader_parameter("albedo_alpha", color.a)
 	if tex != null:

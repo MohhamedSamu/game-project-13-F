@@ -496,6 +496,11 @@ func _clear_interaction_focus_ui() -> void:
 	_apply_interaction_highlight(null)
 
 
+func clear_interaction_focus() -> void:
+	_focus_interactable = null
+	_clear_interaction_focus_ui()
+
+
 func _apply_interaction_highlight(focus: Node) -> void:
 	if _highlighted_interactable == focus:
 		return

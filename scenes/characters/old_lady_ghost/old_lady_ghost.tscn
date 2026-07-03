@@ -10,7 +10,30 @@ script = ExtResource("1_script")
 
 [node name="OldLadyGhostModel" parent="Model" instance=ExtResource("2_model")]
 
+[node name="RevealLights" type="Node3D" parent="."]
+
+[node name="HeadLightAnchor" type="Marker3D" parent="RevealLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.52, 0.12)
+
+[node name="FaceLightAnchor" type="Marker3D" parent="RevealLights/HeadLightAnchor"]
+transform = Transform3D(1, 0, 0, 0, 0.906308, 0.422618, 0, -0.422618, 0.906308, 0, -0.08, 0.32)
+
+[node name="OldLadyFaceLight" type="SpotLight3D" parent="RevealLights/HeadLightAnchor/FaceLightAnchor"]
+light_color = Color(0.78, 0.86, 0.98, 1)
+light_energy = 2.1
+spot_attenuation = 0.75
+spot_angle = 52.0
+
+[node name="ChestLightAnchor" type="Marker3D" parent="RevealLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.1, 0.5)
+
+[node name="OldLadyRevealLight" type="OmniLight3D" parent="RevealLights/ChestLightAnchor"]
+light_color = Color(0.74, 0.82, 0.96, 1)
+light_energy = 2.8
+omni_range = 5.5
+omni_attenuation = 1.35
+
 [node name="OptionalMarkers" type="Node3D" parent="."]
 
 [node name="HeadFocusPoint" type="Marker3D" parent="OptionalMarkers"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.62, 0.08)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.52, 0.12)

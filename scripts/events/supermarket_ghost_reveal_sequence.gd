@@ -8,6 +8,7 @@ const DONE_FLAG := &"supermarket_ghost_reveal_done"
 @export var cashier_npc: Node3D
 @export var old_lady_ghost: Node3D
 @export var supermarket_lights: Array[Light3D] = []
+@export var reveal_dimmed_lights: Array[Light3D] = []
 
 @export_group("Trigger")
 @export var trigger_flag: String = "ready_for_cashier_jumpscare"
@@ -17,8 +18,12 @@ const DONE_FLAG := &"supermarket_ghost_reveal_done"
 @export var pre_blackout_flicker_time: float = 1.2
 @export var blackout_time: float = 1.0
 @export var lights_return_delay: float = 0.1
+@export var ghost_reveal_delay_after_lights: float = 0.08
 @export var after_reveal_hold_time: float = 2.5
 @export var player_release_delay: float = 0.4
+
+@export_group("Iluminación cajera")
+@export_range(0.0, 1.0, 0.05) var reveal_dimmed_light_multiplier: float = 0.0
 
 @export_group("Jugador")
 @export var lock_player_movement: bool = true
@@ -33,7 +38,11 @@ const DONE_FLAG := &"supermarket_ghost_reveal_done"
 
 var _running: bool = false
 var _light_states: Dictionary = {}
-var _cashier_interact: Area3D
+var _reveal_dimmed_light_states: Dictionary = {}
+var _cashier_interact: InteractableDialogueComponent
+var _cashier_focus_hitbox: Area3D
+var _cashier_saved_states: Dictionary = {}
+var _cashier_deactivated: bool = false
 var _scream_player: AudioStreamPlayer
 var _saved_can_move: bool = true
 var _saved_interaction_enabled: bool = true
@@ -54,6 +63,10 @@ func _ready() -> void:
 		old_lady_ghost.hide_ghost()
 	elif old_lady_ghost != null:
 		old_lady_ghost.visible = false
+
+	if GameManager.get_flag(STARTED_FLAG) and not _cashier_deactivated:
+		call_deferred("_resolve_cashier_refs")
+		call_deferred("_set_cashier_active", false)
 
 	if run_once and GameManager.get_flag(DONE_FLAG):
 		return
@@ -80,7 +93,7 @@ func _run_sequence() -> void:
 	await get_tree().process_frame
 
 	_cache_light_states()
-	_resolve_cashier_interact()
+	_resolve_cashier_refs()
 	_lock_player()
 	_dip_ambient_if_enabled()
 
@@ -88,7 +101,7 @@ func _run_sequence() -> void:
 	await get_tree().create_timer(0.12).timeout
 
 	_turn_lights_off()
-	_hide_cashier()
+	_set_cashier_active(false)
 
 	await get_tree().create_timer(blackout_time).timeout
 
@@ -96,8 +109,13 @@ func _run_sequence() -> void:
 		await get_tree().create_timer(lights_return_delay).timeout
 
 	await _restore_lights_with_sting()
+	_apply_reveal_dimmed_lights()
+
+	if ghost_reveal_delay_after_lights > 0.0:
+		await get_tree().create_timer(ghost_reveal_delay_after_lights).timeout
+
 	_play_scream()
-	_reveal_ghost()
+	await _reveal_ghost()
 
 	if after_reveal_hold_time > 0.0:
 		await get_tree().create_timer(after_reveal_hold_time).timeout
@@ -120,7 +138,16 @@ func _cache_light_states() -> void:
 			continue
 		var id := light.get_instance_id()
 		_light_states[id] = {
-			"enabled": light.light_energy > 0.0,
+			"visible": light.visible,
+			"energy": light.light_energy,
+		}
+
+	_reveal_dimmed_light_states.clear()
+	for light in reveal_dimmed_lights:
+		if light == null:
+			continue
+		var dim_id := light.get_instance_id()
+		_reveal_dimmed_light_states[dim_id] = {
 			"visible": light.visible,
 			"energy": light.light_energy,
 		}
@@ -148,7 +175,7 @@ func _turn_lights_off() -> void:
 	_set_lights_energy(0.0)
 
 
-func _restore_lights() -> void:
+func _restore_lights(apply_cashier_override: bool = true) -> void:
 	for light in supermarket_lights:
 		if light == null:
 			continue
@@ -158,6 +185,28 @@ func _restore_lights() -> void:
 		var state: Dictionary = _light_states[id]
 		light.visible = state["visible"]
 		light.light_energy = state["energy"]
+
+	if apply_cashier_override:
+		_apply_reveal_dimmed_lights()
+
+
+func _apply_reveal_dimmed_lights() -> void:
+	if reveal_dimmed_lights.is_empty() or _reveal_dimmed_light_states.is_empty():
+		return
+	for light in reveal_dimmed_lights:
+		if light == null:
+			continue
+		var dim_id := light.get_instance_id()
+		if not _reveal_dimmed_light_states.has(dim_id):
+			continue
+		var saved: Dictionary = _reveal_dimmed_light_states[dim_id]
+		var base_energy: float = saved["energy"]
+		if reveal_dimmed_light_multiplier <= 0.001:
+			light.light_energy = 0.0
+			light.visible = false
+		else:
+			light.visible = saved["visible"]
+			light.light_energy = base_energy * reveal_dimmed_light_multiplier
 
 
 func _flicker_lights_short() -> void:
@@ -193,22 +242,121 @@ func _flicker_lights_short() -> void:
 
 
 func _restore_lights_with_sting() -> void:
-	_restore_lights()
+	_restore_lights(false)
 	await get_tree().create_timer(0.05).timeout
 	_turn_lights_off()
 	await get_tree().create_timer(0.1).timeout
-	_restore_lights()
+	_restore_lights(true)
 
 
-func _hide_cashier() -> void:
+func _set_cashier_active(active: bool) -> void:
 	if cashier_npc == null:
 		push_warning("SupermarketGhostRevealSequence: cashier_npc no asignado.")
 		return
 
+	_resolve_cashier_refs()
+
+	if active:
+		if _cashier_saved_states.is_empty():
+			return
+		cashier_npc.visible = _cashier_saved_states.get("npc_visible", true)
+		_restore_dialogue_component_state()
+		_restore_focus_hitbox_state()
+		_cashier_saved_states.clear()
+		_cashier_deactivated = false
+		return
+
+	if _cashier_saved_states.is_empty():
+		_cache_cashier_states()
+
 	cashier_npc.visible = false
+	_disable_dialogue_component()
+	_disable_focus_hitbox()
+	_clear_player_interaction_focus()
+	_cashier_deactivated = true
+
+
+func _cache_cashier_states() -> void:
+	_cashier_saved_states.clear()
+	_cashier_saved_states["npc_visible"] = cashier_npc.visible
+
 	if _cashier_interact != null:
-		_cashier_interact.set_deferred("monitoring", false)
-		_cashier_interact.set_deferred("monitorable", false)
+		_cashier_saved_states["dialogue_enabled"] = _cashier_interact.enabled
+		_cashier_saved_states["dialogue_monitoring"] = _cashier_interact.monitoring
+		_cashier_saved_states["dialogue_monitorable"] = _cashier_interact.monitorable
+		_cashier_saved_states["dialogue_collision_layer"] = _cashier_interact.collision_layer
+		_cashier_saved_states["dialogue_shape_disabled"] = _get_collision_shape_disabled(_cashier_interact)
+
+	if _cashier_focus_hitbox != null:
+		_cashier_saved_states["focus_monitoring"] = _cashier_focus_hitbox.monitoring
+		_cashier_saved_states["focus_monitorable"] = _cashier_focus_hitbox.monitorable
+		_cashier_saved_states["focus_collision_layer"] = _cashier_focus_hitbox.collision_layer
+		_cashier_saved_states["focus_shape_disabled"] = _get_collision_shape_disabled(_cashier_focus_hitbox)
+
+
+func _disable_dialogue_component() -> void:
+	if _cashier_interact == null:
+		return
+	_cashier_interact.enabled = false
+	_cashier_interact.monitoring = false
+	_cashier_interact.monitorable = false
+	_cashier_interact.collision_layer = 0
+	_set_collision_shapes_disabled(_cashier_interact, true)
+
+
+func _restore_dialogue_component_state() -> void:
+	if _cashier_interact == null:
+		return
+	_cashier_interact.enabled = _cashier_saved_states.get("dialogue_enabled", true)
+	_cashier_interact.monitoring = _cashier_saved_states.get("dialogue_monitoring", true)
+	_cashier_interact.monitorable = _cashier_saved_states.get("dialogue_monitorable", true)
+	_cashier_interact.collision_layer = _cashier_saved_states.get("dialogue_collision_layer", 1)
+	_set_collision_shapes_disabled(
+		_cashier_interact,
+		_cashier_saved_states.get("dialogue_shape_disabled", false)
+	)
+
+
+func _disable_focus_hitbox() -> void:
+	if _cashier_focus_hitbox == null:
+		return
+	_cashier_focus_hitbox.monitoring = false
+	_cashier_focus_hitbox.monitorable = false
+	_cashier_focus_hitbox.collision_layer = 0
+	_set_collision_shapes_disabled(_cashier_focus_hitbox, true)
+
+
+func _restore_focus_hitbox_state() -> void:
+	if _cashier_focus_hitbox == null:
+		return
+	_cashier_focus_hitbox.monitoring = _cashier_saved_states.get("focus_monitoring", false)
+	_cashier_focus_hitbox.monitorable = _cashier_saved_states.get("focus_monitorable", true)
+	_cashier_focus_hitbox.collision_layer = _cashier_saved_states.get("focus_collision_layer", 1)
+	_set_collision_shapes_disabled(
+		_cashier_focus_hitbox,
+		_cashier_saved_states.get("focus_shape_disabled", false)
+	)
+
+
+func _get_collision_shape_disabled(root: Node) -> bool:
+	for child in root.get_children():
+		if child is CollisionShape3D:
+			return (child as CollisionShape3D).disabled
+	return false
+
+
+func _set_collision_shapes_disabled(root: Node, disabled: bool) -> void:
+	for child in root.get_children():
+		if child is CollisionShape3D:
+			(child as CollisionShape3D).disabled = disabled
+
+
+func _clear_player_interaction_focus() -> void:
+	var player: Node = GameManager.get_player()
+	if player == null:
+		return
+	if player.has_method("clear_interaction_focus"):
+		player.clear_interaction_focus()
 
 
 func _reveal_ghost() -> void:
@@ -217,8 +365,10 @@ func _reveal_ghost() -> void:
 		return
 
 	if old_lady_ghost.has_method("reveal"):
-		old_lady_ghost.reveal()
-	elif old_lady_ghost.has_method("set_visible_state"):
+		await old_lady_ghost.reveal()
+		return
+
+	if old_lady_ghost.has_method("set_visible_state"):
 		old_lady_ghost.set_visible_state(true)
 	else:
 		old_lady_ghost.visible = true
@@ -232,26 +382,19 @@ func _play_scream() -> void:
 	_scream_player.play()
 
 
-func _resolve_cashier_interact() -> void:
+func _resolve_cashier_refs() -> void:
 	_cashier_interact = null
+	_cashier_focus_hitbox = null
 	if cashier_npc == null:
 		return
 
 	var interact := cashier_npc.get_node_or_null("InteractableDialogueComponent")
-	if interact is Area3D:
-		_cashier_interact = interact as Area3D
-		return
+	if interact is InteractableDialogueComponent:
+		_cashier_interact = interact as InteractableDialogueComponent
 
-	for child in cashier_npc.get_children():
-		if not (child is Area3D):
-			continue
-		var child_script: Script = child.get_script()
-		if child_script == null:
-			continue
-		var script_path: String = child_script.resource_path
-		if script_path.ends_with("interactable_dialogue_component.gd"):
-			_cashier_interact = child as Area3D
-			return
+	var focus_hitbox := cashier_npc.get_node_or_null("DialogueFocusPoint/FocusHitbox")
+	if focus_hitbox is Area3D:
+		_cashier_focus_hitbox = focus_hitbox as Area3D
 
 
 func _lock_player() -> void:
