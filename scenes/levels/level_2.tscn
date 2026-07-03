@@ -1,4 +1,4 @@
-[gd_scene load_steps=56 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=57 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -33,12 +33,13 @@
 [ext_resource type="PackedScene" uid="uid://qaglqwcm6djo" path="res://scenes/jumpscare/soft_jumpscare_setup.tscn" id="31_rvwo1"]
 [ext_resource type="PackedScene" uid="uid://cvl7jes7ecmi3" path="res://scenes/props/streetlamp/streetlamp_configurable.tscn" id="31_wwjag"]
 [ext_resource type="Resource" uid="uid://bnfp7cjx823mb" path="res://dialogues/demo/clown_jumpscare_easter_egg.dialogue" id="32_rvwo1"]
-[ext_resource type="Script" path="res://scripts/jumpscare/jumpscare_lamp_sequence.gd" id="33_lampseq"]
+[ext_resource type="Script" uid="uid://cm3m07xxeyilg" path="res://scripts/jumpscare/jumpscare_lamp_sequence.gd" id="33_lampseq"]
 [ext_resource type="Script" uid="uid://c404ed67nv3sg" path="res://scripts/narrative/level_narrative_setup.gd" id="34_narrative"]
 [ext_resource type="Resource" uid="uid://7wctwyi0bbxw" path="res://resources/narrative/level_2_scenes.tres" id="35_level2_scenes"]
 [ext_resource type="Script" uid="uid://b44m4nskn4uyr" path="res://scripts/narrative/level_intro_setup.gd" id="36_intro_setup"]
 [ext_resource type="Resource" uid="uid://cwd4fs3obmbxp" path="res://resources/narrative/level_2_intro.tres" id="37_level2_intro"]
 [ext_resource type="PackedScene" uid="uid://bu41qfrfnvo41" path="res://scenes/props/trees/tree_pack_prop.tscn" id="38_s7kn7"]
+[ext_resource type="AudioStream" uid="uid://cn3lx3y1i6w3n" path="res://assets/audio/horrorMusic/VIOLINES_DE_FEARS_TO_FATHOM.mp3" id="39_px4x2"]
 [ext_resource type="PackedScene" uid="uid://drsolq08dtekl" path="res://scenes/characters/polceNpc/policeNpc.tscn" id="40_yqg3d"]
 [ext_resource type="Resource" uid="uid://lgrw7g6xd3py" path="res://dialogues/scene1PoliceNpc.dialogue" id="41_2e0t0"]
 [ext_resource type="Script" uid="uid://qk8ema8mgfum" path="res://scripts/narrative/scene1_police_exit_walk.gd" id="42_exitwalk"]
@@ -105,8 +106,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.00999379, 0.00999368)
-shader_parameter/cirrus_position2 = Vector2(0.00999379, 0.00999368)
+shader_parameter/cirrus_position1 = Vector2(0.00403053, 0.00403049)
+shader_parameter/cirrus_position2 = Vector2(0.00403053, 0.00403049)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -116,7 +117,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.0499693, 0.0499686)
+shader_parameter/cumulus_position = Vector2(0.0201526, 0.0201525)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -152,6 +153,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 2)
 transform = Transform3D(-100, 3.89414e-05, -2.84217e-12, 0, 5.96046e-06, 100, 3.89414e-05, 100, -1.19209e-05, 20.8168, 1.24941, -20.9974)
 door_mesh_path = NodePath("../Door_01")
 restore_as_open = true
+keep_open_after_unlock = true
 dialogue_resource = ExtResource("10_door01dlg")
 open_sound = ExtResource("4_wwjag")
 
@@ -180,6 +182,7 @@ transform = Transform3D(-0.0155328, 0, -0.999879, 0, 1, 0, 0.999879, 0, -0.01553
 fixed_camera_path = NodePath("../ToiletPeeCamera")
 proximity_radius = 1.875
 bathroom_door_path = NodePath("../BathroomDoorSetup")
+bathroom_blocker_wall_path = NodePath("../../invisibleObjects/InvisibleWallBath5")
 
 [node name="BathroomSinkInteractSetup" parent="Gas_station" instance=ExtResource("47_sinkinteract")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 21.6745, 0.39352, -17.1862)
@@ -212,6 +215,7 @@ wall_length = 5.0
 [node name="InvisibleWallBath2" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 21.9725, 0.131246, -0.819903)
 wall_length = 1.4
+wall_enabled = false
 
 [node name="InvisibleWallBath3" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
 transform = Transform3D(1, 0, 1.06581e-14, 0, 1, 0, -1.06581e-14, 0, 1, 22.7735, 0.131246, -1.40452)
@@ -220,6 +224,11 @@ wall_length = 1.4
 [node name="InvisibleWallBath4" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
 transform = Transform3D(1, 0, 1.06581e-14, 0, 1, 0, -1.06581e-14, 0, 1, 22.7768, 0.131246, -2.64758)
 wall_length = 1.4
+
+[node name="InvisibleWallBath5" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 19.4588, 0.131246, -6.52799)
+wall_length = 1.4
+wall_enabled = false
 
 [node name="InvisibleWallSuper1" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
 transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 1.43464, 0.131246, -0.996346)
@@ -662,6 +671,8 @@ tree_variant = &"Tree_1"
 [node name="BathroomSinkHorror" parent="Jumpscares" instance=ExtResource("46_sinkhorror")]
 transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 20.5702, 0.00875831, -15.2051)
 bathroom_door_path = NodePath("../../Gas_station/BathroomDoorSetup")
+bathroom_blocker_wall_path = NodePath("../../invisibleObjects/InvisibleWallBath5")
+pursuit_sound = ExtResource("39_px4x2")
 
 [node name="W3_001" parent="Jumpscares/BathroomSinkHorror" instance=ExtResource("47_wrgna")]
 transform = Transform3D(49.9927, 3.19005e-10, 0.853427, -0.853427, 3.73044e-08, 49.9927, -3.17868e-10, -50, 3.73045e-08, -7.025, 1.313, 0.438)

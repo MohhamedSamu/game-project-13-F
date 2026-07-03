@@ -65,6 +65,7 @@ func _run_sequence() -> void:
 	if _sequence_running or _is_sequence_already_done():
 		return
 	_sequence_running = true
+	MusicDirector.enter_tension()
 
 	await _wait_for_lamp_ready()
 

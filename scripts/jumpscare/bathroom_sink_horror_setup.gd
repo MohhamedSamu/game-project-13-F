@@ -8,6 +8,7 @@ const COMPLETION_FLAG := &"bathroom_sink_horror_done"
 @export_group("Interacción")
 @export var prompt_text: String = "Presiona [E] para lavarte las manos"
 @export var bathroom_door_path: NodePath
+@export var bathroom_blocker_wall_path: NodePath
 
 @export_group("Referencias")
 @export var horror_camera_path: NodePath = ^"HorrorCamera"
@@ -36,6 +37,12 @@ const COMPLETION_FLAG := &"bathroom_sink_horror_done"
 @export_range(0.3, 4.0, 0.05) var left_extra_yaw_duration: float = 2.0
 @export_range(0.2, 3.0, 0.05) var screen_shake_duration: float = 1.2
 @export_range(0.005, 0.08, 0.001) var screen_shake_rotation_deg: float = 0.035
+
+@export_group("Persecución")
+@export_range(1.0, 20.0, 0.5) var pursuit_duration: float = 12.0
+@export_range(0.2, 4.0, 0.05) var pursuit_travel_distance: float = 2.0
+@export_range(0.0, 3.0, 0.05) var pursuit_pause_seconds: float = 1.0
+@export var pursuit_sound: AudioStream
 
 @export_group("Audio")
 @export var faucet_open_sound: AudioStream = preload(
@@ -69,10 +76,13 @@ var _light_flicker: DamagedLightFlicker
 var _creature: Node3D
 var _demon_voices_player: AudioStreamPlayer
 var _demonic_laughter_player: AudioStreamPlayer
+var _pursuit_player: AudioStreamPlayer
 var _camera_home_transform: Transform3D
 var _sequence_running: bool = false
 var _interactable: InteractableDialogueComponent
 var _original_bathroom_light_state: Dictionary = {}
+var _post_escape_pursuit_running: bool = false
+var _post_escape_pursuit_tween: Tween
 
 
 func _ready() -> void:
@@ -82,6 +92,7 @@ func _ready() -> void:
 	_creature = get_node_or_null(creature_path) as Node3D
 	_demon_voices_player = get_node_or_null("Audio/DemonVoicesPlayer") as AudioStreamPlayer
 	_demonic_laughter_player = get_node_or_null("Audio/DemonicLaughterPlayer") as AudioStreamPlayer
+	_pursuit_player = get_node_or_null("Audio/PursuitPlayer") as AudioStreamPlayer
 	if not is_in_group(&"bathroom_sink_horror"):
 		add_to_group(&"bathroom_sink_horror")
 	_cache_interaction_refs()
@@ -136,6 +147,7 @@ func run_sequence() -> void:
 		return
 
 	_sequence_running = true
+	MusicDirector.enter_tension()
 	_prepare_creature_hidden()
 	GameManager.lock_player_minigame()
 	if player.has_method("set_minigame_body_visible"):
@@ -159,6 +171,8 @@ func run_sequence() -> void:
 	GameManager.set_flag(COMPLETION_FLAG, true)
 	get_tree().call_group(&"scene4_bathroom_exit_jumpscare", &"refresh_armed_state")
 	GameManager.unlock_player_minigame()
+	_set_bathroom_blocker_enabled(false)
+	_start_post_escape_pursuit(player)
 	_sequence_running = false
 
 
@@ -229,11 +243,67 @@ func _start_creature_reveal() -> Tween:
 	return tween
 
 
+func _start_post_escape_pursuit(player: Node3D) -> void:
+	_stop_post_escape_pursuit()
+	if _creature == null or player == null or not is_instance_valid(player):
+		return
+
+	_post_escape_pursuit_running = true
+	var forward := _creature.global_basis.z
+	forward.y = 0.0
+	if forward.length_squared() < 0.0001:
+		forward = -Vector3.FORWARD
+	forward = forward.normalized()
+	var start_pos := _creature.global_position
+	var mid_pos := start_pos + forward * (pursuit_travel_distance * 0.5)
+	var end_pos := start_pos + forward * pursuit_travel_distance
+	var first_duration := maxf((pursuit_duration - pursuit_pause_seconds) * 0.5, 0.05)
+	var second_duration := first_duration
+
+	_post_escape_pursuit_tween = create_tween()
+	_post_escape_pursuit_tween.set_trans(Tween.TRANS_SINE)
+	_post_escape_pursuit_tween.set_ease(Tween.EASE_IN_OUT)
+	_post_escape_pursuit_tween.tween_property(_creature, "global_position", mid_pos, first_duration)
+	if pursuit_pause_seconds > 0.0:
+		_post_escape_pursuit_tween.tween_interval(pursuit_pause_seconds)
+	_post_escape_pursuit_tween.tween_property(_creature, "global_position", end_pos, second_duration)
+
+	InnerThoughts.show_thought(flee_thought, pursuit_duration, true)
+	if _demon_voices_player != null:
+		_demon_voices_player.stop()
+	if pursuit_sound != null and _pursuit_player != null:
+		_pursuit_player.stream = pursuit_sound
+		_pursuit_player.stop()
+		_pursuit_player.play()
+
+
+func _stop_post_escape_pursuit() -> void:
+	_post_escape_pursuit_running = false
+	if _post_escape_pursuit_tween != null and _post_escape_pursuit_tween.is_valid():
+		_post_escape_pursuit_tween.kill()
+	_post_escape_pursuit_tween = null
+	if _pursuit_player != null:
+		_pursuit_player.stop()
+
+
+
 func _prepare_creature_hidden() -> void:
 	if _creature == null:
 		return
 	_creature.position = creature_start_position
 	_creature.visible = false
+
+
+func _set_bathroom_blocker_enabled(enabled: bool) -> void:
+	if bathroom_blocker_wall_path.is_empty():
+		return
+	var wall := _resolve_scene_node(bathroom_blocker_wall_path) as Node
+	if wall == null:
+		return
+	if wall.has_method("set_wall_enabled"):
+		wall.call("set_wall_enabled", enabled)
+	else:
+		wall.set("wall_enabled", enabled)
 
 
 func _get_marker(sink_name: String) -> Node3D:
@@ -343,11 +413,13 @@ func get_creature_peek_position() -> Vector3:
 func clear_horror_presentation() -> void:
 	if _creature != null:
 		_creature.visible = false
+	_stop_post_escape_pursuit()
 	_stop_all_streams()
 	_stop_all_faucet_audio()
 	_stop_horror_audio()
 	_stop_light_flicker()
 	_restore_bathroom_light_state()
+	InnerThoughts.hide_thought()
 
 
 func _stop_all_streams() -> void:

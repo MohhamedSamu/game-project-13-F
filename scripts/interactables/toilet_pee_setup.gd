@@ -59,6 +59,7 @@ const _WANTS_SINK_FLAG := &"wants_bathroom_sink"
 @export_group("Acceso")
 ## Puerta principal del baño; el inodoro solo es usable cuando esa puerta está abierta.
 @export var bathroom_door_path: NodePath
+@export var bathroom_blocker_wall_path: NodePath
 
 @export_group("Vejiga")
 @export var bladder_capacity: float = 100.0
@@ -66,8 +67,10 @@ const _WANTS_SINK_FLAG := &"wants_bathroom_sink"
 @export var bladder_drain_duration: float = 20.0
 @export var show_bladder_ui: bool = true
 @export var empty_bladder_thought: String = "ya no tenía deseos de usar el inodoro"
-@export var wash_hands_thought: String = "me quería lavar las manos"
-@export var wash_hands_partial_thought: String = "ahora me lavo las manos"
+@export var post_sequence_thought: String = "ya no quería ir al baño, era mejor tomar algo"
+@export var wash_hands_thought: String = "tengo que lavarme las manos"
+@export var wash_hands_partial_thought: String = "tengo que lavarme las manos"
+@export_range(1.0, 12.0, 0.5) var wash_hands_reminder_interval: float = 4.0
 
 @export_group("Audio")
 @export_subgroup("Zipper")
@@ -108,6 +111,7 @@ var _aim_label: Label
 var _zipper_down_player: AudioStreamPlayer
 var _zipper_up_player: AudioStreamPlayer
 var _stream_player: AudioStreamPlayer
+var _wash_hands_reminder_timer: Timer
 
 
 func _enter_tree() -> void:
@@ -221,6 +225,7 @@ func _rebuild() -> void:
 	_apply_audio_configuration()
 	_apply_particle_configuration()
 	_update_bladder_ui()
+	_setup_wash_hands_reminder_timer()
 
 
 func _apply_interaction_configuration() -> void:
@@ -375,6 +380,8 @@ func _unique_proximity_preview_mesh() -> SphereMesh:
 func can_handle_interaction() -> bool:
 	if _state != State.IDLE:
 		return false
+	if GameManager.get_flag("bathroom_sink_horror_done"):
+		return false
 	if not _is_bathroom_accessible():
 		return false
 	return not _is_bladder_empty()
@@ -390,6 +397,8 @@ func _is_bathroom_accessible() -> bool:
 
 
 func get_interaction_prompt() -> String:
+	if GameManager.get_flag("bathroom_sink_horror_done"):
+		return ""
 	if _state == State.ACTIVE:
 		return prompt_exit
 	if _state == State.IDLE and _is_bathroom_accessible() and not _is_bladder_empty():
@@ -398,7 +407,7 @@ func get_interaction_prompt() -> String:
 
 
 func handle_interaction() -> void:
-	if _state != State.IDLE or _is_bladder_empty():
+	if _state != State.IDLE or _is_bladder_empty() or GameManager.get_flag("bathroom_sink_horror_done"):
 		return
 	_begin_sequence()
 
@@ -406,6 +415,7 @@ func handle_interaction() -> void:
 func _begin_sequence() -> void:
 	if _state != State.IDLE:
 		return
+	_stop_wash_hands_reminder()
 	var camera := _get_fixed_camera()
 	if camera == null:
 		push_warning("ToiletPeeSetup: asigna fixed_camera_path a una Camera3D del nivel.")
@@ -441,6 +451,7 @@ func _request_exit() -> void:
 	if _state != State.ACTIVE:
 		return
 	_state = State.EXITING
+	_stop_wash_hands_reminder()
 	_stop_spray()
 	await _run_exit_sequence()
 	_state = State.IDLE
@@ -532,16 +543,18 @@ func _update_empty_bladder_thought() -> void:
 		if _was_in_empty_proximity:
 			_was_in_empty_proximity = false
 		return
-	if not _is_bladder_empty():
-		if _was_in_empty_proximity:
-			_was_in_empty_proximity = false
-		return
 	if _interactable == null:
 		return
 	var in_proximity := _interactable.is_player_in_proximity()
 	if in_proximity and not _was_in_empty_proximity:
 		_was_in_empty_proximity = true
-		var thought := wash_hands_thought if GameManager.get_flag(_WANTS_SINK_FLAG) else empty_bladder_thought
+		var thought := ""
+		if GameManager.get_flag("bathroom_sink_horror_done"):
+			thought = post_sequence_thought
+		elif _is_bladder_empty():
+			thought = wash_hands_thought if GameManager.get_flag(_WANTS_SINK_FLAG) else empty_bladder_thought
+		else:
+			return
 		InnerThoughts.show_thought(thought)
 	elif not in_proximity and _was_in_empty_proximity:
 		_was_in_empty_proximity = false
@@ -550,10 +563,74 @@ func _update_empty_bladder_thought() -> void:
 
 func _on_toilet_minigame_exit() -> void:
 	GameManager.set_flag(_WANTS_SINK_FLAG, true)
+	_set_bathroom_blocker_enabled(true)
 	if _is_bladder_empty():
 		InnerThoughts.show_thought(wash_hands_thought)
 	else:
 		InnerThoughts.show_thought(wash_hands_partial_thought)
+	_start_wash_hands_reminder()
+
+
+func _setup_wash_hands_reminder_timer() -> void:
+	if _wash_hands_reminder_timer != null:
+		return
+	_wash_hands_reminder_timer = Timer.new()
+	_wash_hands_reminder_timer.one_shot = true
+	_wash_hands_reminder_timer.autostart = false
+	add_child(_wash_hands_reminder_timer)
+	_wash_hands_reminder_timer.timeout.connect(_on_wash_hands_reminder_timeout)
+
+
+func _start_wash_hands_reminder() -> void:
+	_setup_wash_hands_reminder_timer()
+	if _wash_hands_reminder_timer == null:
+		return
+	if GameManager.get_flag("bathroom_sink_horror_done"):
+		return
+	if _state != State.IDLE or not GameManager.get_flag(_WANTS_SINK_FLAG):
+		return
+	_wash_hands_reminder_timer.stop()
+	_wash_hands_reminder_timer.start(wash_hands_reminder_interval)
+
+
+func _stop_wash_hands_reminder() -> void:
+	if _wash_hands_reminder_timer != null:
+		_wash_hands_reminder_timer.stop()
+
+
+func _on_wash_hands_reminder_timeout() -> void:
+	if _state != State.IDLE or not GameManager.get_flag(_WANTS_SINK_FLAG):
+		_stop_wash_hands_reminder()
+		return
+	if GameManager.get_flag("bathroom_sink_horror_done") or GameManager.minigame_active:
+		_stop_wash_hands_reminder()
+		return
+	InnerThoughts.show_thought(wash_hands_thought)
+	_start_wash_hands_reminder()
+
+
+func _set_bathroom_blocker_enabled(enabled: bool) -> void:
+	if bathroom_blocker_wall_path.is_empty():
+		return
+	var wall := _resolve_scene_node(bathroom_blocker_wall_path) as Node
+	if wall == null:
+		return
+	if wall.has_method("set_wall_enabled"):
+		wall.call("set_wall_enabled", enabled)
+	else:
+		wall.set("wall_enabled", enabled)
+
+
+func _resolve_scene_node(path: NodePath) -> Node:
+	if path.is_empty():
+		return null
+	var local := get_node_or_null(path)
+	if local != null:
+		return local
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return null
+	return scene_root.get_node_or_null(path)
 
 
 func _get_bladder_drain_rate() -> float:
