@@ -54,7 +54,7 @@ paragraphs = Array[ExtResource("3_paragraph")]([SubResource("demo_p5"), SubResou
 
 [sub_resource type="Resource" id="thought_p1"]
 script = ExtResource("3_paragraph")
-text = "Estoy muy cansando… ya no doy más de caminar."
+text = "Estoy muy cansando… ya no puedo caminar más."
 style = 1
 
 [sub_resource type="Resource" id="thought_p2"]

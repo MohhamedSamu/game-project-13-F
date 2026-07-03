@@ -86,6 +86,7 @@ var mutation_cooldown: Timer = Timer.new()
 @export var adult_male_nervous_profile: DialogueVoiceProfile = preload("res://resources/dialogue_voices/adult_male_nervous.tres")
 @export var adult_male_angry_profile: DialogueVoiceProfile = preload("res://resources/dialogue_voices/adult_male_angry.tres")
 @export var muted_character_names: PackedStringArray = ["PLAYER", "Player", "player"]
+const PLAYER_DIALOGUE_COLOR := Color(0.796, 0.694, 0.404, 1.0)
 
 @export_group("Dialogue Typing")
 ## Segundos entre cada carácter revelado. Más alto = typewriter más lento (addon: 0.02).
@@ -282,7 +283,7 @@ func apply_dialogue_line() -> void:
 	if character_row is CanvasItem:
 		(character_row as CanvasItem).visible = has_character
 	character_label.visible = has_character
-	character_label.text = tr(dialogue_line.character, "dialogue").to_upper()
+	character_label.text = _format_character_label(dialogue_line.character)
 
 	dialogue_label.hide()
 	dialogue_label.dialogue_line = dialogue_line
@@ -403,6 +404,13 @@ func _apply_dialogue_fonts() -> void:
 	character_label.add_theme_font_override(&"normal_font", dialogue_font)
 	dialogue_label.add_theme_font_override(&"normal_font", dialogue_font)
 	continue_dots.add_theme_font_override(&"font", dialogue_font)
+
+
+func _format_character_label(character_name: String) -> String:
+	var display_name := tr(character_name, "dialogue").to_upper()
+	if character_name.strip_edges().to_upper() != "PLAYER":
+		return display_name
+	return "[color=#%s]%s[/color]" % [PLAYER_DIALOGUE_COLOR.to_html(false), display_name]
 
 
 func _apply_dialogue_typing_speed() -> void:

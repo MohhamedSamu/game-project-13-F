@@ -748,6 +748,10 @@ func force_held_flashlight_near() -> void:
 		_held_pickup.force_near_light()
 
 
+func get_held_pickup() -> Node3D:
+	return _held_pickup
+
+
 func is_holding_item(item_id: StringName) -> bool:
 	if _held_pickup == null or item_id == StringName():
 		return false

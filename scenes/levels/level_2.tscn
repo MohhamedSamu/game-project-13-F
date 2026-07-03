@@ -794,7 +794,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 39.325, 8.46172, 26.5)
 [node name="JuanExitPath" type="Node3D" parent="Jumpscares/Scene1FlashlightPickup"]
 
 [node name="JuanExitWP1_BetweenTrees" type="Marker3D" parent="Jumpscares/Scene1FlashlightPickup/JuanExitPath"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 89.9786, 0.01, 22.4793)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 89.9786, 0.01, 23.9665)
 
 [node name="JuanExitWP2_UnderLamp" type="Marker3D" parent="Jumpscares/Scene1FlashlightPickup/JuanExitPath"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 93.8151, 0.01, 30.4678)
