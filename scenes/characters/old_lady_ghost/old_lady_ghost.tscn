@@ -1,0 +1,16 @@
+[gd_scene load_steps=3 format=3 uid="uid://k40a50etwcoe"]
+
+[ext_resource type="Script" path="res://scripts/characters/old_lady_ghost.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://br6koanwp7ia" path="res://scenes/characters/old_lady_ghost/old_lady_ghost_model.tscn" id="2_model"]
+
+[node name="OldLadyGhost" type="Node3D"]
+script = ExtResource("1_script")
+
+[node name="Model" type="Node3D" parent="."]
+
+[node name="OldLadyGhostModel" parent="Model" instance=ExtResource("2_model")]
+
+[node name="OptionalMarkers" type="Node3D" parent="."]
+
+[node name="HeadFocusPoint" type="Marker3D" parent="OptionalMarkers"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.62, 0.08)

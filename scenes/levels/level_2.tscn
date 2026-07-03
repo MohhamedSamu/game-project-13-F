@@ -1,4 +1,4 @@
-[gd_scene load_steps=60 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=62 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -55,6 +55,8 @@
 [ext_resource type="PackedScene" path="res://scenes/interactables/coca_counter_place_setup.tscn" id="53_cocacounter"]
 [ext_resource type="PackedScene" uid="uid://k36c6vytk3rd" path="res://scenes/interactables/churro_pickup_setup.tscn" id="54_churro_pickup"]
 [ext_resource type="PackedScene" path="res://scenes/interactables/churro_counter_place_setup.tscn" id="55_churro_counter"]
+[ext_resource type="PackedScene" uid="uid://k40a50etwcoe" path="res://scenes/characters/old_lady_ghost/old_lady_ghost.tscn" id="56_nsjcl"]
+[ext_resource type="PackedScene" uid="uid://c8supermarketghostseq" path="res://scenes/events/supermarket_ghost_reveal_sequence.tscn" id="57_ghostseq"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wwjag"]
 shader = ExtResource("12_lkn2k")
@@ -109,8 +111,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.509298, 0.509298)
-shader_parameter/cirrus_position2 = Vector2(0.509298, 0.509298)
+shader_parameter/cirrus_position1 = Vector2(0.0176776, 0.0176775)
+shader_parameter/cirrus_position2 = Vector2(0.0176776, 0.0176775)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -120,7 +122,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(7.54563, 7.54563)
+shader_parameter/cumulus_position = Vector2(0.0883895, 0.0883884)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -211,67 +213,54 @@ open_angle_degrees = -90.0
 [node name="ChurroPickup_Frying_02_001" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 2.20964, 1.54641, -17.3977)
 target_churro_node = NodePath("../../Frying_02_001")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_02_002" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 2.37679, 1.54641, -17.507)
 target_churro_node = NodePath("../../Frying_02_002")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_02_003" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 2.5628, 1.54641, -17.3977)
 target_churro_node = NodePath("../../Frying_02_003")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_03_001" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 3.34959, 1.54112, -17.5145)
 target_churro_node = NodePath("../../Frying_03_001")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_03_002" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 2.90101, 1.54112, -17.4136)
 target_churro_node = NodePath("../../Frying_03_002")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_03_003" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 3.24605, 1.54112, -17.4136)
 target_churro_node = NodePath("../../Frying_03_003")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_17_001" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 4.50119, 1.54678, -17.4409)
 target_churro_node = NodePath("../../Frying_17_001")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_17_002" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 5.00518, 1.54678, -17.5235)
 target_churro_node = NodePath("../../Frying_17_002")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_17_003" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 4.8541, 1.54678, -17.4409)
 target_churro_node = NodePath("../../Frying_17_003")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_13_001" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 4.33427, 1.54239, -17.5102)
 target_churro_node = NodePath("../../Frying_13_001")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_13_002" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 3.85545, 1.54239, -17.4162)
 target_churro_node = NodePath("../../Frying_13_002")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_13_003" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 4.18499, 1.54239, -17.4162)
 target_churro_node = NodePath("../../Frying_13_003")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="ChurroPickup_Frying_08_001" parent="Gas_station/ChurroPickups" node_paths=PackedStringArray("target_churro_node") instance=ExtResource("54_churro_pickup")]
 transform = Transform3D(1, -3.0758e-07, -2.24277e-07, 3.38134e-07, 0.988348, 0.152214, 1.74846e-07, -0.152214, 0.988348, 3.58846, 1.54732, -17.3995)
 target_churro_node = NodePath("../../Frying_08_001")
-mesh_hold_rotation_deg = Vector3(-90, 28, 8)
 
 [node name="invisibleObjects" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3179, 0, -12.0213)
@@ -852,3 +841,11 @@ jumpscare_path = NodePath("../Scene4BathroomExitJumpscare")
 
 [node name="CocaFridgeInteractSetup" parent="." instance=ExtResource("52_px4x2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.24883, 1.34579, -14.7182)
+
+[node name="OldLadyGhost" parent="." instance=ExtResource("56_nsjcl")]
+transform = Transform3D(-0.145928, 0, -0.989295, 0, 1, 0, 0.989295, 0, -0.145928, 11.5268, -1.13903, -12.7302)
+
+[node name="SupermarketGhostRevealSequence" parent="." instance=ExtResource("57_ghostseq") node_paths=PackedStringArray("cashier_npc", "old_lady_ghost")]
+cashier_npc = NodePath("../SupermarketNPC")
+old_lady_ghost = NodePath("../OldLadyGhost")
+supermarket_lights = Array[NodePath]([NodePath("../iluminacion/OmniLight3DSuper1"), NodePath("../iluminacion/OmniLight3DSuper2"), NodePath("../iluminacion/OmniLight3DSuper3"), NodePath("../iluminacion/OmniLight3DSuper4"), NodePath("../iluminacion/OmniLight3DSuper6"), NodePath("../iluminacion/OmniLight3DSuperStorage")])

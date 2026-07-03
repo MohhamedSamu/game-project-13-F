@@ -1,0 +1,51 @@
+[gd_scene load_steps=5 format=3 uid="uid://br6koanwp7ia"]
+
+[ext_resource type="PackedScene" uid="uid://c6f1b5qksdhf5" path="res://assets/characters/oldLadyGhost/Characters_psx/Models/Killers/Character_Monster_03.fbx" id="1_fbx"]
+[ext_resource type="Script" path="res://scripts/characters/old_lady_ghost_model.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://bqdlup2xjm6bv" path="res://assets/characters/oldLadyGhost/Characters_psx/Textures/Character_Monster_03.png" id="3_qlxk4"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_k810j"]
+resource_name = "Character_Monster_03"
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("3_qlxk4")
+emission_enabled = true
+
+[node name="OldLadyGhostModel" instance=ExtResource("1_fbx")]
+script = ExtResource("2_script")
+
+[node name="Skeleton3D" parent="." index="0"]
+bones/0/position = Vector3(-0.0329521, 2.82299, -0.0378558)
+bones/0/rotation = Quaternion(-0.0350025, -0.0148774, 0.0348262, 0.998669)
+bones/1/rotation = Quaternion(-0.0337742, -0.0111322, -0.0239791, 0.99908)
+bones/2/rotation = Quaternion(0.00819721, -0.00104652, -0.0125459, 0.999887)
+bones/3/rotation = Quaternion(0.00797743, -0.0012522, -0.0125873, 0.999888)
+bones/4/rotation = Quaternion(0.118234, 0.00458556, -0.00394592, 0.992967)
+bones/5/rotation = Quaternion(-0.0435444, 0.00582982, -0.00114334, 0.999034)
+bones/7/rotation = Quaternion(-0.665914, -0.335909, 0.532375, -0.400375)
+bones/8/rotation = Quaternion(0.378535, 0.343058, 0.147981, 0.846832)
+bones/9/rotation = Quaternion(-0.010608, -0.0053408, 0.057027, 0.998302)
+bones/10/rotation = Quaternion(0.0456051, -0.185095, 0.00317911, 0.981657)
+bones/11/rotation = Quaternion(0.0556685, -0.0151434, 0.0213293, 0.998107)
+bones/12/rotation = Quaternion(0.0286726, 0.0270815, -0.175272, 0.98373)
+bones/13/rotation = Quaternion(-0.0334234, -0.0387914, 0.0731814, 0.996003)
+bones/15/rotation = Quaternion(0.669053, -0.331306, 0.522709, 0.411558)
+bones/16/rotation = Quaternion(0.422602, -0.254192, -0.119139, 0.861742)
+bones/17/rotation = Quaternion(-0.00158378, -0.00122513, -0.010269, 0.999945)
+bones/18/rotation = Quaternion(0.0540741, 0.272297, -0.00909831, 0.96065)
+bones/19/rotation = Quaternion(0.0580302, 0.00833352, -0.0194847, 0.99809)
+bones/20/rotation = Quaternion(-0.00171365, -0.0202049, 0.132019, 0.99104)
+bones/21/rotation = Quaternion(-0.0424717, 0.0418415, -0.069743, 0.995782)
+bones/23/rotation = Quaternion(0.0890399, 0.0197166, 0.995779, 0.0103579)
+bones/24/rotation = Quaternion(-0.164067, -0.079884, -7.40116e-05, 0.983209)
+bones/25/rotation = Quaternion(0.529955, -0.0396436, -0.00225619, 0.847096)
+bones/26/rotation = Quaternion(0.382718, 0.00680785, -0.00293438, 0.923835)
+bones/28/rotation = Quaternion(-0.134016, 0.113014, 0.979355, 0.100652)
+bones/29/rotation = Quaternion(-0.215501, 0.0173956, -0.00835975, 0.976313)
+bones/30/rotation = Quaternion(0.490584, 0.0399504, 0.0289954, 0.869995)
+bones/31/rotation = Quaternion(0.36829, -0.00791126, 0.00318117, 0.929672)
+
+[node name="Character_Monster_03" parent="Skeleton3D" index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_k810j")
+
+[node name="AnimationPlayer" parent="." index="1"]
+autoplay = "old_lady_idle"

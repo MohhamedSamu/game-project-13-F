@@ -78,3 +78,13 @@ static func _on_counter_dialogue_finished() -> void:
 	GameManager.set_flag("churro_placed_on_counter", true)
 	GameManager.set_flag("ready_for_cashier_jumpscare", true)
 	CounterPlaceCamera.refresh_counter_interact_areas()
+	_trigger_supermarket_ghost_reveal()
+
+
+static func _trigger_supermarket_ghost_reveal() -> void:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null:
+		return
+	for node in tree.get_nodes_in_group("supermarket_ghost_reveal_sequence"):
+		if node.has_method("try_start_sequence"):
+			node.try_start_sequence()

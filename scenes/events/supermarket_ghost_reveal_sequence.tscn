@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8supermarketghostseq"]
+
+[ext_resource type="Script" path="res://scripts/events/supermarket_ghost_reveal_sequence.gd" id="1_script"]
+[ext_resource type="AudioStream" uid="uid://b41uywey88f4b" path="res://assets/audio/SFX/screams/soft1.mp3" id="2_scream"]
+
+[node name="SupermarketGhostRevealSequence" type="Node"]
+script = ExtResource("1_script")
+scream_audio = ExtResource("2_scream")
+
+[node name="ScreamSFX" type="AudioStreamPlayer" parent="."]
