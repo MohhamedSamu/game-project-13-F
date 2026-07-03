@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bqhf4kval1meh"
-path.s3tc="res://.godot/imported/Pizza.png-ca0711cfa72dc053ba8908ababca1db6.s3tc.ctex"
-path.etc2="res://.godot/imported/Pizza.png-ca0711cfa72dc053ba8908ababca1db6.etc2.ctex"
+path.s3tc="res://.godot/imported/Pizza.png-b8e4615b1d58ad15f0c1382e2511aa5c.s3tc.ctex"
+path.etc2="res://.godot/imported/Pizza.png-b8e4615b1d58ad15f0c1382e2511aa5c.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Pizza.png"
-dest_files=["res://.godot/imported/Pizza.png-ca0711cfa72dc053ba8908ababca1db6.s3tc.ctex", "res://.godot/imported/Pizza.png-ca0711cfa72dc053ba8908ababca1db6.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Pizza.png"
+dest_files=["res://.godot/imported/Pizza.png-b8e4615b1d58ad15f0c1382e2511aa5c.s3tc.ctex", "res://.godot/imported/Pizza.png-b8e4615b1d58ad15f0c1382e2511aa5c.etc2.ctex"]
 
 [params]
 

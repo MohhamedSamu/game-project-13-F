@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://s068xfonlfgm"
-path.s3tc="res://.godot/imported/Marble.jpg-649240a78bfb0cdbd1fb80c77dc9fd46.s3tc.ctex"
-path.etc2="res://.godot/imported/Marble.jpg-649240a78bfb0cdbd1fb80c77dc9fd46.etc2.ctex"
+path.s3tc="res://.godot/imported/Marble.jpg-28741630ea3d36830a62116a024666f1.s3tc.ctex"
+path.etc2="res://.godot/imported/Marble.jpg-28741630ea3d36830a62116a024666f1.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Marble.jpg"
-dest_files=["res://.godot/imported/Marble.jpg-649240a78bfb0cdbd1fb80c77dc9fd46.s3tc.ctex", "res://.godot/imported/Marble.jpg-649240a78bfb0cdbd1fb80c77dc9fd46.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Marble.jpg"
+dest_files=["res://.godot/imported/Marble.jpg-28741630ea3d36830a62116a024666f1.s3tc.ctex", "res://.godot/imported/Marble.jpg-28741630ea3d36830a62116a024666f1.etc2.ctex"]
 
 [params]
 

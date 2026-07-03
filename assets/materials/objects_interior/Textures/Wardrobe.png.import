@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bkdekisfxeiod"
-path.s3tc="res://.godot/imported/Wardrobe.png-50ee0e8ae3deb0f244d21cfd745d19d2.s3tc.ctex"
-path.etc2="res://.godot/imported/Wardrobe.png-50ee0e8ae3deb0f244d21cfd745d19d2.etc2.ctex"
+path.s3tc="res://.godot/imported/Wardrobe.png-962b7790af9f61499cf95ea04e311356.s3tc.ctex"
+path.etc2="res://.godot/imported/Wardrobe.png-962b7790af9f61499cf95ea04e311356.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Wardrobe.png"
-dest_files=["res://.godot/imported/Wardrobe.png-50ee0e8ae3deb0f244d21cfd745d19d2.s3tc.ctex", "res://.godot/imported/Wardrobe.png-50ee0e8ae3deb0f244d21cfd745d19d2.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Wardrobe.png"
+dest_files=["res://.godot/imported/Wardrobe.png-962b7790af9f61499cf95ea04e311356.s3tc.ctex", "res://.godot/imported/Wardrobe.png-962b7790af9f61499cf95ea04e311356.etc2.ctex"]
 
 [params]
 

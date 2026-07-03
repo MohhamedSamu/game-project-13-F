@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://jtot5aujsy1u"
-path.s3tc="res://.godot/imported/Rooftiles.png-4be699a45e371b7b0a789649e895f8b3.s3tc.ctex"
-path.etc2="res://.godot/imported/Rooftiles.png-4be699a45e371b7b0a789649e895f8b3.etc2.ctex"
+path.s3tc="res://.godot/imported/Rooftiles.png-b14057c648ca0dc83b157acc6e0fa8a3.s3tc.ctex"
+path.etc2="res://.godot/imported/Rooftiles.png-b14057c648ca0dc83b157acc6e0fa8a3.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Rooftiles.png"
-dest_files=["res://.godot/imported/Rooftiles.png-4be699a45e371b7b0a789649e895f8b3.s3tc.ctex", "res://.godot/imported/Rooftiles.png-4be699a45e371b7b0a789649e895f8b3.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Rooftiles.png"
+dest_files=["res://.godot/imported/Rooftiles.png-b14057c648ca0dc83b157acc6e0fa8a3.s3tc.ctex", "res://.godot/imported/Rooftiles.png-b14057c648ca0dc83b157acc6e0fa8a3.etc2.ctex"]
 
 [params]
 

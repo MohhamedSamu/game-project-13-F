@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://m5qdm0iiql8s"
-path.s3tc="res://.godot/imported/Can.png-01f545f78b244f6285f21587f8d49460.s3tc.ctex"
-path.etc2="res://.godot/imported/Can.png-01f545f78b244f6285f21587f8d49460.etc2.ctex"
+path.s3tc="res://.godot/imported/Can.png-542cfe0088aee790528354bfc9465398.s3tc.ctex"
+path.etc2="res://.godot/imported/Can.png-542cfe0088aee790528354bfc9465398.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Can.png"
-dest_files=["res://.godot/imported/Can.png-01f545f78b244f6285f21587f8d49460.s3tc.ctex", "res://.godot/imported/Can.png-01f545f78b244f6285f21587f8d49460.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Can.png"
+dest_files=["res://.godot/imported/Can.png-542cfe0088aee790528354bfc9465398.s3tc.ctex", "res://.godot/imported/Can.png-542cfe0088aee790528354bfc9465398.etc2.ctex"]
 
 [params]
 

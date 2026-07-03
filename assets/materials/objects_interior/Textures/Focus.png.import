@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dgi1c7g7gb52s"
-path.s3tc="res://.godot/imported/Focus.png-758d41d5748c15027cbe24581f90a250.s3tc.ctex"
-path.etc2="res://.godot/imported/Focus.png-758d41d5748c15027cbe24581f90a250.etc2.ctex"
+path.s3tc="res://.godot/imported/Focus.png-c6321ddcae62e2ce25341a23faf55b8b.s3tc.ctex"
+path.etc2="res://.godot/imported/Focus.png-c6321ddcae62e2ce25341a23faf55b8b.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Focus.png"
-dest_files=["res://.godot/imported/Focus.png-758d41d5748c15027cbe24581f90a250.s3tc.ctex", "res://.godot/imported/Focus.png-758d41d5748c15027cbe24581f90a250.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Focus.png"
+dest_files=["res://.godot/imported/Focus.png-c6321ddcae62e2ce25341a23faf55b8b.s3tc.ctex", "res://.godot/imported/Focus.png-c6321ddcae62e2ce25341a23faf55b8b.etc2.ctex"]
 
 [params]
 

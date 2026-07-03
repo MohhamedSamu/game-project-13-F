@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://wlv1sa2nvrnu"
-path.s3tc="res://.godot/imported/Plate_food.png-17be5b5feb2a26db392c603f9014f838.s3tc.ctex"
-path.etc2="res://.godot/imported/Plate_food.png-17be5b5feb2a26db392c603f9014f838.etc2.ctex"
+path.s3tc="res://.godot/imported/Plate_food.png-47920c5e095b4a9c02b7fddc4bdd6df7.s3tc.ctex"
+path.etc2="res://.godot/imported/Plate_food.png-47920c5e095b4a9c02b7fddc4bdd6df7.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Plate_food.png"
-dest_files=["res://.godot/imported/Plate_food.png-17be5b5feb2a26db392c603f9014f838.s3tc.ctex", "res://.godot/imported/Plate_food.png-17be5b5feb2a26db392c603f9014f838.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Plate_food.png"
+dest_files=["res://.godot/imported/Plate_food.png-47920c5e095b4a9c02b7fddc4bdd6df7.s3tc.ctex", "res://.godot/imported/Plate_food.png-47920c5e095b4a9c02b7fddc4bdd6df7.etc2.ctex"]
 
 [params]
 

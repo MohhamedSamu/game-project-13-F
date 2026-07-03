@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bru4dytra745l"
-path.s3tc="res://.godot/imported/Door.jpg-e25fb0346e96d110de1db63ea2432158.s3tc.ctex"
-path.etc2="res://.godot/imported/Door.jpg-e25fb0346e96d110de1db63ea2432158.etc2.ctex"
+path.s3tc="res://.godot/imported/Door.jpg-7c4bb63949c750cdc3b0417a5b7896b5.s3tc.ctex"
+path.etc2="res://.godot/imported/Door.jpg-7c4bb63949c750cdc3b0417a5b7896b5.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Door.jpg"
-dest_files=["res://.godot/imported/Door.jpg-e25fb0346e96d110de1db63ea2432158.s3tc.ctex", "res://.godot/imported/Door.jpg-e25fb0346e96d110de1db63ea2432158.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Door.jpg"
+dest_files=["res://.godot/imported/Door.jpg-7c4bb63949c750cdc3b0417a5b7896b5.s3tc.ctex", "res://.godot/imported/Door.jpg-7c4bb63949c750cdc3b0417a5b7896b5.etc2.ctex"]
 
 [params]
 

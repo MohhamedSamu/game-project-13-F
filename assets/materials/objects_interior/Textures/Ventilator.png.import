@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://thg7072lx8yh"
-path.s3tc="res://.godot/imported/Ventilator.png-577d95df968a148f9bb04d42c9a50749.s3tc.ctex"
-path.etc2="res://.godot/imported/Ventilator.png-577d95df968a148f9bb04d42c9a50749.etc2.ctex"
+path.s3tc="res://.godot/imported/Ventilator.png-72bc935150124cea0aef43529f9f047e.s3tc.ctex"
+path.etc2="res://.godot/imported/Ventilator.png-72bc935150124cea0aef43529f9f047e.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Ventilator.png"
-dest_files=["res://.godot/imported/Ventilator.png-577d95df968a148f9bb04d42c9a50749.s3tc.ctex", "res://.godot/imported/Ventilator.png-577d95df968a148f9bb04d42c9a50749.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Ventilator.png"
+dest_files=["res://.godot/imported/Ventilator.png-72bc935150124cea0aef43529f9f047e.s3tc.ctex", "res://.godot/imported/Ventilator.png-72bc935150124cea0aef43529f9f047e.etc2.ctex"]
 
 [params]
 

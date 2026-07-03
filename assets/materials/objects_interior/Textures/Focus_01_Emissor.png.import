@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://hhc6m2x14tgi"
-path.s3tc="res://.godot/imported/Focus_01_Emissor.png-64732a3e4832aa1d55d39eaa24a92ce6.s3tc.ctex"
-path.etc2="res://.godot/imported/Focus_01_Emissor.png-64732a3e4832aa1d55d39eaa24a92ce6.etc2.ctex"
+path.s3tc="res://.godot/imported/Focus_01_Emissor.png-5ea739985139e43ada2907af8c136e71.s3tc.ctex"
+path.etc2="res://.godot/imported/Focus_01_Emissor.png-5ea739985139e43ada2907af8c136e71.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Focus_01_Emissor.png"
-dest_files=["res://.godot/imported/Focus_01_Emissor.png-64732a3e4832aa1d55d39eaa24a92ce6.s3tc.ctex", "res://.godot/imported/Focus_01_Emissor.png-64732a3e4832aa1d55d39eaa24a92ce6.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Focus_01_Emissor.png"
+dest_files=["res://.godot/imported/Focus_01_Emissor.png-5ea739985139e43ada2907af8c136e71.s3tc.ctex", "res://.godot/imported/Focus_01_Emissor.png-5ea739985139e43ada2907af8c136e71.etc2.ctex"]
 
 [params]
 

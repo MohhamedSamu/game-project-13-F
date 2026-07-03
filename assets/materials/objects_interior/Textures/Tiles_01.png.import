@@ -3,8 +3,8 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dhaanqrswqu85"
-path.s3tc="res://.godot/imported/Tiles_01.png-b3b8c6ed50042a592ccf9cb5a649bb4c.s3tc.ctex"
-path.etc2="res://.godot/imported/Tiles_01.png-b3b8c6ed50042a592ccf9cb5a649bb4c.etc2.ctex"
+path.s3tc="res://.godot/imported/Tiles_01.png-977ed5ba4d7dbaeea8aeeae08e39cdc0.s3tc.ctex"
+path.etc2="res://.godot/imported/Tiles_01.png-977ed5ba4d7dbaeea8aeeae08e39cdc0.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/materials/objects_interior/textures/Tiles_01.png"
-dest_files=["res://.godot/imported/Tiles_01.png-b3b8c6ed50042a592ccf9cb5a649bb4c.s3tc.ctex", "res://.godot/imported/Tiles_01.png-b3b8c6ed50042a592ccf9cb5a649bb4c.etc2.ctex"]
+source_file="res://assets/materials/objects_interior/Textures/Tiles_01.png"
+dest_files=["res://.godot/imported/Tiles_01.png-977ed5ba4d7dbaeea8aeeae08e39cdc0.s3tc.ctex", "res://.godot/imported/Tiles_01.png-977ed5ba4d7dbaeea8aeeae08e39cdc0.etc2.ctex"]
 
 [params]
 
