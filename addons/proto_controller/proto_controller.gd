@@ -92,6 +92,10 @@ const DEVELOP_FREEFLY_SPEED := 25.0
 )
 @export_range(-80.0, 12.0) var pickup_acquire_volume_db: float = -2.0
 
+@export_group("Mano izquierda")
+@export var left_hand_hold_offset: Vector3 = Vector3(0.04, -0.1, -0.3)
+@export var left_hand_hold_rotation_deg: Vector3 = Vector3(10.0, 90.0, -12.0)
+
 @export_group("Footsteps")
 ## Sonidos en subcarpetas de [code]footsteps_root[/code] (p. ej. Dirt, Grass). Vacío = no carga.
 @export var footsteps_enabled: bool = true
@@ -137,6 +141,7 @@ var repositioning_for_dialogue: bool = false
 var dialogue_reposition_goal: Vector3 = Vector3.ZERO
 var _interaction_crosshair: Control
 var _held_pickup: Node3D
+var _held_left_item: Node3D
 var _focus_interactable: Node
 var _highlighted_interactable: Node
 
@@ -148,6 +153,7 @@ var _highlighted_interactable: Node
 @onready var pickup_player: AudioStreamPlayer = $PickupPlayer
 @onready var camera_3d: Camera3D = $Head/Camera3D
 @onready var hand_right: Marker3D = $Head/Camera3D/HandRight
+@onready var hand_left: Marker3D = $Head/Camera3D/HandLeft
 
 ## Nombre de carpeta (p. ej. "Dirt", "Grass", "Concrete", "Gravel") -> lista de streams cargados.
 var _footstep_streams: Dictionary = {}
@@ -749,6 +755,45 @@ func consume_held_item(item_id: StringName) -> bool:
 	if is_instance_valid(item):
 		item.queue_free()
 	return true
+
+
+func has_left_hand_item() -> bool:
+	return _held_left_item != null and is_instance_valid(_held_left_item)
+
+
+func give_left_hand_item(item_scene: PackedScene) -> bool:
+	if item_scene == null or hand_left == null:
+		return false
+	if has_left_hand_item():
+		return false
+	var item := item_scene.instantiate() as Node3D
+	if item == null:
+		return false
+	hand_left.add_child(item)
+	_attach_left_hand_item(item)
+	_held_left_item = item
+	_play_pickup_acquire_sound()
+	return true
+
+
+func _attach_left_hand_item(item: Node3D) -> void:
+	var euler := Vector3(
+		deg_to_rad(left_hand_hold_rotation_deg.x),
+		deg_to_rad(left_hand_hold_rotation_deg.y),
+		deg_to_rad(left_hand_hold_rotation_deg.z)
+	)
+	item.transform = Transform3D(Basis.from_euler(euler), left_hand_hold_offset)
+	var rb := item.find_child("RigidBody3D", true, false) as RigidBody3D
+	if rb != null:
+		rb.transform = Transform3D.IDENTITY
+		rb.freeze = true
+		rb.linear_velocity = Vector3.ZERO
+		rb.angular_velocity = Vector3.ZERO
+		rb.collision_layer = 0
+		rb.collision_mask = 0
+	var collision := item.find_child("CollisionShape3D", true, false) as CollisionShape3D
+	if collision != null:
+		collision.disabled = true
 
 
 func _resolve_pickup_item_id(pickup: Node3D) -> StringName:

@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3 uid="uid://bbb7vhsyrvxie"]
+
+[ext_resource type="PackedScene" uid="uid://b063y6vv0qnrh" path="res://scenes/interactables/coca_bottle/bottle.tscn" id="1_bottle_model"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_bottle"]
+radius = 0.032
+height = 0.17
+
+[node name="CocaBottle" type="Node3D"]
+
+[node name="RigidBody3D" type="RigidBody3D" parent="."]
+collision_layer = 0
+collision_mask = 0
+mass = 0.15
+linear_damp = 0.65
+angular_damp = 0.65
+
+[node name="Model" type="Node3D" parent="RigidBody3D"]
+
+[node name="Bottle" parent="RigidBody3D/Model" instance=ExtResource("1_bottle_model")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D"]
+shape = SubResource("CapsuleShape3D_bottle")

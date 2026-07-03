@@ -1,0 +1,7 @@
+[gd_scene load_steps=3 format=3 uid="uid://b063y6vv0qnrh"]
+
+[ext_resource type="PackedScene" uid="uid://dujy2cmhcebh3" path="res://assets/models/coca_bottle/bottle.glb" id="1_glb"]
+[ext_resource type="Material" path="res://assets/models/coca_bottle/bottle_material.tres" id="2_mat"]
+
+[node name="Bottle" instance=ExtResource("1_glb")]
+material_override = ExtResource("2_mat")

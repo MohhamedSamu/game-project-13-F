@@ -1,0 +1,8 @@
+[gd_resource type="StandardMaterial3D" load_steps=2 format=3 uid="uid://c7m4bottle_mat01"]
+
+[ext_resource type="Texture2D" uid="uid://cp6pw8t84hcd7" path="res://assets/materials/objects_interior/Textures/Bottle.png" id="1_tex"]
+
+[resource]
+resource_name = "Bottle"
+texture_filter = 0
+albedo_texture = ExtResource("1_tex")

@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://dtnty13p0wxq8"
+path="res://.godot/imported/coca_fridge.dialogue-85e07f03660e1d84f25326b22de1f697.tres"
+
+[deps]
+
+source_file="res://dialogues/coca_fridge.dialogue"
+dest_files=["res://.godot/imported/coca_fridge.dialogue-85e07f03660e1d84f25326b22de1f697.tres"]
+
+[params]
+
+defaults=true

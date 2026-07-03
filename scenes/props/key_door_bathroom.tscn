@@ -8,8 +8,8 @@ size = Vector3(0.564453, 0.350586, 0.782227)
 
 [node name="key_door_bathroom" type="Node3D"]
 script = ExtResource("1_pickup")
-item_id = &"bathroom_key"
 pickup_prompt = "[E] Recoger llave"
+item_id = &"bathroom_key"
 hold_offset = Vector3(0.1, -0.1, -0.34)
 drop_forward_speed = 0.85
 drop_up_speed = 0.18

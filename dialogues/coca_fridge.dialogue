@@ -1,0 +1,12 @@
+~ start
+Player: Una coca me caería bien ahorita.
+- Coca normal
+	Player: Sí... necesito azúcar, no excusas.
+	=> take_coke
+- Coca Zero
+	Player: ¿Coca Zero? No, ahorita necesito azúcar de verdad.
+	=> take_coke
+
+~ take_coke
+Player: Mejor agarro una normal.
+=> END

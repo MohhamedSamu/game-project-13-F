@@ -20,7 +20,6 @@ floor_max_angle = 0.959931
 floor_snap_length = 0.15
 script = ExtResource("1_ucva2")
 can_sprint = true
-pickup_acquire_sound = ExtResource("3_pickup")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
@@ -41,6 +40,9 @@ current = true
 [node name="HandRight" type="Marker3D" parent="Head/Camera3D"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, -0.36, -0.58)
 
+[node name="HandLeft" type="Marker3D" parent="Head/Camera3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38, -0.36, -0.58)
+
 [node name="FootstepPlayer" type="AudioStreamPlayer3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, 0)
 unit_size = 4.0
@@ -60,8 +62,8 @@ max_distance = 12.0
 bus = &"SFX"
 
 [node name="PickupPlayer" type="AudioStreamPlayer" parent="."]
-bus = &"SFX"
 stream = ExtResource("3_pickup")
+bus = &"SFX"
 
 [node name="FoundFootageFilter" parent="." instance=ExtResource("2_filter")]
 intensity = 0.25
