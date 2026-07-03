@@ -24,4 +24,5 @@ func _on_dialogue_finished_give_coca() -> void:
 	var player := GameManager.get_player()
 	if player == null or not player.has_method("give_left_hand_item"):
 		return
-	player.give_left_hand_item(coca_scene)
+	if player.give_left_hand_item(coca_scene):
+		CocaCounterFlow.on_coca_received_in_hand()

@@ -95,6 +95,7 @@ const DEVELOP_FREEFLY_SPEED := 25.0
 @export_group("Mano izquierda")
 @export var left_hand_hold_offset: Vector3 = Vector3(0.04, -0.1, -0.3)
 @export var left_hand_hold_rotation_deg: Vector3 = Vector3(10.0, 90.0, -12.0)
+@export_range(0.1, 3.0, 0.01) var left_hand_hold_scale: float = 1.15
 
 @export_group("Footsteps")
 ## Sonidos en subcarpetas de [code]footsteps_root[/code] (p. ej. Dirt, Grass). Vacío = no carga.
@@ -142,6 +143,7 @@ var dialogue_reposition_goal: Vector3 = Vector3.ZERO
 var _interaction_crosshair: Control
 var _held_pickup: Node3D
 var _held_left_item: Node3D
+var _left_hand_dialogue_hooks_connected: bool = false
 var _focus_interactable: Node
 var _highlighted_interactable: Node
 
@@ -169,7 +171,8 @@ func _ready() -> void:
 	_apply_movement_profile_from_settings()
 
 	GameManager.register_player(self)
-	
+	_connect_left_hand_dialogue_visibility()
+
 	# 1) quita pausa por si el menú pausaba algo
 	get_tree().paused = false
 
@@ -776,24 +779,52 @@ func give_left_hand_item(item_scene: PackedScene) -> bool:
 	return true
 
 
+func clear_left_hand_item() -> bool:
+	if not has_left_hand_item():
+		return false
+	var item := _held_left_item
+	_held_left_item = null
+	if is_instance_valid(item):
+		item.queue_free()
+	return true
+
+
 func _attach_left_hand_item(item: Node3D) -> void:
 	var euler := Vector3(
 		deg_to_rad(left_hand_hold_rotation_deg.x),
 		deg_to_rad(left_hand_hold_rotation_deg.y),
 		deg_to_rad(left_hand_hold_rotation_deg.z)
 	)
-	item.transform = Transform3D(Basis.from_euler(euler), left_hand_hold_offset)
+	var uniform_scale := Vector3.ONE * left_hand_hold_scale
+	var basis := Basis.from_euler(euler).scaled(uniform_scale)
+	item.transform = Transform3D(basis, left_hand_hold_offset)
 	var rb := item.find_child("RigidBody3D", true, false) as RigidBody3D
 	if rb != null:
 		rb.transform = Transform3D.IDENTITY
-		rb.freeze = true
-		rb.linear_velocity = Vector3.ZERO
-		rb.angular_velocity = Vector3.ZERO
-		rb.collision_layer = 0
-		rb.collision_mask = 0
-	var collision := item.find_child("CollisionShape3D", true, false) as CollisionShape3D
-	if collision != null:
-		collision.disabled = true
+	HeldViewModel.apply(item)
+	_update_left_hand_dialogue_visibility()
+
+
+func _connect_left_hand_dialogue_visibility() -> void:
+	if _left_hand_dialogue_hooks_connected:
+		return
+	_left_hand_dialogue_hooks_connected = true
+	DialogueManager.dialogue_started.connect(_on_dialogue_started_left_hand)
+	DialogueController.dialogue_finished.connect(_on_dialogue_finished_left_hand)
+
+
+func _on_dialogue_started_left_hand(_resource: DialogueResource = null) -> void:
+	_update_left_hand_dialogue_visibility()
+
+
+func _on_dialogue_finished_left_hand() -> void:
+	_update_left_hand_dialogue_visibility()
+
+
+func _update_left_hand_dialogue_visibility() -> void:
+	if _held_left_item == null or not is_instance_valid(_held_left_item):
+		return
+	_held_left_item.visible = not GameManager.dialogue_active
 
 
 func _resolve_pickup_item_id(pickup: Node3D) -> StringName:

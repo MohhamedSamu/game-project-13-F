@@ -81,6 +81,10 @@ func get_flag(flag_name: String) -> bool:
 	return flags.get(flag_name, false)
 
 
+func can_place_coca_on_counter() -> bool:
+	return get_flag("has_coca_in_left_hand") and not get_flag("coca_placed_on_counter")
+
+
 func begin_level(
 	level_id: String,
 	initial_scene_id: String = "default",

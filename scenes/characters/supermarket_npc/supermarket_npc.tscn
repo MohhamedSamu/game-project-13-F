@@ -1,6 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://bidhv73yicyeu"]
+[gd_scene load_steps=10 format=3 uid="uid://bidhv73yicyeu"]
 
 [ext_resource type="PackedScene" uid="uid://4bnhyl64knfg" path="res://scenes/characters/supermarket_npc/character_05.tscn" id="1_model"]
+[ext_resource type="Script" path="res://scripts/characters/supermarket_npc.gd" id="1_npc_script"]
 [ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]
 [ext_resource type="Resource" uid="uid://cesy63kxhdfp8" path="res://dialogues/supermarket_npc.dialogue" id="3_dlg"]
 [ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="4_dlgfocus"]
@@ -16,6 +17,7 @@ height = 1.72
 size = Vector3(1.2, 1.65, 1.4)
 
 [node name="SupermarketNPC" type="CharacterBody3D"]
+script = ExtResource("1_npc_script")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.88, 0)
@@ -34,13 +36,14 @@ script = ExtResource("4_dlgfocus")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="DialogueFocusPoint/FocusHitbox"]
 shape = SubResource("SphereShape3D_focus")
 
-[node name="InteractableDialogueComponent" type="Area3D" parent="."]
+[node name="InteractableDialogueComponent" type="Area3D" parent="." node_paths=PackedStringArray("interaction_handler")]
 visible = false
 script = ExtResource("2_ixdlg")
 dialogue_resource = ExtResource("3_dlg")
 dialogue_title = "start"
 prompt_text = "Presiona [E] para hablar"
 requires_focus_hitbox = true
+interaction_handler = NodePath("..")
 npc_id = "supermarket_npc"
 dialogue_profile = ExtResource("5_dialogue_profile")
 

@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://gylct5avie32"
+path="res://.godot/imported/coca_counter.dialogue-1a463be737571c19198090f595809d76.tres"
+
+[deps]
+
+source_file="res://dialogues/coca_counter.dialogue"
+dest_files=["res://.godot/imported/coca_counter.dialogue-1a463be737571c19198090f595809d76.tres"]
+
+[params]
+
+defaults=true
