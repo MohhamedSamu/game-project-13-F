@@ -1,0 +1,20 @@
+[gd_scene load_steps=5 format=3 uid="uid://48rgdeh32mxi"]
+
+[ext_resource type="PackedScene" uid="uid://brs6o41gqvg7r" path="res://assets/characters/muerta/muerta.fbx" id="1_model"]
+[ext_resource type="Script" uid="uid://bqi0m55csv21r" path="res://scripts/characters/muerta.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://cj0iwgu4311iw" path="res://assets/characters/muerta/Pe5.png" id="3_kb6sl"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xnijk"]
+resource_name = "Material.003"
+vertex_color_use_as_albedo = true
+albedo_texture = ExtResource("3_kb6sl")
+emission_enabled = true
+
+[node name="Muerta" instance=ExtResource("1_model")]
+script = ExtResource("2_script")
+
+[node name="Cube_006" parent="Armature_003/Skeleton3D" index="0"]
+surface_material_override/0 = SubResource("StandardMaterial3D_xnijk")
+
+[node name="Camera" parent="." index="1"]
+visible = false

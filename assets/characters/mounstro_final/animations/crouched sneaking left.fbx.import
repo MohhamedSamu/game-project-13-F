@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://brs6o41gqvg7r"
-path="res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"
+uid="uid://phi7ysrrm00c"
+path="res://.godot/imported/crouched sneaking left.fbx-1f56fcc186752176c33ae26eeb4f7758.scn"
 
 [deps]
 
-source_file="res://assets/characters/muerta/muerta.fbx"
-dest_files=["res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"]
+source_file="res://assets/characters/mounstro_final/animations/crouched sneaking left.fbx"
+dest_files=["res://.godot/imported/crouched sneaking left.fbx-1f56fcc186752176c33ae26eeb4f7758.scn"]
 
 [params]
 

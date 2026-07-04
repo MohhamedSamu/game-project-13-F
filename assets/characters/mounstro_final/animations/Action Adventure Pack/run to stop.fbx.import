@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://brs6o41gqvg7r"
-path="res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"
+uid="uid://bav8txn8fs58y"
+path="res://.godot/imported/run to stop.fbx-c8cc4acd258bbd9af64178470d1e6685.scn"
 
 [deps]
 
-source_file="res://assets/characters/muerta/muerta.fbx"
-dest_files=["res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"]
+source_file="res://assets/characters/mounstro_final/animations/Action Adventure Pack/run to stop.fbx"
+dest_files=["res://.godot/imported/run to stop.fbx-c8cc4acd258bbd9af64178470d1e6685.scn"]
 
 [params]
 

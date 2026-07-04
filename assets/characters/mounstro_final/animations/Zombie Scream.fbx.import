@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://brs6o41gqvg7r"
-path="res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"
+uid="uid://bad0bh0j4cepw"
+path="res://.godot/imported/Zombie Scream.fbx-1c382599062662c12e24b26079e923fe.scn"
 
 [deps]
 
-source_file="res://assets/characters/muerta/muerta.fbx"
-dest_files=["res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"]
+source_file="res://assets/characters/mounstro_final/animations/Zombie Scream.fbx"
+dest_files=["res://.godot/imported/Zombie Scream.fbx-1c382599062662c12e24b26079e923fe.scn"]
 
 [params]
 

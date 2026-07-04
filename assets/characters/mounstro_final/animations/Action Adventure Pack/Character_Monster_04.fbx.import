@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://brs6o41gqvg7r"
-path="res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"
+uid="uid://djyukmvdih4k0"
+path="res://.godot/imported/Character_Monster_04.fbx-3a1c3157bfc1871d4d4a2a54e97df9da.scn"
 
 [deps]
 
-source_file="res://assets/characters/muerta/muerta.fbx"
-dest_files=["res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"]
+source_file="res://assets/characters/mounstro_final/animations/Action Adventure Pack/Character_Monster_04.fbx"
+dest_files=["res://.godot/imported/Character_Monster_04.fbx-3a1c3157bfc1871d4d4a2a54e97df9da.scn"]
 
 [params]
 

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://brs6o41gqvg7r"
-path="res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"
+uid="uid://dkfxhlbdje6sf"
+path="res://.godot/imported/Laying Shaking Head.fbx-cc857cab0285937ec67529fcf3b53884.scn"
 
 [deps]
 
-source_file="res://assets/characters/muerta/muerta.fbx"
-dest_files=["res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"]
+source_file="res://assets/characters/muerta/animations/Laying Shaking Head.fbx"
+dest_files=["res://.godot/imported/Laying Shaking Head.fbx-cc857cab0285937ec67529fcf3b53884.scn"]
 
 [params]
 

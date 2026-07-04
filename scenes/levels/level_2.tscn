@@ -1,4 +1,4 @@
-[gd_scene load_steps=75 format=3 uid="uid://dcjkky0vgp7re"]
+[gd_scene load_steps=76 format=3 uid="uid://dcjkky0vgp7re"]
 
 [ext_resource type="PackedScene" uid="uid://lfbncp2tyaa3" path="res://scenes/map/gas_station.tscn" id="1_0dhnt"]
 [ext_resource type="PackedScene" uid="uid://bs72ogkvdd7d6" path="res://addons/proto_controller/proto_controller.tscn" id="2_y2gk5"]
@@ -70,6 +70,7 @@
 [ext_resource type="PackedScene" uid="uid://c6crdqoonoer8" path="res://scenes/props/terror_heads/terror_head_09.tscn" id="68_4mm18"]
 [ext_resource type="PackedScene" uid="uid://ofuphimeld1g" path="res://scenes/props/terror_heads/terror_head_10.tscn" id="69_y3o2l"]
 [ext_resource type="PackedScene" uid="uid://oa87iqchj6to" path="res://scenes/props/christian_cross/christian_cross.tscn" id="70_mghg3"]
+[ext_resource type="PackedScene" uid="uid://wv0w4vrpenb5" path="res://scenes/narrative/final_scene/final_scene.tscn" id="71_finalscene"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wwjag"]
 shader = ExtResource("12_lkn2k")
@@ -162,6 +163,7 @@ tonemap_white = 6.0
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_joiyc"]
 
 [node name="level_2" type="Node3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22.8822, 0, 0)
 
 [node name="Gas_station" parent="." instance=ExtResource("1_0dhnt")]
 unique_name_in_owner = true
@@ -353,8 +355,8 @@ transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 101.552,
 wall_length = 25.0
 wall_height = 5.0
 
-[node name="InvisibleWallSuper13" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
-transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, -16.7722, 0.0497312, 38.5747)
+[node name="InvisibleWallEndOfRoad" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, -16.7722, 4.57617, 38.5747)
 wall_length = 25.0
 wall_height = 5.0
 
@@ -705,11 +707,11 @@ transform = Transform3D(-0.790882, 0, 0.611969, 0, 1, 0, -0.611969, 0, -0.790882
 initial_mode = 2
 
 [node name="StreetLampConfigurable4" parent="StreetLamps" instance=ExtResource("31_wwjag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -24.8878, 0.0320933, 31.8664)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -61.5916, 0.0320933, 31.8664)
 initial_mode = 2
 
 [node name="StreetLampConfigurable5" parent="StreetLamps" instance=ExtResource("31_wwjag")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -61.9337, 0.0320933, 31.8664)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26.1883, 0.0320933, 31.8664)
 
 [node name="StreetLampConfigurable6" parent="StreetLamps" instance=ExtResource("31_wwjag")]
 transform = Transform3D(-0.520354, 0, -0.853951, 0, 1, 0, 0.853951, 0, -0.520354, -10.0617, 0.0320933, -31.5844)
@@ -879,6 +881,8 @@ script = ExtResource("49_scene4exit")
 jumpscare_path = NodePath("../Scene4BathroomExitJumpscare")
 
 [node name="Scene5" type="Node3D" parent="."]
+
+[node name="FinalScene" parent="Jumpscares" instance=ExtResource("71_finalscene")]
 
 [node name="TerrorHead01" parent="Scene5" instance=ExtResource("56_g8c2j")]
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 9.02209, 3.22026, -14.1725)

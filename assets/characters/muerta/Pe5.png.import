@@ -2,21 +2,18 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dtekysynbb35a"
-path.s3tc="res://.godot/imported/muerta_Pe7.png-90aaed4e14cd6016ae4039f9db622505.s3tc.ctex"
-path.etc2="res://.godot/imported/muerta_Pe7.png-90aaed4e14cd6016ae4039f9db622505.etc2.ctex"
+uid="uid://cj0iwgu4311iw"
+path.s3tc="res://.godot/imported/Pe5.png-ef1224f429c18c82f10834523be769c2.s3tc.ctex"
+path.etc2="res://.godot/imported/Pe5.png-ef1224f429c18c82f10834523be769c2.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
 }
-generator_parameters={
-"md5": "f85643bf16f192115560b6811b5163b7"
-}
 
 [deps]
 
-source_file="res://assets/characters/muerta/muerta_Pe7.png"
-dest_files=["res://.godot/imported/muerta_Pe7.png-90aaed4e14cd6016ae4039f9db622505.s3tc.ctex", "res://.godot/imported/muerta_Pe7.png-90aaed4e14cd6016ae4039f9db622505.etc2.ctex"]
+source_file="res://assets/characters/muerta/Pe5.png"
+dest_files=["res://.godot/imported/Pe5.png-ef1224f429c18c82f10834523be769c2.s3tc.ctex", "res://.godot/imported/Pe5.png-ef1224f429c18c82f10834523be769c2.etc2.ctex"]
 
 [params]
 

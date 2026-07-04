@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://brs6o41gqvg7r"
-path="res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"
+uid="uid://dxeskr4q1418n"
+path="res://.godot/imported/Zombie Biting standing up v2.fbx-44dab199a462065064f4a109b61b6988.scn"
 
 [deps]
 
-source_file="res://assets/characters/muerta/muerta.fbx"
-dest_files=["res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"]
+source_file="res://assets/characters/mounstro_final/animations/Zombie Biting standing up v2.fbx"
+dest_files=["res://.godot/imported/Zombie Biting standing up v2.fbx-44dab199a462065064f4a109b61b6988.scn"]
 
 [params]
 

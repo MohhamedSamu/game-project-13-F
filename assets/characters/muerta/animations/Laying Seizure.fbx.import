@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://brs6o41gqvg7r"
-path="res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"
+uid="uid://dmdofwj6rjk2x"
+path="res://.godot/imported/Laying Seizure.fbx-4c08db49352e81ed43284c0210e2ebb2.scn"
 
 [deps]
 
-source_file="res://assets/characters/muerta/muerta.fbx"
-dest_files=["res://.godot/imported/muerta.fbx-c3c654574344a1df06e53ef9d0de6a1c.scn"]
+source_file="res://assets/characters/muerta/animations/Laying Seizure.fbx"
+dest_files=["res://.godot/imported/Laying Seizure.fbx-4c08db49352e81ed43284c0210e2ebb2.scn"]
 
 [params]
 

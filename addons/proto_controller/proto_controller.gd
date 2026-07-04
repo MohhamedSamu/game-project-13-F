@@ -148,6 +148,8 @@ var _held_left_item: Node3D
 var _left_hand_dialogue_hooks_connected: bool = false
 var _focus_interactable: Node
 var _highlighted_interactable: Node
+var _cinematic_fov_tween: Tween
+var _cinematic_fov_restore: float = -1.0
 
 var _sequence_look_limits_active: bool = false
 var _sequence_look_center_yaw: float = 0.0
@@ -1434,6 +1436,43 @@ func apply_control_settings(mouse_sensitivity: float, camera_fov: float) -> void
 	look_speed = Settings.mouse_sensitivity_to_look_speed(mouse_sensitivity)
 	if camera_3d != null:
 		camera_3d.fov = clampf(camera_fov, 40.0, Settings.MAX_CAMERA_FOV)
+
+
+func begin_cinematic_zoom(zoom_fov: float, duration: float = 0.9) -> void:
+	if camera_3d == null:
+		return
+	if _cinematic_fov_restore < 0.0:
+		_cinematic_fov_restore = camera_3d.fov
+	_stop_cinematic_fov_tween()
+	var target := clampf(zoom_fov, 25.0, Settings.MAX_CAMERA_FOV)
+	_cinematic_fov_tween = create_tween()
+	_cinematic_fov_tween.tween_property(camera_3d, "fov", target, maxf(duration, 0.01))
+	_cinematic_fov_tween.set_trans(Tween.TRANS_SINE)
+	_cinematic_fov_tween.set_ease(Tween.EASE_OUT)
+
+
+func end_cinematic_zoom(duration: float = 0.9) -> void:
+	if camera_3d == null:
+		return
+	var restore := _cinematic_fov_restore
+	if restore < 0.0:
+		restore = clampf(
+			float(Settings.get_value("camera_fov", Settings.DEFAULT_CAMERA_FOV)),
+			40.0,
+			Settings.MAX_CAMERA_FOV
+		)
+	_cinematic_fov_restore = -1.0
+	_stop_cinematic_fov_tween()
+	_cinematic_fov_tween = create_tween()
+	_cinematic_fov_tween.tween_property(camera_3d, "fov", restore, maxf(duration, 0.01))
+	_cinematic_fov_tween.set_trans(Tween.TRANS_SINE)
+	_cinematic_fov_tween.set_ease(Tween.EASE_IN_OUT)
+
+
+func _stop_cinematic_fov_tween() -> void:
+	if _cinematic_fov_tween != null and _cinematic_fov_tween.is_valid():
+		_cinematic_fov_tween.kill()
+	_cinematic_fov_tween = null
 
 
 func apply_movement_profile() -> void:
