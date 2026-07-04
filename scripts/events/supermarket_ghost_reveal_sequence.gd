@@ -43,6 +43,11 @@ const HORROR_LIGHT_ENERGY := 0.52
 @export var phase_2_flicker_count_min: int = 2
 @export var phase_2_flicker_count_max: int = 3
 @export var phase_2_transition_flicker_time: float = 0.28
+@export_range(0.2, 0.8, 0.05) var phase_2_clear_chance: float = 0.52
+@export_range(0.15, 0.55, 0.05) var phase_2_clear_duration_min: float = 0.22
+@export_range(0.25, 0.9, 0.05) var phase_2_clear_duration_max: float = 0.55
+## Super4/Super6 encendidas al 100% en CLEAR (las de arriba de la cajera).
+@export_range(0.5, 1.0, 0.05) var phase_2_cashier_spotlight_multiplier: float = 1.0
 
 @export_group("Phase 2 Stretch")
 @export var stretch_animation_name: String = "neck_stretching_trim2"
@@ -293,7 +298,9 @@ func _run_phase_2_light_sequence() -> void:
 
 		var state := _pick_phase_2_state()
 		var duration := randf_range(0.08, 0.45)
-		if state == Phase2VisualState.RED and randf() < 0.35:
+		if state == Phase2VisualState.CLEAR:
+			duration = randf_range(phase_2_clear_duration_min, phase_2_clear_duration_max)
+		elif state == Phase2VisualState.RED and randf() < 0.35:
 			duration = randf_range(0.5, 0.9)
 
 		_apply_phase_2_visual(state)
@@ -303,21 +310,26 @@ func _run_phase_2_light_sequence() -> void:
 
 func _run_major_phase_2_flicker() -> void:
 	var patterns: Array[Array] = [
-		[Phase2VisualState.CLEAR, Phase2VisualState.DARK, Phase2VisualState.RED, Phase2VisualState.CLEAR],
-		[Phase2VisualState.RED, Phase2VisualState.DARK, Phase2VisualState.CLEAR],
-		[Phase2VisualState.DARK, Phase2VisualState.RED, Phase2VisualState.DARK, Phase2VisualState.CLEAR],
+		[Phase2VisualState.CLEAR, Phase2VisualState.CLEAR, Phase2VisualState.DARK, Phase2VisualState.RED, Phase2VisualState.CLEAR],
+		[Phase2VisualState.CLEAR, Phase2VisualState.DARK, Phase2VisualState.CLEAR, Phase2VisualState.RED],
+		[Phase2VisualState.CLEAR, Phase2VisualState.RED, Phase2VisualState.DARK, Phase2VisualState.CLEAR],
 	]
 	var pattern: Array = patterns[randi() % patterns.size()]
 	for state_value in pattern:
 		_apply_phase_2_visual(state_value as Phase2VisualState)
-		await get_tree().create_timer(randf_range(0.1, 0.28)).timeout
+		var step := randf_range(0.1, 0.28)
+		if state_value == Phase2VisualState.CLEAR:
+			step = randf_range(phase_2_clear_duration_min, phase_2_clear_duration_max)
+		await get_tree().create_timer(step).timeout
 
 
 func _pick_phase_2_state() -> Phase2VisualState:
 	var roll := randf()
-	if roll < 0.34:
+	var dark_end := (1.0 - phase_2_clear_chance) * 0.48
+	var red_end := 1.0 - phase_2_clear_chance
+	if roll < dark_end:
 		return Phase2VisualState.DARK
-	if roll < 0.62:
+	if roll < red_end:
 		return Phase2VisualState.RED
 	return Phase2VisualState.CLEAR
 
@@ -327,10 +339,10 @@ func _apply_phase_2_visual(state: Phase2VisualState) -> void:
 		Phase2VisualState.CLEAR:
 			_set_red_overlay_active(false)
 			_restore_supermarket_light_colors()
-			_restore_lights(true)
+			_restore_phase_2_clear_lights()
 		Phase2VisualState.DARK:
 			_set_red_overlay_active(false)
-			_turn_lights_off()
+			_turn_all_supermarket_lights_off()
 		Phase2VisualState.RED:
 			_apply_horror_light_colors()
 			_set_red_overlay_active(true)
@@ -343,6 +355,49 @@ func _apply_phase_2_visual(state: Phase2VisualState) -> void:
 				var base_energy: float = _light_states[id]["energy"]
 				light.visible = true
 				light.light_energy = base_energy * randf_range(0.35, 0.65)
+
+
+func _restore_phase_2_clear_lights() -> void:
+	for light in supermarket_lights:
+		if light == null:
+			continue
+		var id := light.get_instance_id()
+		if not _light_states.has(id):
+			continue
+		var saved: Dictionary = _light_states[id]
+		light.visible = saved["visible"]
+		light.light_energy = saved["energy"]
+		if saved.has("color"):
+			light.light_color = saved["color"]
+	_apply_phase_2_cashier_spotlights(phase_2_cashier_spotlight_multiplier)
+
+
+func _apply_phase_2_cashier_spotlights(multiplier: float) -> void:
+	if reveal_dimmed_lights.is_empty() or _reveal_dimmed_light_states.is_empty():
+		return
+	for light in reveal_dimmed_lights:
+		if light == null:
+			continue
+		var dim_id := light.get_instance_id()
+		if not _reveal_dimmed_light_states.has(dim_id):
+			continue
+		var saved: Dictionary = _reveal_dimmed_light_states[dim_id]
+		var base_energy: float = saved["energy"]
+		if multiplier <= 0.001:
+			light.light_energy = 0.0
+			light.visible = false
+		else:
+			light.visible = saved["visible"]
+			light.light_energy = base_energy * multiplier
+
+
+func _turn_all_supermarket_lights_off() -> void:
+	_turn_lights_off()
+	for light in reveal_dimmed_lights:
+		if light == null:
+			continue
+		light.light_energy = 0.0
+		light.visible = false
 
 
 func _apply_horror_light_colors() -> void:
