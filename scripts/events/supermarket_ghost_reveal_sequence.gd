@@ -9,13 +9,14 @@ const DONE_FLAG := &"supermarket_ghost_reveal_done"
 @export var old_lady_ghost: Node3D
 @export var supermarket_lights: Array[Light3D] = []
 @export var reveal_dimmed_lights: Array[Light3D] = []
+@export var bathroom_lights: Array[Light3D] = []
 
 @export_group("Trigger")
 @export var trigger_flag: String = "ready_for_cashier_jumpscare"
 @export var run_once: bool = true
 
 @export_group("Tiempos")
-@export var pre_blackout_flicker_time: float = 1.2
+@export var pre_blackout_flicker_time: float = 0.38
 @export var blackout_time: float = 1.0
 @export var lights_return_delay: float = 0.1
 @export var ghost_reveal_delay_after_lights: float = 0.08
@@ -39,6 +40,7 @@ const DONE_FLAG := &"supermarket_ghost_reveal_done"
 var _running: bool = false
 var _light_states: Dictionary = {}
 var _reveal_dimmed_light_states: Dictionary = {}
+var _bathroom_light_states: Dictionary = {}
 var _cashier_interact: InteractableDialogueComponent
 var _cashier_focus_hitbox: Area3D
 var _cashier_saved_states: Dictionary = {}
@@ -98,7 +100,7 @@ func _run_sequence() -> void:
 	_dip_ambient_if_enabled()
 
 	await _flicker_lights_short()
-	await get_tree().create_timer(0.12).timeout
+	await get_tree().create_timer(0.06).timeout
 
 	_turn_lights_off()
 	_set_cashier_active(false)
@@ -108,7 +110,7 @@ func _run_sequence() -> void:
 	if lights_return_delay > 0.0:
 		await get_tree().create_timer(lights_return_delay).timeout
 
-	await _restore_lights_with_sting()
+	_restore_lights(true)
 	_apply_reveal_dimmed_lights()
 
 	if ghost_reveal_delay_after_lights > 0.0:
@@ -124,6 +126,7 @@ func _run_sequence() -> void:
 
 	_unlock_player()
 	_restore_ambient_if_needed()
+	_restore_bathroom_lights()
 
 	if run_once:
 		GameManager.set_flag(DONE_FLAG, true)
@@ -148,6 +151,16 @@ func _cache_light_states() -> void:
 			continue
 		var dim_id := light.get_instance_id()
 		_reveal_dimmed_light_states[dim_id] = {
+			"visible": light.visible,
+			"energy": light.light_energy,
+		}
+
+	_bathroom_light_states.clear()
+	for light in bathroom_lights:
+		if light == null:
+			continue
+		var bath_id := light.get_instance_id()
+		_bathroom_light_states[bath_id] = {
 			"visible": light.visible,
 			"energy": light.light_energy,
 		}
@@ -210,43 +223,42 @@ func _apply_reveal_dimmed_lights() -> void:
 
 
 func _flicker_lights_short() -> void:
+	_set_bathroom_lights_active(false)
+
 	if supermarket_lights.is_empty():
 		await get_tree().create_timer(pre_blackout_flicker_time).timeout
 		return
 
-	var elapsed := 0.0
-	var multipliers: Array[float] = [1.0, 0.0, 0.35, 0.0, 0.65, 0.12, 0.0, 0.45, 0.0, 0.8, 0.0]
+	# Dos parpadeos fijos (encendido/apagado) sin sting extra al final.
+	const FLICKER_PATTERN: Array[float] = [1.0, 0.0, 1.0, 0.0]
+	var step_count := FLICKER_PATTERN.size()
+	var step_duration := pre_blackout_flicker_time / float(step_count)
 
-	while elapsed < pre_blackout_flicker_time:
-		var multiplier: float = multipliers[randi() % multipliers.size()]
-		if randf() < 0.35:
-			multiplier = 0.0
-		elif randf() < 0.2:
-			multiplier = randf_range(0.15, 0.55)
-
-		var step: float = randf_range(0.04, 0.18)
-		var remaining: float = pre_blackout_flicker_time - elapsed
-		if step > remaining:
-			step = remaining
-		if step <= 0.0:
-			break
-
+	for multiplier in FLICKER_PATTERN:
 		_set_lights_energy(multiplier)
-		await get_tree().create_timer(step).timeout
-		elapsed += step
-
-	_set_lights_energy(randf_range(0.5, 1.0))
-	await get_tree().create_timer(randf_range(0.05, 0.1)).timeout
-	_set_lights_energy(0.0)
-	await get_tree().create_timer(randf_range(0.04, 0.08)).timeout
+		await get_tree().create_timer(step_duration).timeout
 
 
-func _restore_lights_with_sting() -> void:
-	_restore_lights(false)
-	await get_tree().create_timer(0.05).timeout
-	_turn_lights_off()
-	await get_tree().create_timer(0.1).timeout
-	_restore_lights(true)
+func _set_bathroom_lights_active(active: bool) -> void:
+	if bathroom_lights.is_empty():
+		return
+	for light in bathroom_lights:
+		if light == null:
+			continue
+		var id := light.get_instance_id()
+		if not _bathroom_light_states.has(id):
+			continue
+		var state: Dictionary = _bathroom_light_states[id]
+		if active:
+			light.visible = state["visible"]
+			light.light_energy = state["energy"]
+		else:
+			light.light_energy = 0.0
+			light.visible = false
+
+
+func _restore_bathroom_lights() -> void:
+	_set_bathroom_lights_active(true)
 
 
 func _set_cashier_active(active: bool) -> void:

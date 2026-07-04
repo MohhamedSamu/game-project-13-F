@@ -112,8 +112,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.19452, 0.19452)
-shader_parameter/cirrus_position2 = Vector2(0.19452, 0.19452)
+shader_parameter/cirrus_position1 = Vector2(0.00438409, 0.00438404)
+shader_parameter/cirrus_position2 = Vector2(0.00438409, 0.00438404)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -123,7 +123,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.972434, 0.972432)
+shader_parameter/cumulus_position = Vector2(0.0219204, 0.0219202)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -857,8 +857,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.24883, 1.34579, -14.7182)
 [node name="OldLadyGhost" parent="." instance=ExtResource("56_nsjcl")]
 transform = Transform3D(-0.145928, 0, -0.989295, 0, 1, 0, 0.989295, 0, -0.145928, 11.5268, -1.13903, -12.7302)
 
-[node name="SupermarketGhostRevealSequence" parent="." node_paths=PackedStringArray("cashier_npc", "old_lady_ghost", "supermarket_lights", "reveal_dimmed_lights") instance=ExtResource("57_ghostseq")]
+[node name="SupermarketGhostRevealSequence" parent="." node_paths=PackedStringArray("cashier_npc", "old_lady_ghost", "supermarket_lights", "reveal_dimmed_lights", "bathroom_lights") instance=ExtResource("57_ghostseq")]
 cashier_npc = NodePath("../SupermarketNPC")
 old_lady_ghost = NodePath("../OldLadyGhost")
 supermarket_lights = [NodePath("../iluminacion/OmniLight3DSuper1"), NodePath("../iluminacion/OmniLight3DSuper2"), NodePath("../iluminacion/OmniLight3DSuper3"), NodePath("../iluminacion/OmniLight3DSuper4"), NodePath("../iluminacion/OmniLight3DSuper6"), NodePath("../iluminacion/OmniLight3DSuperStorage")]
 reveal_dimmed_lights = [NodePath("../iluminacion/OmniLight3DSuper6"), NodePath("../iluminacion/OmniLight3DSuper4")]
+bathroom_lights = [NodePath("../Jumpscares/BathroomSinkHorror/OmniLight3DBath1"), NodePath("../Jumpscares/BathroomSinkHorror/OmniLight3DBath2")]

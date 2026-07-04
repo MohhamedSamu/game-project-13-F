@@ -6,6 +6,13 @@ const DIALOGUE: DialogueResource = preload("res://dialogues/churro_counter.dialo
 const THOUGHT_AFTER_COCA := "ahora iré por un churro"
 const PROMPT_PLACE := "Presiona [E] para dejar el churro"
 
+# =============================================================================
+# FIXME(DEV): Eliminar antes de finalizar escena 5 del supermercado.
+# Con true, hablar con la cajera salta Coca/churro e inicia el diálogo final
+# + secuencia OldLadyGhost (solo para depurar animación/luces).
+# =============================================================================
+const DEV_SKIP_COCA_CHURRO_FLOW := true
+
 
 static func can_place_churro() -> bool:
 	return GameManager.can_place_churro_on_counter()
@@ -28,6 +35,36 @@ static func place_churro_from_counter(setup: Node) -> void:
 
 static func place_churro_from_cashier(focus_target: Node3D) -> void:
 	_execute_place(null, false, focus_target)
+
+
+## FIXME(DEV): Quitar junto con DEV_SKIP_COCA_CHURRO_FLOW.
+static func dev_skip_to_scene5_if_enabled(focus_target: Node3D) -> bool:
+	if not DEV_SKIP_COCA_CHURRO_FLOW:
+		return false
+	if GameManager.get_flag("ready_for_cashier_jumpscare"):
+		return false
+	if GameManager.get_flag("supermarket_ghost_reveal_started"):
+		return false
+	if GameManager.get_flag("supermarket_ghost_reveal_done"):
+		return false
+
+	push_warning(
+		"ChurroCounterFlow DEV: saltando Coca/churro → diálogo escena 5. "
+		+ "Desactiva DEV_SKIP_COCA_CHURRO_FLOW antes de release."
+	)
+	_apply_dev_prerequisite_flags()
+	_start_cashier_final_dialogue(focus_target, true, CounterPlaceCamera.resolve_focus_speed(null, true))
+	return true
+
+
+static func _apply_dev_prerequisite_flags() -> void:
+	GameManager.set_flag("has_coca_in_left_hand", false)
+	GameManager.set_flag("coca_placed_on_counter", true)
+	GameManager.set_flag("needs_churro", false)
+	GameManager.set_flag("churro_taken", true)
+	GameManager.set_flag("has_churro_in_left_hand", false)
+	GameManager.set_flag("churro_placed_on_counter", false)
+	GameManager.set_flag("ready_for_cashier_jumpscare", false)
 
 
 static func _execute_place(
@@ -60,11 +97,19 @@ static func _execute_place(
 	if focus == null and place_setup.has_method("get_cashier_focus"):
 		focus = place_setup.get_cashier_focus()
 
+	var focus_speed := CounterPlaceCamera.resolve_focus_speed(place_setup, use_camera_focus)
+	_start_cashier_final_dialogue(focus, use_camera_focus, focus_speed)
+
+
+static func _start_cashier_final_dialogue(
+	focus_target: Node3D,
+	use_camera_focus: bool,
+	focus_speed: float
+) -> void:
 	if DialogueController.dialogue_finished.is_connected(_on_counter_dialogue_finished):
 		DialogueController.dialogue_finished.disconnect(_on_counter_dialogue_finished)
 	DialogueController.dialogue_finished.connect(_on_counter_dialogue_finished, CONNECT_ONE_SHOT)
-	var focus_speed := CounterPlaceCamera.resolve_focus_speed(place_setup, use_camera_focus)
-	DialogueController.start_dialogue(DIALOGUE, "start", focus, use_camera_focus, focus_speed)
+	DialogueController.start_dialogue(DIALOGUE, "start", focus_target, use_camera_focus, focus_speed)
 
 
 static func _find_place_setup() -> Node:

@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://qxg8b6ro1c00"
-path="res://.godot/imported/Pesonajes 2.dae-b78fa7b5c4fdeb5409c7d23cf8be66da.scn"
+uid="uid://u8g4502o7gfn"
+path="res://.godot/imported/Neck_Stretching_Trim2.fbx-313fc0fef75a3f2d3ae7c29b2e4c8ecd.scn"
 
 [deps]
 
-source_file="res://assets/characters/blood_characters/Pesonajes 2.dae"
-dest_files=["res://.godot/imported/Pesonajes 2.dae-b78fa7b5c4fdeb5409c7d23cf8be66da.scn"]
+source_file="res://assets/characters/oldLadyGhost/animations/Neck_Stretching_Trim2.fbx"
+dest_files=["res://.godot/imported/Neck_Stretching_Trim2.fbx-313fc0fef75a3f2d3ae7c29b2e4c8ecd.scn"]
 
 [params]
 
@@ -28,8 +28,11 @@ meshes/force_disable_compression=false
 skins/use_named_skins=true
 animation/import=true
 animation/fps=30
-animation/trimming=false
+animation/trimming=true
 animation/remove_immutable_tracks=true
 animation/import_rest_as_RESET=false
 import_script/path=""
 _subresources={}
+fbx/importer=0
+fbx/allow_geometry_helper_nodes=false
+fbx/embedded_image_handling=1

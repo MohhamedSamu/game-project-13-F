@@ -21,6 +21,17 @@ const ANIMATION_SOURCES: Dictionary = {
 		"loop": false,
 		"lock_hips": true,
 	},
+	"neck_stretching_trim": {
+		"fbx": "res://assets/characters/oldLadyGhost/animations/Neck_Stretching_Trim.fbx",
+		"loop": false,
+		"lock_hips": true,
+	},
+	"neck_stretching_trim2": {
+		"fbx": "res://assets/characters/oldLadyGhost/animations/Neck_Stretching_Trim2.fbx",
+		"loop": false,
+		"lock_hips": true,
+		"hips_reference": "neck_stretching_trim",
+	},
 }
 
 
@@ -28,6 +39,7 @@ static func build_animation_library() -> AnimationLibrary:
 	var library := AnimationLibrary.new()
 	for anim_name in ANIMATION_SOURCES:
 		bake_animation_into_library(library, anim_name)
+	_apply_hips_references(library)
 	return library
 
 
@@ -44,10 +56,60 @@ static func bake_animation_into_library(library: AnimationLibrary, anim_name: St
 		return false
 	anim.resource_name = anim_name
 	anim.loop_mode = Animation.LOOP_LINEAR if config.get("loop", false) else Animation.LOOP_NONE
-	if config.get("lock_hips", false):
-		_lock_hips_position(anim)
 	library.add_animation(anim_name, anim)
 	return true
+
+
+static func _apply_hips_references(library: AnimationLibrary) -> void:
+	for anim_name in ANIMATION_SOURCES:
+		var config: Dictionary = ANIMATION_SOURCES[anim_name]
+		if not config.get("lock_hips", false):
+			continue
+		if config.has("hips_reference"):
+			continue
+		if not library.has_animation(anim_name):
+			continue
+		var own_hips: Variant = _read_hips_position_at_start(library.get_animation(anim_name))
+		if own_hips is Vector3:
+			_lock_hips_position(library.get_animation(anim_name), own_hips)
+
+	for anim_name in ANIMATION_SOURCES:
+		var config: Dictionary = ANIMATION_SOURCES[anim_name]
+		if not config.get("lock_hips", false):
+			continue
+		if not config.has("hips_reference"):
+			continue
+		if not library.has_animation(anim_name):
+			continue
+		var reference_hips: Variant = _resolve_hips_reference(library, config)
+		if reference_hips is Vector3:
+			_lock_hips_position(library.get_animation(anim_name), reference_hips)
+
+
+static func _resolve_hips_reference(library: AnimationLibrary, config: Dictionary) -> Variant:
+	var ref_name := String(config.get("hips_reference", ""))
+	if not ref_name.is_empty() and library.has_animation(ref_name):
+		return _read_hips_position_at_start(library.get_animation(ref_name))
+	for fallback_name in ["old_lady_idle", "orc_idle", "neck_stretching_trim"]:
+		if library.has_animation(fallback_name):
+			var hips_pos: Variant = _read_hips_position_at_start(library.get_animation(fallback_name))
+			if hips_pos is Vector3:
+				return hips_pos
+	return null
+
+
+static func _read_hips_position_at_start(anim: Animation) -> Variant:
+	for hips_bone in ["mixamorig_Hips", "Hips"]:
+		var hips_pos_track := anim.find_track(
+			NodePath("%s:%s" % [SKELETON_PATH, hips_bone]),
+			Animation.TYPE_POSITION_3D
+		)
+		if hips_pos_track < 0:
+			continue
+		if anim.track_get_key_count(hips_pos_track) == 0:
+			continue
+		return anim.track_get_key_value(hips_pos_track, 0)
+	return null
 
 
 static func _load_mixamo_animation(config: Dictionary) -> Animation:
@@ -103,7 +165,7 @@ static func _remap_animation(anim: Animation) -> Animation:
 	return anim
 
 
-static func _lock_hips_position(anim: Animation) -> void:
+static func _lock_hips_position(anim: Animation, reference_pos: Vector3 = Vector3.INF) -> void:
 	for hips_bone in ["mixamorig_Hips", "Hips"]:
 		var hips_pos_track := anim.find_track(
 			NodePath("%s:%s" % [SKELETON_PATH, hips_bone]),
@@ -114,7 +176,9 @@ static func _lock_hips_position(anim: Animation) -> void:
 		var key_count := anim.track_get_key_count(hips_pos_track)
 		if key_count == 0:
 			continue
-		var locked_pos: Vector3 = anim.track_get_key_value(hips_pos_track, 0)
+		var locked_pos: Vector3 = reference_pos if reference_pos != Vector3.INF else (
+			anim.track_get_key_value(hips_pos_track, 0)
+		)
 		for key_idx in range(key_count):
 			anim.track_set_key_value(hips_pos_track, key_idx, locked_pos)
 		return
