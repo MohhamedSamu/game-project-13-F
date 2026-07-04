@@ -1,0 +1,16 @@
+[remap]
+
+importer="dialogue_manager"
+importer_version=15
+type="Resource"
+uid="uid://dj0q5dhfktn7r"
+path="res://.godot/imported/cashier_after_vision.dialogue-c233791c0d05bf5520714e629cb3e9db.tres"
+
+[deps]
+
+source_file="res://dialogues/cashier_after_vision.dialogue"
+dest_files=["res://.godot/imported/cashier_after_vision.dialogue-c233791c0d05bf5520714e629cb3e9db.tres"]
+
+[params]
+
+defaults=true

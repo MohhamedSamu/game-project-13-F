@@ -1,6 +1,8 @@
 extends Node3D
 ## Actor OldLadyGhost: aparición estática detrás de ventana (sin IA, diálogo ni jumpscare).
 
+signal stretch_animation_finished(anim_name: StringName)
+
 const FALLBACK_HEAD_LIGHT_POS := Vector3(0.0, 3.52, 0.12)
 const FALLBACK_CHEST_LIGHT_POS := Vector3(0.0, 3.1, 0.5)
 
@@ -128,7 +130,10 @@ func _run_reveal_sequence() -> void:
 		elif idle_hold_before_stretch > 0.0:
 			await get_tree().create_timer(idle_hold_before_stretch).timeout
 		if _reveal_running:
-			_play_stretch()
+			await _play_stretch_and_wait(model)
+
+	if _reveal_running:
+		stretch_animation_finished.emit(StringName(stretch_animation_name))
 
 	_reveal_running = false
 
@@ -149,6 +154,35 @@ func _play_stretch() -> void:
 	var model := _get_model()
 	if model != null:
 		model.play_animation(stretch_animation_name, -1.0, stretch_playback_speed)
+
+
+func _play_stretch_and_wait(model: Node) -> void:
+	if model.has_method("play_animation"):
+		model.play_animation(stretch_animation_name, -1.0, stretch_playback_speed)
+	var player := _get_animation_player()
+	if player == null:
+		return
+	var stretch_name := StringName(stretch_animation_name)
+	var finished := [false]
+	var on_finished := func(finished_name: StringName) -> void:
+		if finished_name == stretch_name:
+			finished[0] = true
+	if player.animation_finished.is_connected(on_finished):
+		player.animation_finished.disconnect(on_finished)
+	player.animation_finished.connect(on_finished, CONNECT_ONE_SHOT)
+	while _reveal_running and not finished[0]:
+		await get_tree().process_frame
+
+
+func get_animation_player() -> AnimationPlayer:
+	return _get_animation_player()
+
+
+func _get_animation_player() -> AnimationPlayer:
+	var model := _get_model()
+	if model != null and model.has_method("get_animation_player"):
+		return model.get_animation_player()
+	return null
 
 
 func _get_idle_cycle_duration(model: Node) -> float:

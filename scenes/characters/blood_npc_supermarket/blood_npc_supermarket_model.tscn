@@ -1,11 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://c8bloodnpcmodel01"]
+[gd_scene load_steps=6 format=3 uid="uid://dsx85h20dwgnw"]
 
 [ext_resource type="PackedScene" uid="uid://m6by7ncnddkm" path="res://assets/characters/npc_supermarket/Character_05.fbx" id="1_fbx"]
-[ext_resource type="Script" path="res://scripts/characters/blood_npc_supermarket_model.gd" id="2_script"]
-[ext_resource type="Texture2D" path="res://assets/characters/blood_npc_supermarket/blood_npc_supermarket_albedo.png" id="3_tex"]
+[ext_resource type="Script" uid="uid://1mc02cnreupk" path="res://scripts/characters/blood_npc_supermarket_model.gd" id="2_script"]
+[ext_resource type="Texture2D" uid="uid://bbt2wdjgxq7wm" path="res://assets/characters/blood_npc_supermarket/blood_npc_supermarket_albedo.png" id="3_tex"]
 [ext_resource type="AnimationLibrary" uid="uid://udjmtjbn7e48" path="res://scenes/characters/supermarket_npc/character_05_animations.tres" id="4_anim"]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_blood"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pb37q"]
 resource_name = "BloodNpcSupermarket"
 vertex_color_use_as_albedo = true
 albedo_texture = ExtResource("3_tex")
@@ -46,7 +46,7 @@ bones/30/rotation = Quaternion(0.624811, -0.0507814, 0.0150814, 0.778977)
 bones/31/rotation = Quaternion(0.221459, -0.0897253, 0.0196618, 0.970834)
 
 [node name="Character_05" parent="Skeleton3D" index="0"]
-surface_material_override/0 = SubResource("StandardMaterial3D_blood")
+surface_material_override/0 = SubResource("StandardMaterial3D_pb37q")
 
 [node name="AnimationPlayer" parent="." index="1"]
 libraries = {

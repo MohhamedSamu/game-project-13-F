@@ -1,8 +1,18 @@
 extends Node
-## Escena 5 — fase 1: apagón breve del supermercado, cajera desaparece, OldLadyGhost en ventana.
+## Escena 5 — fase 1: OldLadyGhost en ventana. Fase 2: BloodNpcSupermarket + luces/rojo.
+
+enum Phase2VisualState { CLEAR, DARK, RED }
 
 const STARTED_FLAG := &"supermarket_ghost_reveal_started"
 const DONE_FLAG := &"supermarket_ghost_reveal_done"
+const PHASE_2_STARTED_FLAG := &"supermarket_phase_2_started"
+const PHASE_2_DONE_FLAG := &"supermarket_phase_2_done"
+
+const AFTER_VISION_DIALOGUE := preload("res://dialogues/cashier_after_vision.dialogue")
+
+## Misma técnica que escena 4 del baño: recolorear luces existentes (BathroomSinkHorrorSetup).
+const HORROR_LIGHT_COLOR := Color(0.65, 0.03, 0.02, 1.0)
+const HORROR_LIGHT_ENERGY := 0.52
 
 @export_group("Referencias")
 @export var cashier_npc: Node3D
@@ -11,17 +21,31 @@ const DONE_FLAG := &"supermarket_ghost_reveal_done"
 @export var reveal_dimmed_lights: Array[Light3D] = []
 @export var bathroom_lights: Array[Light3D] = []
 
+@export_group("Phase 2 Characters")
+@export var blood_cashier: Node3D
+
 @export_group("Trigger")
 @export var trigger_flag: String = "ready_for_cashier_jumpscare"
 @export var run_once: bool = true
 
-@export_group("Tiempos")
+@export_group("Tiempos Fase 1")
 @export var pre_blackout_flicker_time: float = 0.38
 @export var blackout_time: float = 1.0
 @export var lights_return_delay: float = 0.1
 @export var ghost_reveal_delay_after_lights: float = 0.08
-@export var after_reveal_hold_time: float = 2.5
-@export var player_release_delay: float = 0.4
+
+@export_group("Phase 2 Timing")
+@export var phase_2_duration: float = 6.0
+@export var phase_2_final_blackout_time: float = 0.30
+@export var phase_2_empty_red_hold: float = 0.15
+
+@export_group("Phase 2 Flicker")
+@export var phase_2_flicker_count_min: int = 2
+@export var phase_2_flicker_count_max: int = 3
+@export var phase_2_transition_flicker_time: float = 0.28
+
+@export_group("Phase 2 Stretch")
+@export var stretch_animation_name: String = "neck_stretching_trim2"
 
 @export_group("Iluminación cajera")
 @export_range(0.0, 1.0, 0.05) var reveal_dimmed_light_multiplier: float = 0.0
@@ -33,11 +57,14 @@ const DONE_FLAG := &"supermarket_ghost_reveal_done"
 @export_group("Audio")
 @export var scream_audio: AudioStream = preload("res://assets/audio/SFX/screams/soft1.mp3")
 @export_range(-40.0, 6.0, 0.5) var scream_volume_db: float = 0.0
+@export var phase_2_transition_sound: AudioStream = preload("res://assets/audio/SFX/screams/soft2.mp3")
+@export_range(-40.0, 6.0, 0.5) var phase_2_transition_volume_db: float = 0.0
 @export var dip_ambient_during_sequence: bool = false
 @export_range(-24.0, 0.0, 0.5) var ambient_dip_db: float = -6.0
 @export var ambient_bus_name: StringName = &"Music"
 
 var _running: bool = false
+var _phase_2_running: bool = false
 var _light_states: Dictionary = {}
 var _reveal_dimmed_light_states: Dictionary = {}
 var _bathroom_light_states: Dictionary = {}
@@ -46,6 +73,9 @@ var _cashier_focus_hitbox: Area3D
 var _cashier_saved_states: Dictionary = {}
 var _cashier_deactivated: bool = false
 var _scream_player: AudioStreamPlayer
+var _phase_2_sound_player: AudioStreamPlayer
+var _red_overlay_layer: CanvasLayer
+var _red_rect: ColorRect
 var _saved_can_move: bool = true
 var _saved_interaction_enabled: bool = true
 var _saved_input_enabled: bool = true
@@ -56,15 +86,32 @@ var _saved_ambient_volume_db: float = 0.0
 func _ready() -> void:
 	add_to_group(&"supermarket_ghost_reveal_sequence")
 	_scream_player = get_node_or_null("ScreamSFX") as AudioStreamPlayer
+	_phase_2_sound_player = get_node_or_null("Phase2TransitionSFX") as AudioStreamPlayer
+	_red_overlay_layer = get_node_or_null("Phase2RedOverlay") as CanvasLayer
+	if _red_overlay_layer != null:
+		_red_rect = _red_overlay_layer.get_node_or_null("RedRect") as ColorRect
+
 	if _scream_player != null and scream_audio != null:
 		_scream_player.stream = scream_audio
 		_scream_player.volume_db = scream_volume_db
 		_scream_player.bus = &"SFX"
 
+	if _phase_2_sound_player != null and phase_2_transition_sound != null:
+		_phase_2_sound_player.stream = phase_2_transition_sound
+		_phase_2_sound_player.volume_db = phase_2_transition_volume_db
+		_phase_2_sound_player.bus = &"SFX"
+
+	_set_blood_cashier_active(false)
+	_set_red_overlay_active(false)
+
 	if old_lady_ghost != null and old_lady_ghost.has_method("hide_ghost"):
 		old_lady_ghost.hide_ghost()
 	elif old_lady_ghost != null:
 		old_lady_ghost.visible = false
+
+	if GameManager.get_flag(PHASE_2_DONE_FLAG):
+		call_deferred("_apply_post_sequence_state")
+		return
 
 	if GameManager.get_flag(STARTED_FLAG) and not _cashier_deactivated:
 		call_deferred("_resolve_cashier_refs")
@@ -117,21 +164,292 @@ func _run_sequence() -> void:
 		await get_tree().create_timer(ghost_reveal_delay_after_lights).timeout
 
 	_play_scream()
+	var stretch_finished := [false]
+	if old_lady_ghost != null and old_lady_ghost.has_signal("stretch_animation_finished"):
+		old_lady_ghost.stretch_animation_finished.connect(
+			func(_anim_name: StringName) -> void: stretch_finished[0] = true,
+			CONNECT_ONE_SHOT
+		)
 	await _reveal_ghost()
+	if not stretch_finished[0]:
+		await _wait_for_stretch_animation_finished()
 
-	if after_reveal_hold_time > 0.0:
-		await get_tree().create_timer(after_reveal_hold_time).timeout
-	if player_release_delay > 0.0:
-		await get_tree().create_timer(player_release_delay).timeout
+	if not _running:
+		_safe_cleanup()
+		return
 
-	_unlock_player()
-	_restore_ambient_if_needed()
-	_restore_bathroom_lights()
+	await start_phase_2()
 
 	if run_once:
 		GameManager.set_flag(DONE_FLAG, true)
 
 	_running = false
+
+
+func start_phase_2() -> void:
+	if _phase_2_running:
+		return
+	if GameManager.get_flag(PHASE_2_STARTED_FLAG):
+		return
+
+	_phase_2_running = true
+	GameManager.set_flag(PHASE_2_STARTED_FLAG, true)
+
+	await _run_phase_2()
+
+	GameManager.set_flag(PHASE_2_DONE_FLAG, true)
+	_phase_2_running = false
+
+
+func _run_phase_2() -> void:
+	await _flicker_phase_2_transition()
+	_turn_lights_off()
+
+	if old_lady_ghost != null and old_lady_ghost.has_method("hide_ghost"):
+		old_lady_ghost.hide_ghost()
+	elif old_lady_ghost != null:
+		old_lady_ghost.visible = false
+
+	_play_phase_2_transition_sound()
+	await get_tree().create_timer(0.06).timeout
+
+	_set_blood_cashier_active(false)
+	_apply_phase_2_visual(Phase2VisualState.RED)
+	await get_tree().create_timer(phase_2_empty_red_hold).timeout
+
+	_apply_phase_2_visual(Phase2VisualState.DARK)
+	await get_tree().create_timer(randf_range(0.08, 0.18)).timeout
+
+	_set_blood_cashier_active(true)
+	await _run_phase_2_light_sequence()
+
+	_apply_phase_2_visual(Phase2VisualState.DARK)
+	await get_tree().create_timer(phase_2_final_blackout_time).timeout
+
+	_set_blood_cashier_active(false)
+	_set_red_overlay_active(false)
+	_restore_supermarket_light_colors()
+
+	_restore_lights(false)
+	_clear_reveal_dimmed_override()
+	_set_cashier_active(true)
+
+	await _start_after_vision_dialogue()
+
+
+func _wait_for_stretch_animation_finished() -> void:
+	var stretch_name := _get_stretch_animation_name()
+	var player := _get_ghost_animation_player()
+	if player == null:
+		return
+
+	if not player.is_playing():
+		var current := StringName(str(player.current_animation))
+		if current == stretch_name or current.is_empty():
+			return
+
+	var done := [false]
+	var on_finished := func(finished_name: StringName) -> void:
+		if finished_name == stretch_name:
+			done[0] = true
+	player.animation_finished.connect(on_finished, CONNECT_ONE_SHOT)
+	while _running and not done[0]:
+		await get_tree().process_frame
+
+
+func _get_stretch_animation_name() -> StringName:
+	var stretch_name := StringName(stretch_animation_name)
+	if old_lady_ghost != null and old_lady_ghost.get("stretch_animation_name") != null:
+		stretch_name = StringName(str(old_lady_ghost.stretch_animation_name))
+	return stretch_name
+
+
+func _get_ghost_animation_player() -> AnimationPlayer:
+	if old_lady_ghost == null:
+		return null
+	if old_lady_ghost.has_method("get_animation_player"):
+		return old_lady_ghost.get_animation_player()
+	return null
+
+
+func _run_phase_2_light_sequence() -> void:
+	var major_count := randi_range(phase_2_flicker_count_min, phase_2_flicker_count_max)
+	var major_times: Array[float] = []
+	var cursor := randf_range(0.8, 1.6)
+	for _i in major_count:
+		major_times.append(cursor)
+		cursor += randf_range(1.2, 2.2)
+	major_times.sort()
+
+	var elapsed := 0.0
+	var major_index := 0
+
+	while elapsed < phase_2_duration and _phase_2_running:
+		if major_index < major_times.size() and elapsed >= major_times[major_index]:
+			await _run_major_phase_2_flicker()
+			major_index += 1
+			elapsed += randf_range(0.35, 0.85)
+			continue
+
+		var state := _pick_phase_2_state()
+		var duration := randf_range(0.08, 0.45)
+		if state == Phase2VisualState.RED and randf() < 0.35:
+			duration = randf_range(0.5, 0.9)
+
+		_apply_phase_2_visual(state)
+		await get_tree().create_timer(duration).timeout
+		elapsed += duration
+
+
+func _run_major_phase_2_flicker() -> void:
+	var patterns: Array[Array] = [
+		[Phase2VisualState.CLEAR, Phase2VisualState.DARK, Phase2VisualState.RED, Phase2VisualState.CLEAR],
+		[Phase2VisualState.RED, Phase2VisualState.DARK, Phase2VisualState.CLEAR],
+		[Phase2VisualState.DARK, Phase2VisualState.RED, Phase2VisualState.DARK, Phase2VisualState.CLEAR],
+	]
+	var pattern: Array = patterns[randi() % patterns.size()]
+	for state_value in pattern:
+		_apply_phase_2_visual(state_value as Phase2VisualState)
+		await get_tree().create_timer(randf_range(0.1, 0.28)).timeout
+
+
+func _pick_phase_2_state() -> Phase2VisualState:
+	var roll := randf()
+	if roll < 0.34:
+		return Phase2VisualState.DARK
+	if roll < 0.62:
+		return Phase2VisualState.RED
+	return Phase2VisualState.CLEAR
+
+
+func _apply_phase_2_visual(state: Phase2VisualState) -> void:
+	match state:
+		Phase2VisualState.CLEAR:
+			_set_red_overlay_active(false)
+			_restore_supermarket_light_colors()
+			_restore_lights(true)
+		Phase2VisualState.DARK:
+			_set_red_overlay_active(false)
+			_turn_lights_off()
+		Phase2VisualState.RED:
+			_apply_horror_light_colors()
+			_set_red_overlay_active(true)
+			for light in supermarket_lights:
+				if light == null:
+					continue
+				var id := light.get_instance_id()
+				if not _light_states.has(id):
+					continue
+				var base_energy: float = _light_states[id]["energy"]
+				light.visible = true
+				light.light_energy = base_energy * randf_range(0.35, 0.65)
+
+
+func _apply_horror_light_colors() -> void:
+	for light in supermarket_lights:
+		if light == null:
+			continue
+		var id := light.get_instance_id()
+		if not _light_states.has(id):
+			continue
+		var base_energy: float = _light_states[id]["energy"]
+		light.visible = true
+		light.light_color = HORROR_LIGHT_COLOR
+		light.light_energy = maxf(HORROR_LIGHT_ENERGY, base_energy * 0.45)
+
+
+func _restore_supermarket_light_colors() -> void:
+	for light in supermarket_lights:
+		if light == null:
+			continue
+		var id := light.get_instance_id()
+		if not _light_states.has(id):
+			continue
+		var state: Dictionary = _light_states[id]
+		if state.has("color"):
+			light.light_color = state["color"]
+
+
+func _set_red_overlay_active(active: bool) -> void:
+	if _red_overlay_layer != null:
+		_red_overlay_layer.visible = active
+
+
+func _flicker_phase_2_transition() -> void:
+	_set_bathroom_lights_active(false)
+	const PATTERN: Array[float] = [1.0, 0.0, 0.55, 0.0]
+	var step := phase_2_transition_flicker_time / float(PATTERN.size())
+	for multiplier in PATTERN:
+		_set_lights_energy(multiplier)
+		await get_tree().create_timer(step).timeout
+
+
+func _play_phase_2_transition_sound() -> void:
+	if _phase_2_sound_player == null or phase_2_transition_sound == null:
+		return
+	_phase_2_sound_player.volume_db = phase_2_transition_volume_db
+	_phase_2_sound_player.stop()
+	_phase_2_sound_player.play()
+
+
+func _set_blood_cashier_active(active: bool) -> void:
+	if blood_cashier == null:
+		return
+	if blood_cashier.has_method("set_visible_actor"):
+		blood_cashier.set_visible_actor(active)
+	else:
+		blood_cashier.visible = active
+	if active:
+		_play_blood_cashier_idle()
+
+
+func _play_blood_cashier_idle() -> void:
+	if blood_cashier == null:
+		return
+	var player := blood_cashier.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	if player != null and player.has_animation("idle_supermarket"):
+		player.play("idle_supermarket")
+
+
+func _start_after_vision_dialogue() -> void:
+	if cashier_npc == null:
+		_unlock_player()
+		return
+
+	var focus: Node3D = cashier_npc.get_node_or_null("DialogueFocusPoint") as Node3D
+	if focus == null:
+		focus = cashier_npc
+
+	if DialogueController.dialogue_finished.is_connected(_on_after_vision_dialogue_finished):
+		DialogueController.dialogue_finished.disconnect(_on_after_vision_dialogue_finished)
+	DialogueController.dialogue_finished.connect(_on_after_vision_dialogue_finished, CONNECT_ONE_SHOT)
+	DialogueController.start_dialogue(AFTER_VISION_DIALOGUE, "start", focus, true)
+
+
+func _on_after_vision_dialogue_finished() -> void:
+	_unlock_player()
+	_restore_ambient_if_needed()
+	_restore_bathroom_lights()
+
+
+func _apply_post_sequence_state() -> void:
+	_set_blood_cashier_active(false)
+	_set_red_overlay_active(false)
+	if old_lady_ghost != null and old_lady_ghost.has_method("hide_ghost"):
+		old_lady_ghost.hide_ghost()
+	_resolve_cashier_refs()
+	if _cashier_deactivated:
+		_set_cashier_active(true)
+
+
+func _safe_cleanup() -> void:
+	_set_blood_cashier_active(false)
+	_set_red_overlay_active(false)
+	_restore_supermarket_light_colors()
+	_restore_lights(false)
+	_unlock_player()
+	_restore_ambient_if_needed()
+	_restore_bathroom_lights()
 
 
 func _cache_light_states() -> void:
@@ -143,6 +461,7 @@ func _cache_light_states() -> void:
 		_light_states[id] = {
 			"visible": light.visible,
 			"energy": light.light_energy,
+			"color": light.light_color,
 		}
 
 	_reveal_dimmed_light_states.clear()
@@ -181,6 +500,8 @@ func _set_lights_energy(multiplier: float) -> void:
 			light.visible = false
 		else:
 			light.visible = true
+			if _light_states[id].has("color"):
+				light.light_color = _light_states[id]["color"]
 			light.light_energy = base_energy * multiplier
 
 
@@ -198,9 +519,23 @@ func _restore_lights(apply_cashier_override: bool = true) -> void:
 		var state: Dictionary = _light_states[id]
 		light.visible = state["visible"]
 		light.light_energy = state["energy"]
+		if state.has("color"):
+			light.light_color = state["color"]
 
 	if apply_cashier_override:
 		_apply_reveal_dimmed_lights()
+
+
+func _clear_reveal_dimmed_override() -> void:
+	for light in reveal_dimmed_lights:
+		if light == null:
+			continue
+		var dim_id := light.get_instance_id()
+		if not _reveal_dimmed_light_states.has(dim_id):
+			continue
+		var saved: Dictionary = _reveal_dimmed_light_states[dim_id]
+		light.visible = saved["visible"]
+		light.light_energy = saved["energy"]
 
 
 func _apply_reveal_dimmed_lights() -> void:
@@ -229,7 +564,6 @@ func _flicker_lights_short() -> void:
 		await get_tree().create_timer(pre_blackout_flicker_time).timeout
 		return
 
-	# Dos parpadeos fijos (encendido/apagado) sin sting extra al final.
 	const FLICKER_PATTERN: Array[float] = [1.0, 0.0, 1.0, 0.0]
 	var step_count := FLICKER_PATTERN.size()
 	var step_duration := pre_blackout_flicker_time / float(step_count)
