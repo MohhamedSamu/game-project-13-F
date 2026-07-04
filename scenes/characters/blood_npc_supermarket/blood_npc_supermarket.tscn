@@ -1,9 +1,10 @@
 [gd_scene load_steps=3 format=3 uid="uid://dsx85hpnt7mnw"]
 
 [ext_resource type="PackedScene" uid="uid://dsx85h20dwgnw" path="res://scenes/characters/blood_npc_supermarket/blood_npc_supermarket_model.tscn" id="1_model"]
-[ext_resource type="Script" path="res://scripts/characters/blood_npc_supermarket.gd" id="2_script"]
+[ext_resource type="Script" uid="uid://1mc01yb8o1pk" path="res://scripts/characters/blood_npc_supermarket.gd" id="2_script"]
 
 [node name="BloodNpcSupermarket" type="Node3D"]
+visible = false
 script = ExtResource("2_script")
 
 [node name="Model" type="Node3D" parent="."]
