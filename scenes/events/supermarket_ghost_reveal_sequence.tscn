@@ -1,17 +1,21 @@
-[gd_scene load_steps=4 format=3 uid="uid://c8supermarketghostseq"]
+[gd_scene load_steps=5 format=3 uid="uid://c8supermarketghostseq"]
 
 [ext_resource type="Script" path="res://scripts/events/supermarket_ghost_reveal_sequence.gd" id="1_script"]
 [ext_resource type="AudioStream" uid="uid://b41uywey88f4b" path="res://assets/audio/SFX/screams/soft1.mp3" id="2_scream"]
 [ext_resource type="AudioStream" path="res://assets/audio/SFX/screams/soft2.mp3" id="3_soft2"]
+[ext_resource type="AudioStream" uid="uid://bwjy4veyf5vjm" path="res://assets/audio/SFX/varios/Distant Yell_Echo and Reverb_2.wav" id="4_yell"]
 
 [node name="SupermarketGhostRevealSequence" type="Node"]
 script = ExtResource("1_script")
 scream_audio = ExtResource("2_scream")
 phase_2_transition_sound = ExtResource("3_soft2")
+phase_2_horror_yell = ExtResource("4_yell")
 
 [node name="ScreamSFX" type="AudioStreamPlayer" parent="."]
 
 [node name="Phase2TransitionSFX" type="AudioStreamPlayer" parent="."]
+
+[node name="Phase2HorrorYellSFX" type="AudioStreamPlayer" parent="."]
 
 [node name="Phase2RedOverlay" type="CanvasLayer" parent="."]
 layer = 5

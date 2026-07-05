@@ -67,6 +67,11 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export_range(-40.0, 6.0, 0.5) var scream_volume_db: float = 0.0
 @export var phase_2_transition_sound: AudioStream = preload("res://assets/audio/SFX/screams/soft2.mp3")
 @export_range(-40.0, 6.0, 0.5) var phase_2_transition_volume_db: float = 0.0
+@export var phase_2_horror_yell: AudioStream = preload(
+	"res://assets/audio/SFX/varios/Distant Yell_Echo and Reverb_2.wav"
+)
+@export_range(-40.0, 6.0, 0.5) var phase_2_horror_yell_volume_db: float = 0.0
+@export_range(0.0, 8.0, 0.1) var phase_2_horror_yell_delay_after_soft2: float = 3.0
 @export var dip_ambient_during_sequence: bool = false
 @export_range(-24.0, 0.0, 0.5) var ambient_dip_db: float = -6.0
 @export var ambient_bus_name: StringName = &"Music"
@@ -82,6 +87,8 @@ var _cashier_saved_states: Dictionary = {}
 var _cashier_deactivated: bool = false
 var _scream_player: AudioStreamPlayer
 var _phase_2_sound_player: AudioStreamPlayer
+var _phase_2_horror_yell_player: AudioStreamPlayer
+var _horror_yell_schedule_id: int = 0
 var _red_overlay_layer: CanvasLayer
 var _red_rect: ColorRect
 var _saved_can_move: bool = true
@@ -96,6 +103,7 @@ func _ready() -> void:
 	add_to_group(&"supermarket_ghost_reveal_sequence")
 	_scream_player = get_node_or_null("ScreamSFX") as AudioStreamPlayer
 	_phase_2_sound_player = get_node_or_null("Phase2TransitionSFX") as AudioStreamPlayer
+	_phase_2_horror_yell_player = get_node_or_null("Phase2HorrorYellSFX") as AudioStreamPlayer
 	_red_overlay_layer = get_node_or_null("Phase2RedOverlay") as CanvasLayer
 	if _red_overlay_layer != null:
 		_red_rect = _red_overlay_layer.get_node_or_null("RedRect") as ColorRect
@@ -109,6 +117,11 @@ func _ready() -> void:
 		_phase_2_sound_player.stream = phase_2_transition_sound
 		_phase_2_sound_player.volume_db = phase_2_transition_volume_db
 		_phase_2_sound_player.bus = &"SFX"
+
+	if _phase_2_horror_yell_player != null and phase_2_horror_yell != null:
+		_phase_2_horror_yell_player.stream = phase_2_horror_yell
+		_phase_2_horror_yell_player.volume_db = phase_2_horror_yell_volume_db
+		_phase_2_horror_yell_player.bus = &"SFX"
 
 	_set_blood_cashier_active(false)
 	_set_red_overlay_active(false)
@@ -450,6 +463,40 @@ func _play_phase_2_transition_sound() -> void:
 	_phase_2_sound_player.volume_db = phase_2_transition_volume_db
 	_phase_2_sound_player.stop()
 	_phase_2_sound_player.play()
+	_schedule_phase_2_horror_yell()
+
+
+func _schedule_phase_2_horror_yell() -> void:
+	if _phase_2_horror_yell_player == null or phase_2_horror_yell == null:
+		return
+	if phase_2_horror_yell_delay_after_soft2 <= 0.0:
+		_play_phase_2_horror_yell()
+		return
+	_horror_yell_schedule_id += 1
+	var schedule_id := _horror_yell_schedule_id
+	_run_horror_yell_schedule(schedule_id)
+
+
+func _run_horror_yell_schedule(schedule_id: int) -> void:
+	await get_tree().create_timer(phase_2_horror_yell_delay_after_soft2).timeout
+	if schedule_id != _horror_yell_schedule_id:
+		return
+	_play_phase_2_horror_yell()
+
+
+func _play_phase_2_horror_yell() -> void:
+	if _phase_2_horror_yell_player == null or phase_2_horror_yell == null:
+		return
+	_phase_2_horror_yell_player.volume_db = phase_2_horror_yell_volume_db
+	_phase_2_horror_yell_player.stop()
+	_phase_2_horror_yell_player.play()
+
+
+func _stop_phase_2_horror_yell() -> void:
+	_horror_yell_schedule_id += 1
+	if _phase_2_horror_yell_player == null:
+		return
+	_phase_2_horror_yell_player.stop()
 
 
 func _activate_phase_2_horror_cast() -> void:
@@ -459,6 +506,7 @@ func _activate_phase_2_horror_cast() -> void:
 
 
 func _deactivate_phase_2_horror_cast() -> void:
+	_stop_phase_2_horror_yell()
 	_set_blood_cashier_active(false)
 	_set_phase_2_terror_props_visible(false)
 	_restore_counter_items()
