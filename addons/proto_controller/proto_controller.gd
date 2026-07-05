@@ -52,6 +52,7 @@ const PRODUCTION_SPRINT_SPEED := 5.5
 const DEVELOP_WALK_SPEED := 7.0
 const DEVELOP_SPRINT_SPEED := 10.0
 const DEVELOP_FREEFLY_SPEED := 25.0
+const DEFAULT_PITCH_LIMIT_RAD := deg_to_rad(85.0)
 
 @export_group("Input Actions")
 ## Name of Input Action to move Left.
@@ -147,6 +148,12 @@ var _held_left_item: Node3D
 var _left_hand_dialogue_hooks_connected: bool = false
 var _focus_interactable: Node
 var _highlighted_interactable: Node
+
+var _sequence_look_limits_active: bool = false
+var _sequence_look_center_yaw: float = 0.0
+var _sequence_look_center_pitch: float = 0.0
+var _sequence_yaw_limit_rad: float = deg_to_rad(90.0)
+var _sequence_look_up_limit_rad: float = deg_to_rad(35.0)
 
 ## IMPORTANT REFERENCES
 @onready var head: Node3D = $Head
@@ -324,12 +331,50 @@ func _physics_process(delta: float) -> void:
 ## Modifies look_rotation based on rot_input, then resets basis and rotates by look_rotation.
 func rotate_look(rot_input : Vector2):
 	look_rotation.x -= rot_input.y * look_speed
-	look_rotation.x = clamp(look_rotation.x, deg_to_rad(-85), deg_to_rad(85))
+	look_rotation.x = clampf(look_rotation.x, _get_pitch_min_rad(), _get_pitch_max_rad())
 	look_rotation.y -= rot_input.x * look_speed
+	if _sequence_look_limits_active:
+		look_rotation.y = _clamp_sequence_yaw(look_rotation.y)
 	transform.basis = Basis()
 	rotate_y(look_rotation.y)
 	head.transform.basis = Basis()
 	head.rotate_x(look_rotation.x)
+
+
+func set_sequence_look_limits(
+	enabled: bool,
+	yaw_limit_degrees: float = 90.0,
+	look_up_limit_degrees: float = 35.0
+) -> void:
+	if not enabled:
+		_sequence_look_limits_active = false
+		return
+
+	_sequence_look_center_yaw = look_rotation.y
+	_sequence_look_center_pitch = look_rotation.x
+	_sequence_yaw_limit_rad = deg_to_rad(yaw_limit_degrees)
+	_sequence_look_up_limit_rad = deg_to_rad(look_up_limit_degrees)
+	_sequence_look_limits_active = true
+
+
+func clear_sequence_look_limits() -> void:
+	_sequence_look_limits_active = false
+
+
+func _get_pitch_min_rad() -> float:
+	if not _sequence_look_limits_active:
+		return -DEFAULT_PITCH_LIMIT_RAD
+	return maxf(-DEFAULT_PITCH_LIMIT_RAD, _sequence_look_center_pitch - _sequence_look_up_limit_rad)
+
+
+func _get_pitch_max_rad() -> float:
+	return DEFAULT_PITCH_LIMIT_RAD
+
+
+func _clamp_sequence_yaw(yaw: float) -> float:
+	var offset := angle_difference(_sequence_look_center_yaw, yaw)
+	offset = clampf(offset, -_sequence_yaw_limit_rad, _sequence_yaw_limit_rad)
+	return _sequence_look_center_yaw + offset
 
 
 func enable_freefly() -> void:

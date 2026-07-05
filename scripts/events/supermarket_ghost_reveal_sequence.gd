@@ -62,6 +62,11 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export var lock_player_movement: bool = true
 @export var allow_camera_look: bool = true
 
+@export_group("Sequence Look Limits")
+@export var restrict_camera_during_sequence: bool = true
+@export_range(0.0, 180.0, 1.0) var sequence_yaw_limit_degrees: float = 90.0
+@export_range(0.0, 89.0, 1.0) var sequence_look_up_limit_degrees: float = 35.0
+
 @export_group("Audio")
 @export var scream_audio: AudioStream = preload("res://assets/audio/SFX/screams/soft1.mp3")
 @export_range(-40.0, 6.0, 0.5) var scream_volume_db: float = 0.0
@@ -167,6 +172,7 @@ func _run_sequence() -> void:
 	_cache_light_states()
 	_resolve_cashier_refs()
 	_lock_player()
+	_apply_sequence_look_limits()
 	_dip_ambient_if_enabled()
 
 	await _flicker_lights_short()
@@ -708,6 +714,7 @@ func _play_blood_cashier_idle() -> void:
 
 func _start_after_vision_dialogue() -> void:
 	if cashier_npc == null:
+		_clear_sequence_look_limits()
 		_unlock_player()
 		return
 
@@ -722,6 +729,7 @@ func _start_after_vision_dialogue() -> void:
 
 
 func _on_after_vision_dialogue_finished() -> void:
+	_clear_sequence_look_limits()
 	_unlock_player()
 	_restore_ambient_if_needed()
 	_restore_bathroom_lights()
@@ -744,6 +752,7 @@ func _safe_cleanup() -> void:
 	_set_red_overlay_active(false)
 	_restore_supermarket_light_colors()
 	_restore_lights(false)
+	_clear_sequence_look_limits()
 	_unlock_player()
 	_restore_ambient_if_needed()
 	_restore_bathroom_lights()
@@ -1089,6 +1098,28 @@ func _unlock_player() -> void:
 		player.can_move = _saved_can_move
 	if player.get("interaction_enabled") != null:
 		player.interaction_enabled = _saved_interaction_enabled
+
+
+func _apply_sequence_look_limits() -> void:
+	if not restrict_camera_during_sequence:
+		return
+	var player: Node = GameManager.get_player()
+	if player == null:
+		return
+	if player.has_method("set_sequence_look_limits"):
+		player.set_sequence_look_limits(
+			true, sequence_yaw_limit_degrees, sequence_look_up_limit_degrees
+		)
+
+
+func _clear_sequence_look_limits() -> void:
+	var player: Node = GameManager.get_player()
+	if player == null:
+		return
+	if player.has_method("clear_sequence_look_limits"):
+		player.clear_sequence_look_limits()
+	elif player.has_method("set_sequence_look_limits"):
+		player.set_sequence_look_limits(false)
 
 
 func _dip_ambient_if_enabled() -> void:
