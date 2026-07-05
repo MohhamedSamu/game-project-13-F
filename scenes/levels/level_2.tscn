@@ -56,19 +56,19 @@
 [ext_resource type="PackedScene" path="res://scenes/interactables/coca_counter_place_setup.tscn" id="53_cocacounter"]
 [ext_resource type="PackedScene" uid="uid://k36c6vytk3rd" path="res://scenes/interactables/churro_pickup_setup.tscn" id="54_churro_pickup"]
 [ext_resource type="PackedScene" path="res://scenes/interactables/churro_counter_place_setup.tscn" id="55_churro_counter"]
-[ext_resource type="PackedScene" path="res://scenes/props/terror_heads/terror_head_01.tscn" id="56_g8c2j"]
+[ext_resource type="PackedScene" uid="uid://b0cxnhx78kb2n" path="res://scenes/props/terror_heads/terror_head_01.tscn" id="56_g8c2j"]
 [ext_resource type="PackedScene" uid="uid://k40a50etwcoe" path="res://scenes/characters/old_lady_ghost/old_lady_ghost.tscn" id="56_nsjcl"]
 [ext_resource type="PackedScene" uid="uid://dory5lvv3vf3e" path="res://scenes/events/supermarket_ghost_reveal_sequence.tscn" id="57_ghostseq"]
-[ext_resource type="PackedScene" path="res://scenes/props/terror_heads/terror_head_03.tscn" id="57_mghg3"]
+[ext_resource type="PackedScene" uid="uid://63cm74thtu5w" path="res://scenes/props/terror_heads/terror_head_03.tscn" id="57_mghg3"]
 [ext_resource type="PackedScene" uid="uid://dsx85hpnt7mnw" path="res://scenes/characters/blood_npc_supermarket/blood_npc_supermarket.tscn" id="59_852cy"]
-[ext_resource type="PackedScene" path="res://scenes/props/terror_heads/terror_head_02.tscn" id="62_xlkqr"]
+[ext_resource type="PackedScene" uid="uid://h7y20yy2kitr" path="res://scenes/props/terror_heads/terror_head_02.tscn" id="62_xlkqr"]
 [ext_resource type="PackedScene" path="res://scenes/props/terror_heads/terror_head_04.tscn" id="63_lq6o5"]
 [ext_resource type="PackedScene" path="res://scenes/props/terror_heads/terror_head_06.tscn" id="64_1p26v"]
-[ext_resource type="PackedScene" path="res://scenes/props/terror_heads/terror_head_07.tscn" id="65_1gyxc"]
-[ext_resource type="PackedScene" path="res://scenes/props/terror_heads/terror_head_05.tscn" id="66_uyeuo"]
-[ext_resource type="PackedScene" path="res://scenes/props/terror_heads/terror_head_08.tscn" id="67_cqu1g"]
-[ext_resource type="PackedScene" path="res://scenes/props/terror_heads/terror_head_09.tscn" id="68_4mm18"]
-[ext_resource type="PackedScene" path="res://scenes/props/terror_heads/terror_head_10.tscn" id="69_y3o2l"]
+[ext_resource type="PackedScene" uid="uid://dqlgftk6djul7" path="res://scenes/props/terror_heads/terror_head_07.tscn" id="65_1gyxc"]
+[ext_resource type="PackedScene" uid="uid://dorp0frjt0w7w" path="res://scenes/props/terror_heads/terror_head_05.tscn" id="66_uyeuo"]
+[ext_resource type="PackedScene" uid="uid://0pae2kxvfg11" path="res://scenes/props/terror_heads/terror_head_08.tscn" id="67_cqu1g"]
+[ext_resource type="PackedScene" uid="uid://c6crdqoonoer8" path="res://scenes/props/terror_heads/terror_head_09.tscn" id="68_4mm18"]
+[ext_resource type="PackedScene" uid="uid://ofuphimeld1g" path="res://scenes/props/terror_heads/terror_head_10.tscn" id="69_y3o2l"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_wwjag"]
 shader = ExtResource("12_lkn2k")
@@ -123,8 +123,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.909013, 0.909012)
-shader_parameter/cirrus_position2 = Vector2(0.909013, 0.909012)
+shader_parameter/cirrus_position1 = Vector2(0.00400696, 0.00400692)
+shader_parameter/cirrus_position2 = Vector2(0.00400696, 0.00400692)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -134,7 +134,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(14.5711, 14.5711)
+shader_parameter/cumulus_position = Vector2(0.0200348, 0.0200346)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0

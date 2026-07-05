@@ -13,6 +13,8 @@ const AFTER_VISION_DIALOGUE := preload("res://dialogues/cashier_after_vision.dia
 ## Misma técnica que escena 4 del baño: recolorear luces existentes (BathroomSinkHorrorSetup).
 const HORROR_LIGHT_COLOR := Color(0.65, 0.03, 0.02, 1.0)
 const HORROR_LIGHT_ENERGY := 0.52
+const TERROR_PROP_GROUP := &"supermarket_phase2_terror_props"
+const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 
 @export_group("Referencias")
 @export var cashier_npc: Node3D
@@ -23,6 +25,7 @@ const HORROR_LIGHT_ENERGY := 0.52
 
 @export_group("Phase 2 Characters")
 @export var blood_cashier: Node3D
+@export var phase_2_terror_props: Array[Node3D] = []
 
 @export_group("Trigger")
 @export var trigger_flag: String = "ready_for_cashier_jumpscare"
@@ -86,6 +89,7 @@ var _saved_interaction_enabled: bool = true
 var _saved_input_enabled: bool = true
 var _used_full_input_lock: bool = false
 var _saved_ambient_volume_db: float = 0.0
+var _counter_item_state_cache: Array[Dictionary] = []
 
 
 func _ready() -> void:
@@ -108,6 +112,7 @@ func _ready() -> void:
 
 	_set_blood_cashier_active(false)
 	_set_red_overlay_active(false)
+	call_deferred("_initialize_phase_2_terror_props")
 
 	if old_lady_ghost != null and old_lady_ghost.has_method("hide_ghost"):
 		old_lady_ghost.hide_ghost()
@@ -225,13 +230,13 @@ func _run_phase_2() -> void:
 	_apply_phase_2_visual(Phase2VisualState.DARK)
 	await get_tree().create_timer(randf_range(0.08, 0.18)).timeout
 
-	_set_blood_cashier_active(true)
+	_activate_phase_2_horror_cast()
 	await _run_phase_2_light_sequence()
 
 	_apply_phase_2_visual(Phase2VisualState.DARK)
 	await get_tree().create_timer(phase_2_final_blackout_time).timeout
 
-	_set_blood_cashier_active(false)
+	_deactivate_phase_2_horror_cast()
 	_set_red_overlay_active(false)
 	_restore_supermarket_light_colors()
 
@@ -447,6 +452,193 @@ func _play_phase_2_transition_sound() -> void:
 	_phase_2_sound_player.play()
 
 
+func _activate_phase_2_horror_cast() -> void:
+	_set_counter_items_visible(false)
+	_set_phase_2_terror_props_visible(true)
+	_set_blood_cashier_active(true)
+
+
+func _deactivate_phase_2_horror_cast() -> void:
+	_set_blood_cashier_active(false)
+	_set_phase_2_terror_props_visible(false)
+	_restore_counter_items()
+
+
+func _initialize_phase_2_terror_props() -> void:
+	_register_phase_2_terror_props()
+	_set_phase_2_terror_props_visible(false)
+
+
+func _register_phase_2_terror_props() -> void:
+	if not phase_2_terror_props.is_empty():
+		for prop in phase_2_terror_props:
+			if prop != null and is_instance_valid(prop):
+				prop.add_to_group(TERROR_PROP_GROUP)
+		return
+
+	var parent := get_parent()
+	if parent == null:
+		return
+	for child in parent.get_children():
+		if child is Node3D and str(child.name).begins_with("TerrorHead"):
+			child.add_to_group(TERROR_PROP_GROUP)
+
+
+func _get_phase_2_terror_props() -> Array[Node3D]:
+	var props: Array[Node3D] = []
+	if not phase_2_terror_props.is_empty():
+		for prop in phase_2_terror_props:
+			if prop != null and is_instance_valid(prop):
+				props.append(prop)
+		return props
+
+	for node in get_tree().get_nodes_in_group(TERROR_PROP_GROUP):
+		if node is Node3D and is_instance_valid(node):
+			props.append(node as Node3D)
+	return props
+
+
+func _set_phase_2_terror_props_visible(value: bool) -> void:
+	for prop in _get_phase_2_terror_props():
+		prop.visible = value
+
+
+func _find_counter_items() -> Array[Node]:
+	var items: Array[Node] = []
+	for node in get_tree().get_nodes_in_group(COUNTER_ITEMS_GROUP):
+		if is_instance_valid(node):
+			items.append(node)
+	return items
+
+
+func _cache_counter_item_states() -> void:
+	_counter_item_state_cache.clear()
+	for item in _find_counter_items():
+		_counter_item_state_cache.append(_capture_counter_item_state(item))
+
+
+func _capture_counter_item_state(item: Node) -> Dictionary:
+	var state := {
+		"node": item,
+		"visible": _read_node_visible(item),
+		"collision_states": _capture_collision_states(item),
+	}
+	return state
+
+
+func _capture_collision_states(root: Node) -> Array[Dictionary]:
+	var states: Array[Dictionary] = []
+	if root is Area3D:
+		var area := root as Area3D
+		states.append({
+			"node": area,
+			"kind": &"area",
+			"monitoring": area.monitoring,
+			"monitorable": area.monitorable,
+			"collision_layer": area.collision_layer,
+			"collision_mask": area.collision_mask,
+		})
+	elif root is RigidBody3D:
+		var body := root as RigidBody3D
+		states.append({
+			"node": body,
+			"kind": &"rigidbody",
+			"collision_layer": body.collision_layer,
+			"collision_mask": body.collision_mask,
+		})
+	elif root is CollisionShape3D:
+		var shape := root as CollisionShape3D
+		states.append({
+			"node": shape,
+			"kind": &"shape",
+			"disabled": shape.disabled,
+		})
+
+	for child in root.get_children():
+		states.append_array(_capture_collision_states(child))
+	return states
+
+
+func _apply_collision_hidden(state: Dictionary) -> void:
+	var node: Node = state["node"]
+	if not is_instance_valid(node):
+		return
+	match state.get("kind", &""):
+		&"area":
+			var area := node as Area3D
+			area.monitoring = false
+			area.monitorable = false
+			area.collision_layer = 0
+			area.collision_mask = 0
+		&"rigidbody":
+			var body := node as RigidBody3D
+			body.collision_layer = 0
+			body.collision_mask = 0
+		&"shape":
+			(node as CollisionShape3D).disabled = true
+
+
+func _restore_collision_state(state: Dictionary) -> void:
+	var node: Node = state["node"]
+	if not is_instance_valid(node):
+		return
+	match state.get("kind", &""):
+		&"area":
+			var area := node as Area3D
+			area.monitoring = state.get("monitoring", area.monitoring)
+			area.monitorable = state.get("monitorable", area.monitorable)
+			area.collision_layer = state.get("collision_layer", area.collision_layer)
+			area.collision_mask = state.get("collision_mask", area.collision_mask)
+		&"rigidbody":
+			var body := node as RigidBody3D
+			body.collision_layer = state.get("collision_layer", body.collision_layer)
+			body.collision_mask = state.get("collision_mask", body.collision_mask)
+		&"shape":
+			(node as CollisionShape3D).disabled = state.get("disabled", false)
+
+
+func _set_counter_items_visible(value: bool) -> void:
+	if not value:
+		if _counter_item_state_cache.is_empty():
+			_cache_counter_item_states()
+		for state in _counter_item_state_cache:
+			var item: Node = state["node"]
+			if not is_instance_valid(item):
+				continue
+			_set_node_visible(item, false)
+			for collision_state in state.get("collision_states", []):
+				_apply_collision_hidden(collision_state)
+		return
+
+	_restore_counter_items()
+
+
+func _restore_counter_items() -> void:
+	for state in _counter_item_state_cache:
+		var item: Node = state["node"]
+		if not is_instance_valid(item):
+			continue
+		_set_node_visible(item, state.get("visible", true))
+		for collision_state in state.get("collision_states", []):
+			_restore_collision_state(collision_state)
+	_counter_item_state_cache.clear()
+
+
+func _read_node_visible(node: Node) -> bool:
+	if node is Node3D:
+		return (node as Node3D).visible
+	if node is CanvasItem:
+		return (node as CanvasItem).visible
+	return true
+
+
+func _set_node_visible(node: Node, value: bool) -> void:
+	if node is Node3D:
+		(node as Node3D).visible = value
+	elif node is CanvasItem:
+		(node as CanvasItem).visible = value
+
+
 func _set_blood_cashier_active(active: bool) -> void:
 	if blood_cashier == null:
 		return
@@ -488,7 +680,9 @@ func _on_after_vision_dialogue_finished() -> void:
 
 
 func _apply_post_sequence_state() -> void:
+	_register_phase_2_terror_props()
 	_set_blood_cashier_active(false)
+	_set_phase_2_terror_props_visible(false)
 	_set_red_overlay_active(false)
 	if old_lady_ghost != null and old_lady_ghost.has_method("hide_ghost"):
 		old_lady_ghost.hide_ghost()
@@ -498,7 +692,7 @@ func _apply_post_sequence_state() -> void:
 
 
 func _safe_cleanup() -> void:
-	_set_blood_cashier_active(false)
+	_deactivate_phase_2_horror_cast()
 	_set_red_overlay_active(false)
 	_restore_supermarket_light_colors()
 	_restore_lights(false)

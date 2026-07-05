@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=4]
+[gd_scene load_steps=4 format=4 uid="uid://c6crdqoonoer8"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_ip7ar"]
 _surfaces = [{

@@ -45,6 +45,8 @@ func spawn_counter_coca() -> void:
 	)
 	var basis := Basis.from_euler(euler).scaled(Vector3.ONE * counter_bottle_scale)
 	bottle.transform = Transform3D(basis, Vector3.ZERO)
+	bottle.add_to_group(&"supermarket_counter_items")
+	bottle.add_to_group(&"supermarket_counter_coca")
 	HeldViewModel.freeze_as_static_prop(bottle)
 	_counter_coca = bottle
 

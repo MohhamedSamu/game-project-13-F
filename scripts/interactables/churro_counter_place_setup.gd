@@ -47,6 +47,8 @@ func place_counter_churro(item: Node3D) -> void:
 	for child in item.get_children():
 		if child is MeshInstance3D:
 			child.transform = Transform3D.IDENTITY
+	item.add_to_group(&"supermarket_counter_items")
+	item.add_to_group(&"supermarket_counter_churro")
 	HeldViewModel.restore_for_world_display(item)
 	HeldViewModel.freeze_as_static_prop(item)
 	_counter_churro = item
