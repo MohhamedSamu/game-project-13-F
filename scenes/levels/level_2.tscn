@@ -33,7 +33,7 @@
 [ext_resource type="PackedScene" uid="uid://qaglqwcm6djo" path="res://scenes/jumpscare/soft_jumpscare_setup.tscn" id="31_rvwo1"]
 [ext_resource type="PackedScene" uid="uid://cvl7jes7ecmi3" path="res://scenes/props/streetlamp/streetlamp_configurable.tscn" id="31_wwjag"]
 [ext_resource type="Resource" uid="uid://bnfp7cjx823mb" path="res://dialogues/demo/clown_jumpscare_easter_egg.dialogue" id="32_rvwo1"]
-[ext_resource type="Script" path="res://scripts/jumpscare/jumpscare_lamp_sequence.gd" id="33_lampseq"]
+[ext_resource type="Script" uid="uid://cm3m07xxeyilg" path="res://scripts/jumpscare/jumpscare_lamp_sequence.gd" id="33_lampseq"]
 [ext_resource type="Script" uid="uid://c404ed67nv3sg" path="res://scripts/narrative/level_narrative_setup.gd" id="34_narrative"]
 [ext_resource type="Resource" uid="uid://7wctwyi0bbxw" path="res://resources/narrative/level_2_scenes.tres" id="35_level2_scenes"]
 [ext_resource type="Script" uid="uid://b44m4nskn4uyr" path="res://scripts/narrative/level_intro_setup.gd" id="36_intro_setup"]
@@ -850,7 +850,7 @@ run_animation = "walking"
 dialogue_animation = "talking"
 exit_after_dialogue = false
 
-[node name="Scene4BathroomExitSetup" type="Node" parent="Jumpscares" node_paths=PackedStringArray("run_start_marker", "scare_stop_marker", "dialogue_focus_marker", "door_outside_marker", "door_inside_marker", "cubicle_door_setup")]
+[node name="Scene4BathroomExitSetup" type="Node3D" parent="Jumpscares" node_paths=PackedStringArray("run_start_marker", "scare_stop_marker", "dialogue_focus_marker", "door_outside_marker", "door_inside_marker", "cubicle_door_setup")]
 script = ExtResource("50_scene4setup")
 run_start_marker = NodePath("ExitNpcRunStart")
 scare_stop_marker = NodePath("ExitNpcScareStop")

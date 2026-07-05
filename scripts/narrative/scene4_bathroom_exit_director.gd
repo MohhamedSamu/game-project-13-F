@@ -150,7 +150,9 @@ func _mark_scene_complete() -> void:
 
 func _lock_npc_for_scripted_exit(npc: Node3D) -> void:
 	if npc is GasStationNPC:
-		(npc as GasStationNPC).begin_scripted_sequence()
+		var gas_npc := npc as GasStationNPC
+		gas_npc.visible = true
+		gas_npc.prepare_for_bathroom_exit_jumpscare()
 	else:
 		_disable_npc_behavior(npc)
 

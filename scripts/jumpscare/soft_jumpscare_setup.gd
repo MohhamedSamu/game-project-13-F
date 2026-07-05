@@ -278,6 +278,8 @@ func _hide_actor_until_trigger() -> void:
 		return
 	if _uses_external_scare_actor() and keep_external_actor_in_place:
 		return
+	if actor is GasStationNPC:
+		return
 	_snap_node_to_spawn(actor)
 	_set_actor_visible(false)
 	if _actor_preview != null and not _uses_external_scare_actor():
@@ -296,6 +298,10 @@ func _run_soft_jumpscare(player: Node3D) -> void:
 
 
 func _run_soft_jumpscare_async(player: Node3D) -> void:
+	if _is_scene4_bathroom_exit_jumpscare():
+		await _run_scene4_bathroom_exit_jumpscare(player)
+		return
+
 	var actor := _resolve_scare_actor()
 	if actor == null:
 		push_warning("SoftJumpscareSetup: falta ScareActor o scare_actor_path.")
@@ -358,6 +364,146 @@ func _run_soft_jumpscare_async(player: Node3D) -> void:
 	_start_dialogue(player)
 
 
+func _run_scene4_bathroom_exit_jumpscare(player: Node3D) -> void:
+	if dialogue_resource == null:
+		push_warning("SoftJumpscareSetup: asigna dialogue_resource.")
+		return
+
+	_refresh_exit_setup_markers()
+	var gas_npc := _resolve_scene4_gas_npc()
+	if gas_npc == null:
+		push_error(
+			"Scene4BathroomExitJumpscare: no se encontró GasStationNPC "
+			+ "(scare_actor_path=%s)." % String(scare_actor_path)
+		)
+		return
+
+	var setup := _get_exit_setup()
+	var spawn_marker := setup.get_run_start_marker() if setup != null else null
+	var arrival_marker := setup.get_scare_stop_marker() if setup != null else null
+	if spawn_marker == null or arrival_marker == null:
+		push_error(
+			"Scene4BathroomExitJumpscare: faltan markers de spawn/llegada en Scene4BathroomExitSetup."
+		)
+		return
+
+	jumpscare_starting.emit()
+	_stop_linked_bathroom_horror_audio()
+
+	if player != null and player.has_method("stop_movement_immediately"):
+		player.stop_movement_immediately()
+	if player != null and player.has_method("set_input_enabled"):
+		player.set_input_enabled(false)
+
+	_triggered = true
+	if not trigger_flag.is_empty():
+		GameManager.set_flag(trigger_flag, true)
+
+	gas_npc.prepare_for_bathroom_exit_jumpscare()
+	var spawn_pos := _project_to_floor(
+		spawn_marker.global_position,
+		spawn_marker.global_position.y
+	)
+	gas_npc.move_to_global_pose(spawn_pos, spawn_marker.global_rotation)
+
+	if play_scream_on_trigger:
+		_play_random_scream(player)
+
+	jumpscare_triggered.emit()
+	var arrival_pos := _project_to_floor(
+		arrival_marker.global_position,
+		arrival_marker.global_position.y
+	)
+	print(
+		"Scene4BathroomExitJumpscare: NPC en spawn ",
+		gas_npc.global_position,
+		" -> llegada ",
+		arrival_pos
+	)
+	var look_pos := player.global_position if player != null and player.is_inside_tree() else arrival_pos
+	var run_duration := _compute_scare_run_duration(spawn_pos, arrival_pos)
+	_play_actor_animation_on(gas_npc, _resolve_charge_animation_for(gas_npc), run_animation_speed_scale)
+	_start_scare_run_on_actor(gas_npc, spawn_pos, arrival_pos, look_pos, run_duration)
+	if _scare_tween != null:
+		await _scare_tween.finished
+	_end_scare_run_physics()
+	_stop_charge_animation_on(gas_npc)
+	gas_npc.move_to_global_pose(arrival_pos, gas_npc.global_rotation)
+	if face_player_on_arrival and player != null and player.is_inside_tree():
+		_face_actor_toward(gas_npc, player.global_position)
+	_play_actor_animation_on(gas_npc, dialogue_animation)
+	_start_dialogue(player)
+
+
+func _resolve_scene4_gas_npc() -> GasStationNPC:
+	if not scare_actor_path.is_empty():
+		var from_path := get_node_or_null(scare_actor_path) as GasStationNPC
+		if from_path != null:
+			return from_path
+	var scene := get_tree().current_scene
+	if scene == null:
+		return null
+	return scene.find_child("GasStationNPC", true, false) as GasStationNPC
+
+
+func _resolve_charge_animation_for(actor: Node3D) -> String:
+	if actor == null:
+		return run_animation
+	if _actor_has_animation(actor, &"walking_in_place"):
+		return "walking_in_place"
+	return run_animation
+
+
+func _play_actor_animation_on(actor: Node3D, animation_name: String, speed_scale: float = 1.0) -> void:
+	if animation_name.is_empty() or actor == null:
+		return
+	var player := _resolve_animation_player_for_actor(actor)
+	if player == null:
+		push_warning("SoftJumpscareSetup: no AnimationPlayer en el actor para '%s'." % animation_name)
+		return
+	if not player.has_animation(animation_name):
+		push_warning("SoftJumpscareSetup: animación '%s' no encontrada." % animation_name)
+		return
+	player.speed_scale = speed_scale
+	player.play(animation_name)
+
+
+func _stop_charge_animation_on(actor: Node3D) -> void:
+	var player := _resolve_animation_player_for_actor(actor)
+	if player == null:
+		return
+	player.speed_scale = 1.0
+
+
+func _start_scare_run_on_actor(
+	actor: Node3D,
+	start: Vector3,
+	arrival: Vector3,
+	look_target: Vector3,
+	duration: float
+) -> void:
+	if actor == null or not actor.is_inside_tree():
+		return
+	_kill_scare_tween()
+	_scare_run_actor = actor
+	if actor is CharacterBody3D:
+		var body := actor as CharacterBody3D
+		_scare_run_physics_enabled = body.is_physics_processing()
+		body.set_physics_process(false)
+		body.velocity = Vector3.ZERO
+	actor.global_position = start
+	_scare_tween = create_tween()
+	_scare_tween.set_trans(Tween.TRANS_QUAD)
+	_scare_tween.set_ease(Tween.EASE_OUT)
+	_scare_tween.tween_method(
+		func(t: float) -> void:
+			_update_scare_run_step(actor, start, arrival, look_target, t),
+		0.0,
+		1.0,
+		duration
+	)
+
+
 func _start_dialogue(player: Node3D) -> void:
 	var actor := _resolve_scare_actor()
 	var focus := _prepare_dialogue_focus(actor, player)
@@ -411,18 +557,22 @@ func _prepare_dialogue_focus(actor: Node3D, player: Node3D) -> Node3D:
 	return _resolve_dialogue_focus(actor)
 
 
-func _set_actor_visible(is_visible: bool) -> void:
+func _set_actor_visible(should_show: bool) -> void:
 	var actor := _resolve_scare_actor()
 	if actor == null:
 		return
+	if _is_scene4_bathroom_exit_jumpscare() and actor is GasStationNPC:
+		if should_show:
+			(actor as GasStationNPC).force_render_visible()
+		return
 	if _uses_external_scare_actor():
-		if keep_external_actor_in_place and not is_visible:
+		if keep_external_actor_in_place and not should_show:
 			return
-		actor.visible = is_visible
+		actor.visible = should_show
 		return
 	if not hide_actor_until_trigger:
 		return
-	actor.visible = is_visible
+	actor.visible = should_show
 
 
 func _uses_external_scare_actor() -> bool:
@@ -438,7 +588,10 @@ func _prepare_external_actor_for_jumpscare(actor: Node3D) -> void:
 	if not keep_external_actor_in_place:
 		return
 	if actor is GasStationNPC:
-		(actor as GasStationNPC).begin_scripted_sequence()
+		if _is_scene4_bathroom_exit_jumpscare():
+			(actor as GasStationNPC).prepare_for_bathroom_exit_jumpscare()
+		else:
+			(actor as GasStationNPC).begin_scripted_sequence()
 	elif actor.has_method("pause_for_jumpscare"):
 		actor.call("pause_for_jumpscare")
 	_reset_actor_physics_state(actor)
@@ -553,13 +706,17 @@ func _place_actor_at_spawn(actor: Node3D, player: Node3D) -> void:
 		return
 	var spawn_marker := _resolve_spawn_marker()
 	if spawn_marker != null and spawn_marker.is_inside_tree():
-		actor.global_position = spawn_marker.global_position
+		var spawn_pos := spawn_marker.global_position
+		spawn_pos = _project_to_floor(spawn_pos, spawn_pos.y)
+		actor.global_position = spawn_pos
 		var arrival_marker := _resolve_arrival_marker()
 		if arrival_marker != null and face_player_on_arrival:
 			_face_actor_toward(actor, arrival_marker.global_position)
 		else:
 			actor.global_rotation = spawn_marker.global_rotation
 		_reset_actor_physics_state(actor)
+		if actor is GasStationNPC:
+			(actor as GasStationNPC).visible = true
 		return
 	if _uses_external_scare_actor() and _is_scene4_bathroom_exit_jumpscare():
 		push_warning(
@@ -794,9 +951,9 @@ func _start_scare_run(actor: Node3D, arrival: Vector3, look_target: Vector3, dur
 		var spawn_marker := _resolve_spawn_marker()
 		var arrival_marker := _resolve_arrival_marker()
 		if spawn_marker != null and spawn_marker.is_inside_tree():
-			start = spawn_marker.global_position
+			start = _project_to_floor(spawn_marker.global_position, spawn_marker.global_position.y)
 		if arrival_marker != null and arrival_marker.is_inside_tree():
-			arrival = arrival_marker.global_position
+			arrival = _project_to_floor(arrival_marker.global_position, arrival_marker.global_position.y)
 	else:
 		start = _project_to_floor(start, _resolve_floor_fallback_y(GameManager.get_player() as Node3D))
 		arrival = _project_to_floor(arrival, start.y)

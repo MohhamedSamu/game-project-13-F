@@ -37,6 +37,27 @@ func _connect_jumpscare() -> void:
 	if not jumpscare.jumpscare_triggered.is_connected(_on_jumpscare_triggered):
 		jumpscare.jumpscare_triggered.connect(_on_jumpscare_triggered)
 
+	_log_scene4_setup(jumpscare, setup)
+
+
+func _log_scene4_setup(jumpscare: SoftJumpscareSetup, setup: Scene4BathroomExitSetup) -> void:
+	var spawn := setup.get_run_start_marker()
+	var arrival := setup.get_scare_stop_marker()
+	var scene := get_tree().current_scene
+	var npc := scene.find_child("GasStationNPC", true, false) as GasStationNPC if scene else null
+	var trigger_zone := jumpscare.get_node_or_null("TriggerZone") as Node3D
+	var spawn_pos := spawn.global_position if spawn != null and spawn.is_inside_tree() else Vector3.ZERO
+	var arrival_pos := arrival.global_position if arrival != null and arrival.is_inside_tree() else Vector3.ZERO
+	print(
+		"Scene4BathroomExitSetup: listo | trigger=%s | spawn=%s | llegada=%s | npc=%s"
+		% [
+			trigger_zone.global_position if trigger_zone != null and trigger_zone.is_inside_tree() else jumpscare.global_position,
+			spawn_pos,
+			arrival_pos,
+			npc.global_position if npc != null and npc.is_inside_tree() else Vector3.ZERO,
+		]
+	)
+
 
 func _on_jumpscare_triggered() -> void:
 	_awaiting_post_dialogue_exit = true
@@ -70,7 +91,7 @@ func _lock_gas_station_npc() -> void:
 		return
 	var npc := scene.find_child("GasStationNPC", true, false) as GasStationNPC
 	if npc != null:
-		npc.begin_scripted_sequence()
+		npc.prepare_for_bathroom_exit_jumpscare()
 
 
 func _on_jumpscare_dialogue_finished() -> void:

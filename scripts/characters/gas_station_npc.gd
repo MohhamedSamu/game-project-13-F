@@ -278,6 +278,60 @@ func begin_scripted_sequence() -> void:
 	velocity = Vector3.ZERO
 	set_physics_process(false)
 	_set_npc_interactions_enabled(false)
+	visible = true
+	_ensure_model_visible()
+
+
+func prepare_for_bathroom_exit_jumpscare() -> void:
+	begin_scripted_sequence()
+	_gesture_anim = &""
+	_work_state = WorkState.WAITING
+	_state_timer = 0.0
+	_set_dialogue_focus_height(dialogue_focus_height_standing, true)
+	_force_standing_pose_for_scripted()
+
+
+func restore_after_scene4_dev_reset() -> void:
+	_scripted_sequence_active = false
+	behavior_enabled = _work_behavior_started
+	force_render_visible()
+	set_physics_process(true)
+	_set_npc_collision_enabled(true)
+	_set_npc_interactions_enabled(true)
+	_force_standing_pose_for_scripted()
+
+
+func _ensure_model_visible() -> void:
+	var model := get_node_or_null("Model") as Node3D
+	if model != null:
+		model.visible = true
+
+
+func force_render_visible() -> void:
+	visible = true
+	_ensure_model_visible()
+	_set_visual_instances_visible(self, true)
+
+
+func _set_visual_instances_visible(node: Node, should_show: bool) -> void:
+	if node is VisualInstance3D:
+		(node as VisualInstance3D).visible = should_show
+	for child in node.get_children():
+		_set_visual_instances_visible(child, should_show)
+
+
+func move_to_global_pose(world_position: Vector3, world_rotation: Vector3) -> void:
+	global_position = world_position
+	global_rotation = world_rotation
+	velocity = Vector3.ZERO
+	force_render_visible()
+
+
+func _force_standing_pose_for_scripted() -> void:
+	for anim_name in [&"male_standing_pose", ROUTINE_IDLE_ANIM, &"idle", &"old_man_idle"]:
+		if _has_animation(anim_name):
+			_play_anim(anim_name, 0.0)
+			return
 
 
 func finish_scripted_exit() -> void:

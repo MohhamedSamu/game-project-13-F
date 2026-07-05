@@ -72,6 +72,11 @@ func reset_scene4_bathroom_dev_state() -> void:
 		tree.call_group(&"scene4_bathroom_exit_jumpscare", &"reset_dev_state")
 		tree.call_group(&"scene4_bathroom_exit_jumpscare", &"refresh_armed_state")
 		tree.call_group(&"coca_fridge_interact", &"refresh_interaction_state")
+		var scene := tree.current_scene
+		if scene != null:
+			var npc := scene.find_child("GasStationNPC", true, false) as GasStationNPC
+			if npc != null:
+				npc.restore_after_scene4_dev_reset()
 	print("GameManager: flags escena 4 baño reseteadas.")
 
 

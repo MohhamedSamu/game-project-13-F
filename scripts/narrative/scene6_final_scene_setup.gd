@@ -83,7 +83,10 @@ func _connect_trigger() -> void:
 	if trigger.player_entered.is_connected(_on_player_entered):
 		return
 	trigger.player_entered.connect(_on_player_entered)
-	print("Scene6FinalSceneSetup: trigger conectado en ", trigger.global_position)
+	print(
+		"Scene6FinalSceneSetup: trigger escena 6 (final del camino) en ",
+		trigger.global_position
+	)
 
 
 func _on_player_entered(player: Node3D) -> void:
@@ -107,7 +110,18 @@ func _prepare_characters() -> void:
 
 	var monster := get_monster()
 	if monster != null and monster.has_method("play_animation"):
-		monster.play_animation("zombie_biting_v2")
+		call_deferred("_play_monster_idle", monster)
+
+
+func _play_monster_idle(monster: Node3D) -> void:
+	if monster == null or not is_instance_valid(monster):
+		return
+	if monster.has_method("get_animation_names"):
+		var names: PackedStringArray = monster.get_animation_names()
+		if names.is_empty():
+			call_deferred("_play_monster_idle", monster)
+			return
+	monster.play_animation("zombie_biting_v2")
 
 
 func _resolve_markers() -> void:

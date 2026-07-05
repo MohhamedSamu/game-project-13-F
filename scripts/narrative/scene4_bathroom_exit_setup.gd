@@ -1,4 +1,4 @@
-extends Node
+extends Node3D
 class_name Scene4BathroomExitSetup
 ## Markers y puerta de la escena 4. Coloca los Marker3D como hijos o asígnalos en el inspector.
 
