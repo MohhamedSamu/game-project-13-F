@@ -67,6 +67,14 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export_range(0.0, 180.0, 1.0) var sequence_yaw_limit_degrees: float = 90.0
 @export_range(0.0, 89.0, 1.0) var sequence_look_up_limit_degrees: float = 35.0
 
+@export_group("Phase 2 Nervous Camera Shake")
+@export var phase_2_camera_shake_enabled: bool = true
+@export_range(0.0, 2.0, 0.05) var phase_2_shake_rotation_strength: float = 0.4
+@export_range(0.0, 0.05, 0.001) var phase_2_shake_position_strength: float = 0.008
+@export_range(1.0, 20.0, 0.5) var phase_2_shake_frequency: float = 9.0
+@export_range(0.05, 2.0, 0.05) var phase_2_shake_fade_in_time: float = 0.35
+@export_range(0.05, 2.0, 0.05) var phase_2_shake_fade_out_time: float = 0.30
+
 @export_group("Audio")
 @export var scream_audio: AudioStream = preload("res://assets/audio/SFX/screams/soft1.mp3")
 @export_range(-40.0, 6.0, 0.5) var scream_volume_db: float = 0.0
@@ -231,6 +239,7 @@ func start_phase_2() -> void:
 
 
 func _run_phase_2() -> void:
+	_start_phase_2_camera_shake()
 	await _flicker_phase_2_transition()
 	_turn_lights_off()
 
@@ -252,6 +261,7 @@ func _run_phase_2() -> void:
 	_activate_phase_2_horror_cast()
 	await _run_phase_2_light_sequence()
 
+	_stop_phase_2_camera_shake()
 	_apply_phase_2_visual(Phase2VisualState.DARK)
 	await get_tree().create_timer(phase_2_final_blackout_time).timeout
 
@@ -752,6 +762,7 @@ func _safe_cleanup() -> void:
 	_set_red_overlay_active(false)
 	_restore_supermarket_light_colors()
 	_restore_lights(false)
+	_force_clear_phase_2_camera_shake()
 	_clear_sequence_look_limits()
 	_unlock_player()
 	_restore_ambient_if_needed()
@@ -1120,6 +1131,37 @@ func _clear_sequence_look_limits() -> void:
 		player.clear_sequence_look_limits()
 	elif player.has_method("set_sequence_look_limits"):
 		player.set_sequence_look_limits(false)
+
+
+func _start_phase_2_camera_shake() -> void:
+	if not phase_2_camera_shake_enabled:
+		return
+	var player: Node = GameManager.get_player()
+	if player == null or not player.has_method("start_nervous_camera_shake"):
+		return
+	player.start_nervous_camera_shake(
+		phase_2_shake_rotation_strength,
+		phase_2_shake_position_strength,
+		phase_2_shake_frequency,
+		phase_2_shake_fade_in_time
+	)
+
+
+func _stop_phase_2_camera_shake() -> void:
+	var player: Node = GameManager.get_player()
+	if player == null or not player.has_method("stop_nervous_camera_shake"):
+		return
+	player.stop_nervous_camera_shake(phase_2_shake_fade_out_time)
+
+
+func _force_clear_phase_2_camera_shake() -> void:
+	var player: Node = GameManager.get_player()
+	if player == null:
+		return
+	if player.has_method("force_clear_nervous_camera_shake"):
+		player.force_clear_nervous_camera_shake()
+	elif player.has_method("stop_nervous_camera_shake"):
+		player.stop_nervous_camera_shake(0.01)
 
 
 func _dip_ambient_if_enabled() -> void:

@@ -155,6 +155,18 @@ var _sequence_look_center_pitch: float = 0.0
 var _sequence_yaw_limit_rad: float = deg_to_rad(90.0)
 var _sequence_look_up_limit_rad: float = deg_to_rad(35.0)
 
+var _camera_default_local: Transform3D = Transform3D.IDENTITY
+var _nervous_shake_active: bool = false
+var _nervous_shake_fading_out: bool = false
+var _nervous_shake_weight: float = 0.0
+var _nervous_shake_time: float = 0.0
+var _nervous_shake_rot_strength_deg: float = 0.3
+var _nervous_shake_pos_strength: float = 0.008
+var _nervous_shake_frequency: float = 9.0
+var _nervous_shake_fade_in_time: float = 0.35
+var _nervous_shake_fade_out_time: float = 0.30
+var _nervous_shake_noise: FastNoiseLite
+
 ## IMPORTANT REFERENCES
 @onready var head: Node3D = $Head
 @onready var footstep_player: AudioStreamPlayer3D = $FootstepPlayer
@@ -194,6 +206,22 @@ func _ready() -> void:
 		jump_player.volume_db = jump_sfx_volume_db
 	if land_player:
 		land_player.volume_db = land_sfx_volume_db
+
+	_setup_nervous_camera_shake()
+
+
+func _setup_nervous_camera_shake() -> void:
+	if camera_3d != null:
+		_camera_default_local = camera_3d.transform
+	_nervous_shake_noise = FastNoiseLite.new()
+	_nervous_shake_noise.noise_type = FastNoiseLite.TYPE_SIMPLEX_SMOOTH
+	_nervous_shake_noise.fractal_type = FastNoiseLite.FRACTAL_FBM
+	_nervous_shake_noise.fractal_octaves = 2
+	_nervous_shake_noise.frequency = 1.0
+
+
+func _process(delta: float) -> void:
+	_update_nervous_camera_shake(delta)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if minigame_mode:
@@ -375,6 +403,92 @@ func _clamp_sequence_yaw(yaw: float) -> float:
 	var offset := angle_difference(_sequence_look_center_yaw, yaw)
 	offset = clampf(offset, -_sequence_yaw_limit_rad, _sequence_yaw_limit_rad)
 	return _sequence_look_center_yaw + offset
+
+
+func start_nervous_camera_shake(
+	rotation_strength_deg: float = 0.3,
+	position_strength: float = 0.008,
+	frequency: float = 9.0,
+	fade_in_time: float = 0.35
+) -> void:
+	_nervous_shake_rot_strength_deg = maxf(rotation_strength_deg, 0.0)
+	_nervous_shake_pos_strength = maxf(position_strength, 0.0)
+	_nervous_shake_frequency = maxf(frequency, 0.1)
+	_nervous_shake_fade_in_time = maxf(fade_in_time, 0.01)
+	_nervous_shake_active = true
+	_nervous_shake_fading_out = false
+
+
+func stop_nervous_camera_shake(fade_out_time: float = 0.30) -> void:
+	if not _nervous_shake_active and _nervous_shake_weight <= 0.0:
+		return
+	_nervous_shake_fade_out_time = maxf(fade_out_time, 0.01)
+	_nervous_shake_fading_out = true
+	_nervous_shake_active = false
+
+
+func force_clear_nervous_camera_shake() -> void:
+	_nervous_shake_active = false
+	_nervous_shake_fading_out = false
+	_nervous_shake_weight = 0.0
+	_reset_camera_shake_offset()
+
+
+func _update_nervous_camera_shake(delta: float) -> void:
+	if camera_3d == null:
+		return
+
+	if _nervous_shake_fading_out:
+		var fade_out_rate := 1.0 / _nervous_shake_fade_out_time
+		_nervous_shake_weight = move_toward(_nervous_shake_weight, 0.0, fade_out_rate * delta)
+		if _nervous_shake_weight <= 0.0001:
+			_nervous_shake_weight = 0.0
+			_nervous_shake_fading_out = false
+			_reset_camera_shake_offset()
+			return
+	elif _nervous_shake_active:
+		var fade_in_rate := 1.0 / _nervous_shake_fade_in_time
+		_nervous_shake_weight = move_toward(_nervous_shake_weight, 1.0, fade_in_rate * delta)
+	else:
+		if _nervous_shake_weight > 0.0:
+			_reset_camera_shake_offset()
+		return
+
+	_nervous_shake_time += delta
+	var noise_t := _nervous_shake_time * _nervous_shake_frequency
+	var weight := _nervous_shake_weight
+	var rot_strength := _nervous_shake_rot_strength_deg
+
+	var shake_yaw := _nervous_shake_noise.get_noise_1d(noise_t) * deg_to_rad(rot_strength) * weight
+	var shake_pitch := (
+		_nervous_shake_noise.get_noise_1d(noise_t + 17.3)
+		* deg_to_rad(rot_strength * 0.75)
+		* weight
+	)
+	var shake_roll := (
+		_nervous_shake_noise.get_noise_1d(noise_t + 41.9)
+		* deg_to_rad(rot_strength * 0.55)
+		* weight
+	)
+
+	var pos_strength := _nervous_shake_pos_strength * weight
+	var shake_pos := Vector3(
+		_nervous_shake_noise.get_noise_1d(noise_t + 73.1) * pos_strength * 0.25,
+		_nervous_shake_noise.get_noise_1d(noise_t + 91.7) * pos_strength * 0.20,
+		_nervous_shake_noise.get_noise_1d(noise_t + 112.4) * pos_strength * 0.15
+	)
+
+	camera_3d.transform = Transform3D(
+		Basis.from_euler(Vector3(shake_pitch, shake_yaw, shake_roll), EulerOrder.EULER_ORDER_YXZ),
+		shake_pos
+	)
+
+
+func _reset_camera_shake_offset() -> void:
+	if camera_3d == null:
+		return
+	camera_3d.transform = _camera_default_local
+	_nervous_shake_weight = 0.0
 
 
 func enable_freefly() -> void:
