@@ -16,9 +16,6 @@ func get_interaction_prompt() -> String:
 
 
 func handle_interaction() -> void:
-	# FIXME(DEV): quitar cuando DEV_SKIP_COCA_CHURRO_FLOW sea false.
-	if ChurroCounterFlow.dev_skip_to_scene5_if_enabled($DialogueFocusPoint):
-		return
 	if ChurroCounterFlow.can_place_churro():
 		ChurroCounterFlow.place_churro_from_cashier($DialogueFocusPoint)
 		return
