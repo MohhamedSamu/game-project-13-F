@@ -21,6 +21,8 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export var old_lady_ghost: Node3D
 @export var supermarket_lights: Array[Light3D] = []
 @export var gas_station_lights: Array[Light3D] = []
+@export var background_street_lamp: StreetLampController
+@export var background_street_lamp_path: NodePath = ^"../../StreetLamps/StreetLampConfigurable2"
 @export var reveal_dimmed_lights: Array[Light3D] = []
 @export var bathroom_lights: Array[Light3D] = []
 
@@ -94,6 +96,7 @@ var _running: bool = false
 var _phase_2_running: bool = false
 var _light_states: Dictionary = {}
 var _gas_station_light_states: Dictionary = {}
+var _background_street_lamp_saved_mode: StreetLampController.LampMode = StreetLampController.LampMode.STABLE
 var _reveal_dimmed_light_states: Dictionary = {}
 var _bathroom_light_states: Dictionary = {}
 var _cashier_interact: InteractableDialogueComponent
@@ -179,6 +182,7 @@ func try_start_sequence() -> void:
 func _run_sequence() -> void:
 	await get_tree().process_frame
 
+	await _prepare_background_street_lamp()
 	_cache_light_states()
 	_resolve_cashier_refs()
 	_lock_player()
@@ -189,6 +193,7 @@ func _run_sequence() -> void:
 	await get_tree().create_timer(0.06).timeout
 
 	_turn_lights_off()
+	_lock_player_flashlight()
 	_set_cashier_active(false)
 
 	await get_tree().create_timer(blackout_time).timeout
@@ -741,6 +746,7 @@ func _start_after_vision_dialogue() -> void:
 
 
 func _on_after_vision_dialogue_finished() -> void:
+	_unlock_player_flashlight()
 	_clear_sequence_look_limits()
 	_unlock_player()
 	_restore_ambient_if_needed()
@@ -765,6 +771,7 @@ func _safe_cleanup() -> void:
 	_restore_supermarket_light_colors()
 	_restore_lights(false)
 	_force_clear_phase_2_camera_shake()
+	_unlock_player_flashlight()
 	_clear_sequence_look_limits()
 	_unlock_player()
 	_restore_ambient_if_needed()
@@ -814,6 +821,45 @@ func _cache_light_states() -> void:
 			"color": light.light_color,
 		}
 
+	_cache_background_street_lamp_state()
+
+
+func _cache_background_street_lamp_state() -> void:
+	var lamp := _resolve_background_street_lamp()
+	if lamp == null:
+		return
+	_background_street_lamp_saved_mode = lamp.get_mode()
+
+
+func _resolve_background_street_lamp() -> StreetLampController:
+	if background_street_lamp != null and is_instance_valid(background_street_lamp):
+		return background_street_lamp
+	if background_street_lamp_path.is_empty():
+		return null
+	var lamp := get_node_or_null(background_street_lamp_path) as StreetLampController
+	if lamp != null:
+		background_street_lamp = lamp
+		return lamp
+	var scene_root := get_tree().current_scene
+	if scene_root == null:
+		return null
+	lamp = scene_root.get_node_or_null(background_street_lamp_path) as StreetLampController
+	if lamp != null:
+		background_street_lamp = lamp
+	return lamp
+
+
+func _prepare_background_street_lamp() -> void:
+	var lamp := _resolve_background_street_lamp()
+	if lamp == null:
+		push_warning(
+			"SupermarketGhostRevealSequence: no se encontró background_street_lamp (%s)."
+			% background_street_lamp_path
+		)
+		return
+	while is_instance_valid(lamp) and not lamp.is_controller_ready():
+		await get_tree().process_frame
+
 
 func _set_lights_energy(multiplier: float) -> void:
 	if supermarket_lights.is_empty():
@@ -838,6 +884,7 @@ func _set_lights_energy(multiplier: float) -> void:
 func _turn_lights_off() -> void:
 	_set_lights_energy(0.0)
 	_turn_gas_station_lights_off()
+	_turn_background_street_lamp_off()
 
 
 func _set_gas_station_lights_energy(multiplier: float) -> void:
@@ -878,6 +925,30 @@ func _restore_gas_station_lights() -> void:
 			light.light_color = state["color"]
 
 
+func _set_background_street_lamp_flicker(multiplier: float) -> void:
+	var lamp := _resolve_background_street_lamp()
+	if lamp == null or not lamp.is_controller_ready():
+		return
+	if multiplier <= 0.001:
+		lamp.force_off()
+	else:
+		lamp.force_on()
+
+
+func _turn_background_street_lamp_off() -> void:
+	var lamp := _resolve_background_street_lamp()
+	if lamp == null:
+		return
+	lamp.set_off()
+
+
+func _restore_background_street_lamp() -> void:
+	var lamp := _resolve_background_street_lamp()
+	if lamp == null or not lamp.is_controller_ready():
+		return
+	lamp.set_mode(_background_street_lamp_saved_mode)
+
+
 func _restore_lights(apply_cashier_override: bool = true) -> void:
 	for light in supermarket_lights:
 		if light == null:
@@ -895,6 +966,7 @@ func _restore_lights(apply_cashier_override: bool = true) -> void:
 		_apply_reveal_dimmed_lights()
 	else:
 		_restore_gas_station_lights()
+		_restore_background_street_lamp()
 
 
 func _clear_reveal_dimmed_override() -> void:
@@ -942,7 +1014,41 @@ func _flicker_lights_short() -> void:
 	for multiplier in FLICKER_PATTERN:
 		_set_lights_energy(multiplier)
 		_set_gas_station_lights_energy(multiplier)
+		_set_background_street_lamp_flicker(multiplier)
+		_set_flashlight_flicker_multiplier(multiplier)
 		await get_tree().create_timer(step_duration).timeout
+
+
+func _get_player_flashlight() -> Node:
+	var player := GameManager.get_player()
+	if player == null or not player.has_method("get_held_pickup"):
+		return null
+	var pickup: Node = player.get_held_pickup()
+	if pickup == null or not is_instance_valid(pickup):
+		return null
+	if pickup.has_method("get_item_id") and pickup.get_item_id() != &"flashlight":
+		return null
+	if not pickup.has_method("get_light_mode"):
+		return null
+	return pickup
+
+
+func _set_flashlight_flicker_multiplier(multiplier: float) -> void:
+	var flashlight := _get_player_flashlight()
+	if flashlight != null and flashlight.has_method("set_horror_sequence_flicker_multiplier"):
+		flashlight.set_horror_sequence_flicker_multiplier(multiplier)
+
+
+func _lock_player_flashlight() -> void:
+	var flashlight := _get_player_flashlight()
+	if flashlight != null and flashlight.has_method("lock_for_horror_sequence"):
+		flashlight.lock_for_horror_sequence()
+
+
+func _unlock_player_flashlight() -> void:
+	var flashlight := _get_player_flashlight()
+	if flashlight != null and flashlight.has_method("unlock_horror_sequence"):
+		flashlight.unlock_horror_sequence()
 
 
 func _set_bathroom_lights_active(active: bool) -> void:

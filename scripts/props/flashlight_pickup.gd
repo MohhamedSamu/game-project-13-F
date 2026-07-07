@@ -53,6 +53,7 @@ var _lights_ground_transform: Transform3D
 var _mode: LightMode = LightMode.FAR
 var _light_energy_multiplier: float = 1.0
 var _held_in_hand: bool = false
+var _horror_sequence_locked: bool = false
 var _sfx_player: AudioStreamPlayer3D
 
 
@@ -224,6 +225,8 @@ func _basis_beam_along_forward(fwd: Vector3) -> Basis:
 
 
 func set_light_mode(mode: LightMode) -> void:
+	if _horror_sequence_locked:
+		return
 	_mode = mode
 	_apply_light_state()
 
@@ -232,20 +235,48 @@ func get_light_mode() -> LightMode:
 	return _mode
 
 
+func is_horror_sequence_locked() -> bool:
+	return _horror_sequence_locked
+
+
 func get_light_energy_multiplier() -> float:
 	return _light_energy_multiplier
 
 
 func set_light_energy_multiplier(multiplier: float) -> void:
+	if _horror_sequence_locked:
+		return
 	_light_energy_multiplier = maxf(multiplier, 0.0)
 	_apply_light_state()
 
 
+func set_horror_sequence_flicker_multiplier(multiplier: float) -> void:
+	if not _held_in_hand or _horror_sequence_locked or _mode == LightMode.OFF:
+		return
+	_light_energy_multiplier = maxf(multiplier, 0.0)
+	_apply_light_state()
+
+
+func lock_for_horror_sequence() -> void:
+	_horror_sequence_locked = true
+	_light_energy_multiplier = 1.0
+	_mode = LightMode.OFF
+	_apply_light_state()
+
+
+func unlock_horror_sequence() -> void:
+	_horror_sequence_locked = false
+
+
 func force_near_light() -> void:
+	if _horror_sequence_locked or _mode == LightMode.OFF:
+		return
 	set_light_mode(LightMode.NEAR)
 
 
 func toggle_spotlight() -> void:
+	if _horror_sequence_locked:
+		return
 	match _mode:
 		LightMode.FAR:
 			_mode = LightMode.NEAR

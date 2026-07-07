@@ -130,10 +130,16 @@ func _apply_dialogue_flashlight_state() -> void:
 		return
 	if not flashlight.has_method("get_light_mode") or not flashlight.has_method("get_light_energy_multiplier"):
 		return
+	if flashlight.has_method("is_horror_sequence_locked") and flashlight.is_horror_sequence_locked():
+		return
+
+	var current_mode: int = int(flashlight.get_light_mode())
+	if current_mode == 0:
+		return
 
 	_dialogue_flashlight_state = {
 		"flashlight": flashlight,
-		"mode": flashlight.get_light_mode(),
+		"mode": current_mode,
 		"multiplier": flashlight.get_light_energy_multiplier(),
 	}
 
