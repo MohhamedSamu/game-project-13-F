@@ -1002,6 +1002,14 @@ func _on_after_vision_dialogue_finished() -> void:
 	_unlock_player()
 	_restore_ambient_if_needed()
 	_restore_bathroom_lights()
+	_unlock_final_scene_access()
+
+
+func _unlock_final_scene_access() -> void:
+	GameManager.set_flag(&"scene6_final_accessible", true)
+	var tree := get_tree()
+	if tree != null:
+		tree.call_group(&"scene6_final_scene_setup", &"unlock_final_scene_access")
 
 
 func _remove_counter_items_permanently() -> void:
@@ -1031,6 +1039,8 @@ func _apply_post_sequence_state() -> void:
 	_resolve_cashier_refs()
 	if _cashier_deactivated:
 		_set_cashier_active(true)
+	if GameManager.get_flag(&"scene6_final_accessible"):
+		_unlock_final_scene_access()
 
 
 func _safe_cleanup() -> void:

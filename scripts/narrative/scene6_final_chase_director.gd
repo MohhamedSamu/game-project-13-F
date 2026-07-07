@@ -77,10 +77,16 @@ func start_sequence(setup: Node, player: Node3D) -> void:
 			true,
 			-1
 		)
-		monster.prepare_sequence_from(String(turn_animation), String(scream_animation))
 
 	await _play_and_wait(monster, turn_animation, animation_blend_time)
 	await _turn_monster_toward_player(monster, player, turn_to_player_duration)
+	if monster.has_method("prepare_sequence_from"):
+		# Solo alinear XZ; el scream conserva el movimiento vertical (pies en suelo).
+		monster.prepare_sequence_from(
+			String(turn_animation),
+			String(scream_animation),
+			true
+		)
 	await _play_and_wait(monster, scream_animation, animation_blend_time)
 
 	if setup.get("disable_invisible_wall_on_trigger"):

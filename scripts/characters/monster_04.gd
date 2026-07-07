@@ -52,6 +52,7 @@ const NO_HIPS_POSITION := Vector3(INF, INF, INF)
 const VERTICAL_ROOT_MOTION_ANIMATIONS: Array[String] = [
 	"zombie_biting_standing_up",
 	"zombie_biting_standing_up_v2",
+	"zombie_scream",
 ]
 
 @export_group("Reproducción")
@@ -135,7 +136,6 @@ func _harmonize_stance_animations(
 	for anim_name in [
 		SEQUENCE_STANCE_REFERENCE,
 		"turn_right",
-		"zombie_scream",
 		"zombie_running",
 	]:
 		if not library.has_animation(anim_name):

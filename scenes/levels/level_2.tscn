@@ -356,7 +356,7 @@ wall_length = 25.0
 wall_height = 5.0
 
 [node name="InvisibleWallEndOfRoad" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
-transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, -16.7722, 4.57617, 38.5747)
+transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, -16.7722, -0.0805888, 38.5747)
 wall_length = 25.0
 wall_height = 5.0
 
@@ -829,7 +829,7 @@ script = ExtResource("42_exitwalk")
 transform = Transform3D(0.5, 0, 0, 0, 0.5, 0, 0, 0, 0.5, 81.884, 0.0101732, 28.5797)
 
 [node name="FlashlightJumpscareSetup" parent="Jumpscares/Scene1FlashlightPickup" instance=ExtResource("31_flash_js")]
-transform = Transform3D(-0.471782, 0, -0.881716, 0, 1, 0, 0.881716, 0, -0.471782, 82.0975, 0.00312232, 22.998)
+transform = Transform3D(-0.064428, 0, -0.997923, 0, 1, 0, 0.997923, 0, -0.064428, 79.2693, 0.00312232, 23.9996)
 audio_tier = 1
 spawn_side = 2
 dialogue_resource = ExtResource("41_2e0t0")

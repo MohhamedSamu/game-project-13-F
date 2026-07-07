@@ -9,18 +9,22 @@ class_name Scene6FinalSceneSetup
 @export_group("Secuencia")
 @export var camera_focus_marker: Marker3D
 @export var trigger_zone: JumpscareTriggerZone
+@export var atmosphere_path: NodePath = ^"Scene6Atmosphere"
 
 @export_group("Final de carretera")
-## Ruta a `InvisibleWallEndOfRoad`. Desactivar cuando el compañero habilite el acceso.
+## Ruta a `InvisibleWallEndOfRoad`. Se desactiva al desbloquear la escena 6.
 @export var invisible_wall_path: NodePath
 @export var disable_invisible_wall_on_trigger: bool = false
 
 @export_group("Progreso")
 @export var completion_flag: String = "scene6_final_chase_started"
-@export var require_flag: String = ""
+## No muestra personajes ni quita la pared hasta que esta flag exista (fin escena 5).
+@export var unlock_require_flag: String = "scene6_final_accessible"
+@export var require_flag: String = "scene6_final_accessible"
 @export var block_if_flag: String = "scene6_final_chase_started"
 
 var _sequence_running: bool = false
+var _access_unlocked: bool = false
 
 
 func _enter_tree() -> void:
@@ -31,8 +35,47 @@ func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 	_resolve_markers()
-	_prepare_characters()
+	_hide_characters()
+	if unlock_require_flag.is_empty() or GameManager.get_flag(unlock_require_flag):
+		call_deferred("unlock_final_scene_access")
 	call_deferred("_connect_trigger")
+
+
+func unlock_final_scene_access() -> void:
+	if _access_unlocked:
+		return
+	_access_unlocked = true
+	if not unlock_require_flag.is_empty():
+		GameManager.set_flag(unlock_require_flag, true)
+	_reveal_characters()
+	disable_end_of_road_wall()
+	_arm_final_atmosphere()
+	print("Scene6FinalSceneSetup: escena 6 desbloqueada (personajes visibles, pared final off).")
+
+
+func _hide_characters() -> void:
+	_set_character_visible(get_muerta(), false)
+	_set_character_visible(get_monster(), false)
+
+
+func _reveal_characters() -> void:
+	_set_character_visible(get_muerta(), true)
+	_set_character_visible(get_monster(), true)
+	_prepare_characters()
+
+
+func _set_character_visible(character: Node3D, should_show: bool) -> void:
+	if character == null:
+		return
+	character.visible = should_show
+	_set_visual_instances_visible(character, should_show)
+
+
+func _set_visual_instances_visible(node: Node, should_show: bool) -> void:
+	if node is VisualInstance3D:
+		(node as VisualInstance3D).visible = should_show
+	for child in node.get_children():
+		_set_visual_instances_visible(child, should_show)
 
 
 func get_muerta() -> Node3D:
@@ -56,6 +99,17 @@ func get_camera_focus_position() -> Vector3:
 	if monster != null and monster.is_inside_tree():
 		return monster.global_position + Vector3(0.0, 1.4, 0.0)
 	return global_position
+
+
+func get_atmosphere() -> Scene6FinalAtmosphere:
+	return get_node_or_null(atmosphere_path) as Scene6FinalAtmosphere
+
+
+func _arm_final_atmosphere() -> void:
+	var atmosphere := get_atmosphere()
+	if atmosphere == null:
+		return
+	atmosphere.begin_scene_6_zone(get_invisible_wall())
 
 
 func get_invisible_wall() -> StaticBody3D:
@@ -99,6 +153,9 @@ func _on_player_entered(player: Node3D) -> void:
 
 	print("Scene6FinalSceneSetup: jugador entró al trigger.")
 	_sequence_running = true
+	var atmosphere := get_atmosphere()
+	if atmosphere != null:
+		atmosphere.begin_chase_presentation()
 	await Scene6FinalChaseDirector.start_sequence(self, player)
 	_sequence_running = false
 
