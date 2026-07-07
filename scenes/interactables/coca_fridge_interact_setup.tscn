@@ -1,11 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://d8k4coca_fridge_setup"]
+[gd_scene load_steps=5 format=3 uid="uid://8pxb32u2aosn"]
 
-[ext_resource type="Script" uid="uid://b2n7coca_fridge_setup_script" path="res://scripts/interactables/coca_fridge_interact_setup.gd" id="1_setup"]
+[ext_resource type="Script" path="res://scripts/interactables/coca_fridge_interact_setup.gd" id="1_setup"]
 [ext_resource type="Script" uid="uid://dpwave42o35cd" path="res://scripts/dialogue/interactable_dialogue_component.gd" id="2_ixdlg"]
-[ext_resource type="Resource" path="res://dialogues/coca_fridge.dialogue" id="3_dlg"]
+[ext_resource type="Resource" uid="uid://dtnty13p0wxq8" path="res://dialogues/coca_fridge.dialogue" id="3_dlg"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_fridge"]
-size = Vector3(1.2, 1.8, 0.65)
+size = Vector3(1.2, 1.64268, 1.71094)
 
 [node name="CocaFridgeInteractSetup" type="Node3D"]
 script = ExtResource("1_setup")
@@ -16,11 +16,11 @@ dialogue_resource = ExtResource("3_dlg")
 dialogue_title = "start"
 prompt_text = "Presiona [E] para tomar una coca"
 trigger_once = true
-use_camera_focus = false
-auto_find_focus_target = false
 proximity_radius = 2.8
 interaction_handler = NodePath("..")
+use_camera_focus = false
+auto_find_focus_target = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="InteractableDialogueComponent"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.821338, 0)
 shape = SubResource("BoxShape3D_fridge")

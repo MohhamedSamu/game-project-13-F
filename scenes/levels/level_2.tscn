@@ -52,7 +52,7 @@
 [ext_resource type="Script" uid="uid://itlolctqm38c" path="res://scripts/narrative/scene4_gas_npc_exit_walk.gd" id="49_scene4exit"]
 [ext_resource type="Script" uid="uid://ddeb2gnlx11ce" path="res://scripts/narrative/scene4_bathroom_exit_setup.gd" id="50_scene4setup"]
 [ext_resource type="Script" uid="uid://dkdft1jupwpb6" path="res://scripts/dialogue/dialogue_focus_point.gd" id="51_dlgfocus"]
-[ext_resource type="PackedScene" path="res://scenes/interactables/coca_fridge_interact_setup.tscn" id="52_px4x2"]
+[ext_resource type="PackedScene" uid="uid://8pxb32u2aosn" path="res://scenes/interactables/coca_fridge_interact_setup.tscn" id="52_px4x2"]
 [ext_resource type="PackedScene" path="res://scenes/interactables/coca_counter_place_setup.tscn" id="53_cocacounter"]
 [ext_resource type="PackedScene" uid="uid://k36c6vytk3rd" path="res://scenes/interactables/churro_pickup_setup.tscn" id="54_churro_pickup"]
 [ext_resource type="PackedScene" path="res://scenes/interactables/churro_counter_place_setup.tscn" id="55_churro_counter"]
@@ -123,8 +123,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.308168, 0.308168)
-shader_parameter/cirrus_position2 = Vector2(0.308168, 0.308168)
+shader_parameter/cirrus_position1 = Vector2(0.355232, 0.355232)
+shader_parameter/cirrus_position2 = Vector2(0.355232, 0.355232)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -134,7 +134,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(1.54081, 1.5408)
+shader_parameter/cumulus_position = Vector2(6.77583, 6.77583)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -873,10 +873,11 @@ transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 9.05085, 3.22773, -1
 [node name="BloodNpcSupermarket" parent="Scene5" instance=ExtResource("59_852cy")]
 transform = Transform3D(0.193258, 0, -0.981148, 0, 1, 0, 0.981148, 0, 0.193258, 7.79693, 0.130802, -14.0548)
 
-[node name="SupermarketGhostRevealSequence" parent="Scene5" node_paths=PackedStringArray("cashier_npc", "old_lady_ghost", "supermarket_lights", "reveal_dimmed_lights", "bathroom_lights", "blood_cashier") instance=ExtResource("57_ghostseq")]
+[node name="SupermarketGhostRevealSequence" parent="Scene5" node_paths=PackedStringArray("cashier_npc", "old_lady_ghost", "supermarket_lights", "gas_station_lights", "reveal_dimmed_lights", "bathroom_lights", "blood_cashier") instance=ExtResource("57_ghostseq")]
 cashier_npc = NodePath("../../SupermarketNPC")
 old_lady_ghost = NodePath("../OldLadyGhost")
 supermarket_lights = [NodePath("../../iluminacion/OmniLight3DSuper1"), NodePath("../../iluminacion/OmniLight3DSuper2"), NodePath("../../iluminacion/OmniLight3DSuper3"), NodePath("../../iluminacion/OmniLight3DSuper4"), NodePath("../../iluminacion/OmniLight3DSuper6"), NodePath("../../iluminacion/OmniLight3DSuperStorage")]
+gas_station_lights = [NodePath("../../iluminacion/OmniLight3D"), NodePath("../../iluminacion/SpotLight3D"), NodePath("../../iluminacion/SpotLight3D2"), NodePath("../../iluminacion/SpotLight3D3"), NodePath("../../iluminacion/SpotLight3D4"), NodePath("../../iluminacion/SpotLight3D5"), NodePath("../../iluminacion/SpotLight3D6"), NodePath("../../iluminacion/SpotLight3D7"), NodePath("../../iluminacion/SpotLight3D8"), NodePath("../../iluminacion/SpotLight3D9"), NodePath("../../iluminacion/SpotLight3D10"), NodePath("../../iluminacion/SpotLight3D11"), NodePath("../../iluminacion/SpotLight3D12"), NodePath("../../iluminacion/OmniLight3D2"), NodePath("../../iluminacion/OmniLight3D3"), NodePath("../../iluminacion/OmniLight3D4"), NodePath("../../iluminacion/OmniLight3D5")]
 reveal_dimmed_lights = [NodePath("../../iluminacion/OmniLight3DSuper6"), NodePath("../../iluminacion/OmniLight3DSuper4")]
 bathroom_lights = [NodePath("../../Jumpscares/BathroomSinkHorror/OmniLight3DBath1"), NodePath("../../Jumpscares/BathroomSinkHorror/OmniLight3DBath2")]
 blood_cashier = NodePath("../BloodNpcSupermarket")
@@ -885,7 +886,7 @@ blood_cashier = NodePath("../BloodNpcSupermarket")
 transform = Transform3D(-0.145928, 0, -0.989295, 0, 1, 0, 0.989295, 0, -0.145928, 11.5268, -1.13903, -12.7302)
 
 [node name="CocaFridgeInteractSetup" parent="Scene5" instance=ExtResource("52_px4x2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.24883, 1.34579, -14.7182)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.24883, 0.860308, -14.7182)
 
 [node name="TerrorHead02" parent="Scene5" instance=ExtResource("62_xlkqr")]
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 9.02742, 3.20171, -15.1516)

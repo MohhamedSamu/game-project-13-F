@@ -20,6 +20,7 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export var cashier_npc: Node3D
 @export var old_lady_ghost: Node3D
 @export var supermarket_lights: Array[Light3D] = []
+@export var gas_station_lights: Array[Light3D] = []
 @export var reveal_dimmed_lights: Array[Light3D] = []
 @export var bathroom_lights: Array[Light3D] = []
 
@@ -92,6 +93,7 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 var _running: bool = false
 var _phase_2_running: bool = false
 var _light_states: Dictionary = {}
+var _gas_station_light_states: Dictionary = {}
 var _reveal_dimmed_light_states: Dictionary = {}
 var _bathroom_light_states: Dictionary = {}
 var _cashier_interact: InteractableDialogueComponent
@@ -801,6 +803,17 @@ func _cache_light_states() -> void:
 			"energy": light.light_energy,
 		}
 
+	_gas_station_light_states.clear()
+	for light in gas_station_lights:
+		if light == null:
+			continue
+		var gas_id := light.get_instance_id()
+		_gas_station_light_states[gas_id] = {
+			"visible": light.visible,
+			"energy": light.light_energy,
+			"color": light.light_color,
+		}
+
 
 func _set_lights_energy(multiplier: float) -> void:
 	if supermarket_lights.is_empty():
@@ -824,6 +837,45 @@ func _set_lights_energy(multiplier: float) -> void:
 
 func _turn_lights_off() -> void:
 	_set_lights_energy(0.0)
+	_turn_gas_station_lights_off()
+
+
+func _set_gas_station_lights_energy(multiplier: float) -> void:
+	if gas_station_lights.is_empty():
+		return
+	for light in gas_station_lights:
+		if light == null:
+			continue
+		var id := light.get_instance_id()
+		if not _gas_station_light_states.has(id):
+			continue
+		var base_energy: float = _gas_station_light_states[id]["energy"]
+		if multiplier <= 0.001:
+			light.light_energy = 0.0
+			light.visible = false
+		else:
+			light.visible = true
+			if _gas_station_light_states[id].has("color"):
+				light.light_color = _gas_station_light_states[id]["color"]
+			light.light_energy = base_energy * multiplier
+
+
+func _turn_gas_station_lights_off() -> void:
+	_set_gas_station_lights_energy(0.0)
+
+
+func _restore_gas_station_lights() -> void:
+	for light in gas_station_lights:
+		if light == null:
+			continue
+		var id := light.get_instance_id()
+		if not _gas_station_light_states.has(id):
+			continue
+		var state: Dictionary = _gas_station_light_states[id]
+		light.visible = state["visible"]
+		light.light_energy = state["energy"]
+		if state.has("color"):
+			light.light_color = state["color"]
 
 
 func _restore_lights(apply_cashier_override: bool = true) -> void:
@@ -841,6 +893,8 @@ func _restore_lights(apply_cashier_override: bool = true) -> void:
 
 	if apply_cashier_override:
 		_apply_reveal_dimmed_lights()
+	else:
+		_restore_gas_station_lights()
 
 
 func _clear_reveal_dimmed_override() -> void:
@@ -877,7 +931,7 @@ func _apply_reveal_dimmed_lights() -> void:
 func _flicker_lights_short() -> void:
 	_set_bathroom_lights_active(false)
 
-	if supermarket_lights.is_empty():
+	if supermarket_lights.is_empty() and gas_station_lights.is_empty():
 		await get_tree().create_timer(pre_blackout_flicker_time).timeout
 		return
 
@@ -887,6 +941,7 @@ func _flicker_lights_short() -> void:
 
 	for multiplier in FLICKER_PATTERN:
 		_set_lights_energy(multiplier)
+		_set_gas_station_lights_energy(multiplier)
 		await get_tree().create_timer(step_duration).timeout
 
 
