@@ -1,0 +1,39 @@
+[remap]
+
+importer="texture"
+type="CompressedTexture2D"
+uid="uid://dmdk632n36vep"
+path.s3tc="res://.godot/imported/Christian Cross_Christian Cross_tripo_mat_fe187eb1-0f91-4823-951f-4553aed3a889.jpg-d2d18d331349e5b71b5a01b4b5d9fd70.s3tc.ctex"
+path.etc2="res://.godot/imported/Christian Cross_Christian Cross_tripo_mat_fe187eb1-0f91-4823-951f-4553aed3a889.jpg-d2d18d331349e5b71b5a01b4b5d9fd70.etc2.ctex"
+metadata={
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
+}
+generator_parameters={
+"md5": "3af5122bf0c663bd39977a1fd780761e"
+}
+
+[deps]
+
+source_file="res://assets/models/objects/cross/Christian Cross_Christian Cross_tripo_mat_fe187eb1-0f91-4823-951f-4553aed3a889.jpg"
+dest_files=["res://.godot/imported/Christian Cross_Christian Cross_tripo_mat_fe187eb1-0f91-4823-951f-4553aed3a889.jpg-d2d18d331349e5b71b5a01b4b5d9fd70.s3tc.ctex", "res://.godot/imported/Christian Cross_Christian Cross_tripo_mat_fe187eb1-0f91-4823-951f-4553aed3a889.jpg-d2d18d331349e5b71b5a01b4b5d9fd70.etc2.ctex"]
+
+[params]
+
+compress/mode=2
+compress/high_quality=false
+compress/lossy_quality=0.7
+compress/hdr_compression=1
+compress/normal_map=0
+compress/channel_pack=0
+mipmaps/generate=true
+mipmaps/limit=-1
+roughness/mode=0
+roughness/src_normal=""
+process/fix_alpha_border=true
+process/premult_alpha=false
+process/normal_map_invert_y=false
+process/hdr_as_srgb=false
+process/hdr_clamp_exposure=false
+process/size_limit=0
+detect_3d/compress_to=0
