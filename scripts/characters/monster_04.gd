@@ -15,6 +15,7 @@ const MIXAMO_SOURCES: Dictionary = {
 	"zombie_biting_standing_up_v2": "Zombie Biting standing up v2.fbx",
 	"turn_left": "Action Adventure Pack/left turn.fbx",
 	"turn_right": "Action Adventure Pack/right turn.fbx",
+	"superhuman_choke_lift": "Superhuman Choke Lift.fbx",
 }
 
 enum AnimationChoice {
@@ -26,6 +27,7 @@ enum AnimationChoice {
 	ZOMBIE_BITING_STANDING_UP_V2,
 	TURN_LEFT,
 	TURN_RIGHT,
+	SUPERHUMAN_CHOKE_LIFT,
 }
 
 const ANIMATION_NAMES: Array[String] = [
@@ -37,6 +39,7 @@ const ANIMATION_NAMES: Array[String] = [
 	"zombie_biting_standing_up_v2",
 	"turn_left",
 	"turn_right",
+	"superhuman_choke_lift",
 ]
 
 const SINGLE_SHOT_ANIMATIONS: Array[String] = [
@@ -45,6 +48,7 @@ const SINGLE_SHOT_ANIMATIONS: Array[String] = [
 	"zombie_scream",
 	"turn_left",
 	"turn_right",
+	"superhuman_choke_lift",
 ]
 
 const SEQUENCE_STANCE_REFERENCE := "turn_left"
@@ -53,6 +57,7 @@ const VERTICAL_ROOT_MOTION_ANIMATIONS: Array[String] = [
 	"zombie_biting_standing_up",
 	"zombie_biting_standing_up_v2",
 	"zombie_scream",
+	"superhuman_choke_lift",
 ]
 
 @export_group("Reproducción")

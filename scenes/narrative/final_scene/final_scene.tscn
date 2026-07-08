@@ -475,7 +475,7 @@ eating_stop_standup_fraction = 0.6
 scream_sound_choice = 1
 
 [node name="Muerta" parent="." instance=ExtResource("1_muerta")]
-transform = Transform3D(-0.713837, 0, 0.700312, 0, 1, 0, -0.700312, 0, -0.713837, -61.1407, -1.96347, 26.2407)
+transform = Transform3D(-0.285535, 0, 0.280125, 0, 0.4, 0, -0.280125, 0, -0.285535, -61.1289, -1.96347, 26.2303)
 center_at_origin = false
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="Muerta"]
