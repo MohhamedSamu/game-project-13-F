@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://b7kcrossmodel01"]
+
+[ext_resource type="PackedScene" uid="uid://dggimkk1lwsg5" path="res://assets/models/objects/cross/Christian Cross.glb" id="1_glb"]
+
+[node name="ChristianCrossModel" type="Node3D"]
+
+[node name="ChristianCrossMesh" parent="." instance=ExtResource("1_glb")]

@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://oa87iqchj6to"]
+
+[ext_resource type="PackedScene" uid="uid://2xbvvqs3ic77" path="res://scenes/props/christian_cross/christian_cross_model.tscn" id="1_model"]
+
+[node name="ChristianCross" type="Node3D"]
+
+[node name="CrossPivot" type="Node3D" parent="."]
+
+[node name="Model" type="Node3D" parent="CrossPivot"]
+transform = Transform3D(0, 0, 0.35, 0, 0.35, 0, -0.35, 0, 0, 0, -0.175, 0)
+
+[node name="ChristianCrossModel" parent="CrossPivot/Model" instance=ExtResource("1_model")]
