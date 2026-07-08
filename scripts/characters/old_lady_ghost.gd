@@ -7,7 +7,7 @@ const FALLBACK_HEAD_LIGHT_POS := Vector3(0.0, 3.52, 0.12)
 const FALLBACK_CHEST_LIGHT_POS := Vector3(0.0, 3.1, 0.5)
 
 @export var start_hidden: bool = true
-@export var play_full_idle_before_stretch: bool = true
+@export var play_full_idle_before_stretch: bool = false
 @export var idle_hold_before_stretch: float = 3.0
 @export var idle_animation_name: String = "old_lady_idle"
 @export var stretch_animation_name: String = "neck_stretching_trim2"
@@ -72,6 +72,42 @@ func reveal() -> void:
 		return
 	_reveal_running = true
 	await _run_reveal_sequence()
+
+
+func appear_with_reveal_lights() -> void:
+	_cache_bones()
+	_lock_reveal_light_positions = true
+	_apply_fallback_light_positions()
+	visible = true
+	_set_reveal_lights_active(true)
+	var model := _get_model()
+	if model != null:
+		model.ensure_animations_ready()
+	_play_idle()
+
+
+func run_idle_hold_then_stretch(idle_duration: float) -> void:
+	if _reveal_running:
+		return
+	_reveal_running = true
+	var model := _get_model()
+	if model == null:
+		_reveal_running = false
+		return
+
+	model.ensure_animations_ready()
+	_play_idle()
+
+	if idle_duration > 0.0:
+		await get_tree().create_timer(idle_duration).timeout
+
+	if _reveal_running:
+		await _play_stretch_and_wait(model)
+
+	if _reveal_running:
+		stretch_animation_finished.emit(StringName(stretch_animation_name))
+
+	_reveal_running = false
 
 
 func hide_ghost() -> void:

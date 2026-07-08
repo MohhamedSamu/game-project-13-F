@@ -23,6 +23,7 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export var gas_station_lights: Array[Light3D] = []
 @export var background_street_lamp: StreetLampController
 @export var background_street_lamp_path: NodePath = ^"../../StreetLamps/StreetLampConfigurable2"
+@export var christian_cross: Node3D
 @export var reveal_dimmed_lights: Array[Light3D] = []
 @export var bathroom_lights: Array[Light3D] = []
 
@@ -39,6 +40,20 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export var blackout_time: float = 1.0
 @export var lights_return_delay: float = 0.1
 @export var ghost_reveal_delay_after_lights: float = 0.08
+
+@export_group("Phase 1 Cross Inversion")
+@export var enable_cross_inversion: bool = true
+@export_range(0.5, 12.0, 0.1) var cross_inversion_duration: float = 5.0
+@export_range(0.0, 1.0, 0.01) var cross_light_fade_in_time: float = 0.18
+@export_range(0.0, 1.0, 0.01) var cross_pre_rotation_hold_time: float = 0.15
+@export_range(0.0, 1.0, 0.01) var cross_post_rotation_hold_time: float = 0.25
+@export_range(0.0, 1.0, 0.01) var cross_light_fade_out_time: float = 0.18
+@export_range(0.0, 1.0, 0.01) var cross_to_ghost_dark_pause: float = 0.10
+@export_range(0.5, 8.0, 0.1) var old_lady_idle_duration: float = 3.0
+@export_range(0.0, 8.0, 0.05) var cross_reveal_light_energy: float = 0.95
+@export_range(0.5, 8.0, 0.05) var cross_reveal_omni_range: float = 3.5
+@export_range(0.0, 3.0, 0.05) var cross_reveal_omni_attenuation: float = 1.75
+@export var cross_reveal_light_color: Color = Color(0.9, 0.84, 0.72, 1.0)
 
 @export_group("Phase 2 Timing")
 @export var phase_2_duration: float = 6.0
@@ -115,6 +130,12 @@ var _saved_input_enabled: bool = true
 var _used_full_input_lock: bool = false
 var _saved_ambient_volume_db: float = 0.0
 var _counter_item_state_cache: Array[Dictionary] = []
+var _cross_pivot: Node3D
+var _cross_reveal_light: OmniLight3D
+var _cross_pivot_initial_rotation: Vector3 = Vector3.ZERO
+var _cross_light_tween: Tween
+var _cross_rotation_tween: Tween
+var _cross_state_initialized: bool = false
 
 
 func _ready() -> void:
@@ -149,6 +170,8 @@ func _ready() -> void:
 		old_lady_ghost.hide_ghost()
 	elif old_lady_ghost != null:
 		old_lady_ghost.visible = false
+
+	call_deferred("_initialize_cross_state")
 
 	if GameManager.get_flag(PHASE_2_DONE_FLAG):
 		call_deferred("_apply_post_sequence_state")
@@ -198,6 +221,8 @@ func _run_sequence() -> void:
 
 	await get_tree().create_timer(blackout_time).timeout
 
+	await _run_phase_1_cross_moment()
+
 	if lights_return_delay > 0.0:
 		await get_tree().create_timer(lights_return_delay).timeout
 
@@ -207,7 +232,6 @@ func _run_sequence() -> void:
 	if ghost_reveal_delay_after_lights > 0.0:
 		await get_tree().create_timer(ghost_reveal_delay_after_lights).timeout
 
-	_play_scream()
 	var stretch_finished := [false]
 	if old_lady_ghost != null and old_lady_ghost.has_signal("stretch_animation_finished"):
 		old_lady_ghost.stretch_animation_finished.connect(
@@ -771,6 +795,8 @@ func _safe_cleanup() -> void:
 	_restore_supermarket_light_colors()
 	_restore_lights(false)
 	_force_clear_phase_2_camera_shake()
+	_kill_cross_tweens()
+	_set_cross_reveal_light_energy(0.0)
 	_unlock_player_flashlight()
 	_clear_sequence_look_limits()
 	_unlock_player()
@@ -1188,14 +1214,162 @@ func _reveal_ghost() -> void:
 		push_warning("SupermarketGhostRevealSequence: old_lady_ghost no asignado.")
 		return
 
-	if old_lady_ghost.has_method("reveal"):
+	_configure_old_lady_idle_timing()
+	_play_scream()
+
+	if old_lady_ghost.has_method("appear_with_reveal_lights"):
+		old_lady_ghost.appear_with_reveal_lights()
+	elif old_lady_ghost.has_method("reveal"):
 		await old_lady_ghost.reveal()
 		return
-
-	if old_lady_ghost.has_method("set_visible_state"):
+	elif old_lady_ghost.has_method("set_visible_state"):
 		old_lady_ghost.set_visible_state(true)
 	else:
 		old_lady_ghost.visible = true
+
+	if old_lady_ghost.has_method("run_idle_hold_then_stretch"):
+		await old_lady_ghost.run_idle_hold_then_stretch(old_lady_idle_duration)
+
+
+func _configure_old_lady_idle_timing() -> void:
+	if old_lady_ghost == null:
+		return
+	if "play_full_idle_before_stretch" in old_lady_ghost:
+		old_lady_ghost.play_full_idle_before_stretch = false
+	if "idle_hold_before_stretch" in old_lady_ghost:
+		old_lady_ghost.idle_hold_before_stretch = old_lady_idle_duration
+
+
+func _initialize_cross_state() -> void:
+	if not _resolve_cross_references():
+		return
+	if _cross_pivot != null and not GameManager.get_flag(STARTED_FLAG):
+		_cross_pivot.rotation = _cross_pivot_initial_rotation
+	_set_cross_reveal_light_energy(0.0)
+
+
+func _resolve_cross_references() -> bool:
+	if christian_cross == null or not is_instance_valid(christian_cross):
+		return false
+
+	_cross_pivot = christian_cross.get_node_or_null("CrossPivot") as Node3D
+	if _cross_pivot == null:
+		push_warning(
+			"SupermarketGhostRevealSequence: ChristianCross sin CrossPivot; se omite inversión."
+		)
+		return false
+
+	if not _cross_state_initialized:
+		_cross_pivot_initial_rotation = _cross_pivot.rotation
+		_cross_state_initialized = true
+
+	_cross_reveal_light = christian_cross.get_node_or_null(
+		"CrossPivot/RevealLights/CrossRevealLight"
+	) as OmniLight3D
+	if _cross_reveal_light == null:
+		push_warning(
+			"SupermarketGhostRevealSequence: CrossRevealLight no encontrada; se omite iluminación de cruz."
+		)
+	else:
+		_cross_reveal_light.omni_range = cross_reveal_omni_range
+		_cross_reveal_light.omni_attenuation = cross_reveal_omni_attenuation
+		_cross_reveal_light.light_color = cross_reveal_light_color
+		_cross_reveal_light.light_specular = 0.2
+		_cross_reveal_light.shadow_enabled = false
+		_cross_reveal_light.visible = true
+		_set_cross_reveal_light_energy(0.0)
+
+	return true
+
+
+func _run_phase_1_cross_moment() -> void:
+	if not enable_cross_inversion:
+		return
+	if christian_cross == null or not is_instance_valid(christian_cross):
+		push_warning(
+			"SupermarketGhostRevealSequence: christian_cross no asignada; se omite inversión."
+		)
+		return
+	if not _resolve_cross_references():
+		return
+
+	if _cross_pivot != null:
+		_cross_pivot.rotation = _cross_pivot_initial_rotation
+
+	await _fade_cross_reveal_light(true, cross_light_fade_in_time)
+
+	if cross_pre_rotation_hold_time > 0.0:
+		await get_tree().create_timer(cross_pre_rotation_hold_time).timeout
+
+	await _animate_cross_inversion()
+
+	if cross_post_rotation_hold_time > 0.0:
+		await get_tree().create_timer(cross_post_rotation_hold_time).timeout
+
+	await _fade_cross_reveal_light(false, cross_light_fade_out_time)
+
+	if cross_to_ghost_dark_pause > 0.0:
+		await get_tree().create_timer(cross_to_ghost_dark_pause).timeout
+
+
+func _animate_cross_inversion() -> void:
+	if _cross_pivot == null:
+		return
+
+	var start_rotation := _cross_pivot_initial_rotation
+	var end_rotation := start_rotation + Vector3(0.0, 0.0, PI)
+	_cross_pivot.rotation = start_rotation
+
+	_kill_cross_tweens()
+	_cross_rotation_tween = create_tween()
+	_cross_rotation_tween.set_trans(Tween.TRANS_SINE)
+	_cross_rotation_tween.set_ease(Tween.EASE_IN_OUT)
+	_cross_rotation_tween.tween_property(
+		_cross_pivot,
+		"rotation",
+		end_rotation,
+		cross_inversion_duration
+	)
+	await _cross_rotation_tween.finished
+
+
+func _fade_cross_reveal_light(on: bool, duration: float) -> void:
+	if _cross_reveal_light == null:
+		return
+
+	var target_energy := cross_reveal_light_energy if on else 0.0
+	if duration <= 0.001:
+		_set_cross_reveal_light_energy(target_energy)
+		return
+
+	if _cross_light_tween != null and _cross_light_tween.is_valid():
+		_cross_light_tween.kill()
+
+	_cross_light_tween = create_tween()
+	_cross_light_tween.set_trans(Tween.TRANS_SINE)
+	_cross_light_tween.set_ease(Tween.EASE_IN_OUT)
+	_cross_light_tween.tween_method(
+		_set_cross_reveal_light_energy,
+		_cross_reveal_light.light_energy,
+		target_energy,
+		duration
+	)
+	await _cross_light_tween.finished
+
+
+func _set_cross_reveal_light_energy(energy: float) -> void:
+	if _cross_reveal_light == null:
+		return
+	_cross_reveal_light.light_energy = maxf(energy, 0.0)
+
+
+func _kill_cross_tweens() -> void:
+	if _cross_light_tween != null and _cross_light_tween.is_valid():
+		_cross_light_tween.kill()
+	if _cross_rotation_tween != null and _cross_rotation_tween.is_valid():
+		_cross_rotation_tween.kill()
+	_cross_light_tween = null
+	_cross_rotation_tween = null
 
 
 func _play_scream() -> void:
