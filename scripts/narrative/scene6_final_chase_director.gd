@@ -35,7 +35,6 @@ func start_sequence(setup: Node, player: Node3D) -> void:
 	if _running:
 		return
 	if setup == null or not setup.has_method("get_monster"):
-		push_warning("Scene6FinalChaseDirector: falta Scene6FinalSceneSetup.")
 		return
 
 	var completion_flag := String(setup.get("completion_flag"))
@@ -44,14 +43,11 @@ func start_sequence(setup: Node, player: Node3D) -> void:
 
 	var monster := setup.call("get_monster") as Node3D
 	if monster == null:
-		push_warning("Scene6FinalChaseDirector: no se encontró Monster04.")
 		return
 
 	_running = true
 	if not completion_flag.is_empty():
 		GameManager.set_flag(completion_flag, true)
-
-	print("Scene6FinalChaseDirector: iniciando secuencia final.")
 
 	_lock_player(player)
 	_focus_player_camera(player, setup.call("get_camera_focus_position"))
@@ -68,7 +64,9 @@ func start_sequence(setup: Node, player: Node3D) -> void:
 			true
 		)
 
-	await _play_and_wait(monster, standup_animation, animation_blend_time)
+	_play_monster_animation(monster, standup_animation, animation_blend_time)
+	_notify_standup_started(setup, monster, standup_animation)
+	await _wait_animation_finished(monster, standup_animation)
 
 	if monster.has_method("prepare_sequence_from"):
 		monster.prepare_sequence_from(
@@ -87,6 +85,7 @@ func start_sequence(setup: Node, player: Node3D) -> void:
 			String(scream_animation),
 			true
 		)
+	_begin_scream_moment(setup)
 	await _play_and_wait(monster, scream_animation, animation_blend_time)
 
 	if setup.get("disable_invisible_wall_on_trigger"):
@@ -95,10 +94,38 @@ func start_sequence(setup: Node, player: Node3D) -> void:
 
 	_end_camera_zoom(player)
 	_unlock_player(player)
-	MusicDirector.enter_tension()
+	_begin_chase_music(setup)
 	_play_monster_animation(monster, chase_animation)
 	await _chase_player(monster, player)
 	_running = false
+
+
+func _notify_standup_started(
+	setup: Node,
+	monster: Node3D,
+	standup_animation: StringName
+) -> void:
+	if setup == null or not setup.has_method("get_presentation"):
+		return
+	var presentation := setup.call("get_presentation") as Scene6FinalPresentation
+	if presentation != null:
+		presentation.notify_standup_started(monster, standup_animation)
+
+
+func _begin_scream_moment(setup: Node) -> void:
+	if setup == null or not setup.has_method("get_presentation"):
+		return
+	var presentation := setup.call("get_presentation") as Scene6FinalPresentation
+	if presentation != null:
+		presentation.begin_scream_moment()
+
+
+func _begin_chase_music(setup: Node) -> void:
+	if setup == null or not setup.has_method("get_presentation"):
+		return
+	var presentation := setup.call("get_presentation") as Scene6FinalPresentation
+	if presentation != null:
+		presentation.begin_chase_music()
 
 
 func stop_chase() -> void:
@@ -135,14 +162,17 @@ func _chase_player(monster: Node3D, player: Node3D) -> void:
 
 
 func _play_and_wait(monster: Node3D, anim_name: StringName, blend_time: float = 0.0) -> void:
+	_play_monster_animation(monster, anim_name, blend_time)
+	await _wait_animation_finished(monster, anim_name)
+
+
+func _wait_animation_finished(monster: Node3D, anim_name: StringName) -> void:
 	var animation_player := _get_animation_player(monster)
 	if animation_player == null:
 		return
 	var anim_key := String(anim_name)
 	if not animation_player.has_animation(anim_key):
-		push_warning("Scene6FinalChaseDirector: animación '%s' no encontrada." % anim_key)
 		return
-	_play_monster_animation(monster, anim_name, blend_time)
 	if animation_player.current_animation != anim_key:
 		return
 	await animation_player.animation_finished

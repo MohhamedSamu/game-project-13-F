@@ -48,6 +48,16 @@ extends CanvasLayer
 		vignette = value
 		_apply_shader_params()
 
+@export_range(0.85, 1.25) var vignette_aspect: float = 1.06:
+	set(value):
+		vignette_aspect = value
+		_apply_shader_params()
+
+@export_range(0.08, 0.55) var vignette_edge_softness: float = 0.28:
+	set(value):
+		vignette_edge_softness = value
+		_apply_shader_params()
+
 ## Blur leve sobre la imagen.
 @export_range(0.0, 3.0) var softness: float = 0.3:
 	set(value):
@@ -98,6 +108,10 @@ extends CanvasLayer
 @onready var _filter_rect: ColorRect = $FilterRect
 
 var _material: ShaderMaterial
+var _vignette_tween: Tween
+var _saved_vignette: float = -1.0
+var _saved_softness: float = -1.0
+var _saved_edge_softness: float = -1.0
 
 
 func _ready() -> void:
@@ -110,6 +124,52 @@ func _ready() -> void:
 
 func set_filter_enabled(value: bool) -> void:
 	filter_enabled = value
+
+
+func animate_chase_vignette(
+	enable: bool,
+	target_vignette: float = 0.42,
+	target_softness: float = 0.42,
+	duration: float = 0.65
+) -> void:
+	if _saved_vignette < 0.0:
+		_saved_vignette = vignette
+		_saved_softness = softness
+		_saved_edge_softness = vignette_edge_softness
+	_kill_vignette_tween()
+	if duration <= 0.0:
+		if enable:
+			vignette = target_vignette
+			softness = target_softness
+			vignette_edge_softness = minf(_saved_edge_softness + 0.12, 0.55)
+		else:
+			vignette = _saved_vignette
+			softness = _saved_softness
+			vignette_edge_softness = _saved_edge_softness
+		return
+	_vignette_tween = create_tween()
+	_vignette_tween.set_parallel(true)
+	_vignette_tween.set_trans(Tween.TRANS_SINE)
+	_vignette_tween.set_ease(Tween.EASE_OUT)
+	if enable:
+		_vignette_tween.tween_property(self, "vignette", target_vignette, duration)
+		_vignette_tween.tween_property(self, "softness", target_softness, duration)
+		_vignette_tween.tween_property(
+			self,
+			"vignette_edge_softness",
+			minf(_saved_edge_softness + 0.12, 0.55),
+			duration
+		)
+	else:
+		_vignette_tween.tween_property(self, "vignette", _saved_vignette, duration)
+		_vignette_tween.tween_property(self, "softness", _saved_softness, duration)
+		_vignette_tween.tween_property(self, "vignette_edge_softness", _saved_edge_softness, duration)
+
+
+func _kill_vignette_tween() -> void:
+	if _vignette_tween != null and _vignette_tween.is_valid():
+		_vignette_tween.kill()
+	_vignette_tween = null
 
 
 func apply_settings(settings: Dictionary) -> void:
@@ -132,6 +192,8 @@ func _apply_shader_params() -> void:
 	_material.set_shader_parameter("chromatic_aberration", chromatic_aberration)
 	_material.set_shader_parameter("barrel_distortion", barrel_distortion)
 	_material.set_shader_parameter("vignette", vignette)
+	_material.set_shader_parameter("vignette_aspect", vignette_aspect)
+	_material.set_shader_parameter("vignette_edge_softness", vignette_edge_softness)
 	_material.set_shader_parameter("softness", softness)
 	_material.set_shader_parameter("bloom", bloom)
 	_material.set_shader_parameter("scanlines", scanlines)

@@ -10,6 +10,7 @@ class_name Scene6FinalSceneSetup
 @export var camera_focus_marker: Marker3D
 @export var trigger_zone: JumpscareTriggerZone
 @export var atmosphere_path: NodePath = ^"Scene6Atmosphere"
+@export var presentation_path: NodePath = ^"Scene6Presentation"
 
 @export_group("Final de carretera")
 ## Ruta a `InvisibleWallEndOfRoad`. Se desactiva al desbloquear la escena 6.
@@ -50,7 +51,7 @@ func unlock_final_scene_access() -> void:
 	_reveal_characters()
 	disable_end_of_road_wall()
 	_arm_final_atmosphere()
-	print("Scene6FinalSceneSetup: escena 6 desbloqueada (personajes visibles, pared final off).")
+	_begin_zone_presentation()
 
 
 func _hide_characters() -> void:
@@ -105,6 +106,17 @@ func get_atmosphere() -> Scene6FinalAtmosphere:
 	return get_node_or_null(atmosphere_path) as Scene6FinalAtmosphere
 
 
+func get_presentation() -> Scene6FinalPresentation:
+	return get_node_or_null(presentation_path) as Scene6FinalPresentation
+
+
+func _begin_zone_presentation() -> void:
+	var presentation := get_presentation()
+	if presentation == null:
+		return
+	presentation.begin_zone(get_monster())
+
+
 func _arm_final_atmosphere() -> void:
 	var atmosphere := get_atmosphere()
 	if atmosphere == null:
@@ -121,7 +133,6 @@ func get_invisible_wall() -> StaticBody3D:
 func disable_end_of_road_wall() -> void:
 	var wall := get_invisible_wall()
 	if wall == null:
-		push_warning("Scene6FinalSceneSetup: no se encontró InvisibleWallEndOfRoad.")
 		return
 	if wall.has_method("set_wall_enabled"):
 		wall.call("set_wall_enabled", false)
@@ -132,15 +143,10 @@ func disable_end_of_road_wall() -> void:
 func _connect_trigger() -> void:
 	var trigger := get_trigger_zone()
 	if trigger == null:
-		push_error("Scene6FinalSceneSetup: falta ChaseTrigger bajo FinalScene.")
 		return
 	if trigger.player_entered.is_connected(_on_player_entered):
 		return
 	trigger.player_entered.connect(_on_player_entered)
-	print(
-		"Scene6FinalSceneSetup: trigger escena 6 (final del camino) en ",
-		trigger.global_position
-	)
 
 
 func _on_player_entered(player: Node3D) -> void:
@@ -151,11 +157,10 @@ func _on_player_entered(player: Node3D) -> void:
 	if not block_if_flag.is_empty() and GameManager.get_flag(block_if_flag):
 		return
 
-	print("Scene6FinalSceneSetup: jugador entró al trigger.")
 	_sequence_running = true
 	var atmosphere := get_atmosphere()
 	if atmosphere != null:
-		atmosphere.begin_chase_presentation()
+		atmosphere.begin_chase_lamps()
 	await Scene6FinalChaseDirector.start_sequence(self, player)
 	_sequence_running = false
 

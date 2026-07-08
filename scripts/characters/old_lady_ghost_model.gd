@@ -31,7 +31,7 @@ func ensure_animations_ready() -> void:
 
 	_merge_animation_library(player, baked_library)
 	player.process_mode = Node.PROCESS_MODE_ALWAYS
-	player.autoplay = ""
+	player.set_deferred("autoplay", "")
 	_animations_ready = true
 
 

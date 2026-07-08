@@ -10,6 +10,8 @@ uniform float grain_drift : hint_range(0.0, 1.0) = 0.0;
 uniform float chromatic_aberration : hint_range(0.0, 0.02) = 0.0022;
 uniform float barrel_distortion : hint_range(0.0, 0.6) = 0.05;
 uniform float vignette : hint_range(0.0, 1.0) = 0.28;
+uniform float vignette_aspect : hint_range(0.85, 1.25) = 1.06;
+uniform float vignette_edge_softness : hint_range(0.08, 0.55) = 0.28;
 uniform float scanlines : hint_range(0.0, 1.0) = 0.025;
 uniform float saturation : hint_range(0.0, 1.5) = 0.62;
 uniform float contrast : hint_range(0.5, 1.5) = 0.98;
@@ -114,7 +116,10 @@ void fragment() {
 
 	color += film_grain(distorted_uv, grain_drift) * grain_amount;
 
-	float vig = smoothstep(0.9, 0.16, dist);
+	float vig_x = center.x * vignette_aspect;
+	float vig_y = center.y / mix(1.0, vignette_aspect, 0.35);
+	float vig_dist = length(vec2(vig_x, vig_y));
+	float vig = smoothstep(0.92, 0.12 + vignette_edge_softness, vig_dist);
 	color *= mix(1.0 - vignette, 1.0, vig);
 
 	COLOR = vec4(mix(original, color, intensity), 1.0);

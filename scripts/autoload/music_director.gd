@@ -22,6 +22,7 @@ enum Mode {
 	INTRO,
 	AMBIENCE,
 	TENSION,
+	CHASE,
 }
 
 var _player: AudioStreamPlayer
@@ -71,12 +72,13 @@ func play_intro_music_loop() -> void:
 
 
 func play_ambience() -> void:
-	if _mode == Mode.TENSION:
+	if _mode == Mode.TENSION or _mode == Mode.CHASE:
 		return
 	_mode = Mode.AMBIENCE
 	_restart_timer.stop()
 	if _player.playing:
 		return
+	_player.volume_db = 0.0
 	_play_next_ambience_track()
 
 
@@ -89,6 +91,21 @@ func enter_tension() -> void:
 	_restart_timer.stop()
 	if _player.playing:
 		_player.stop()
+
+
+func play_chase_music(stream: AudioStream, volume_db: float = 0.0) -> void:
+	_mode = Mode.CHASE
+	_restart_timer.stop()
+	if stream == null:
+		return
+	_player.volume_db = volume_db
+	_player.stream = _make_looping_stream(stream)
+	_player.stream_paused = false
+	_player.play()
+
+
+func is_in_chase_music() -> bool:
+	return _mode == Mode.CHASE and _player.playing
 
 
 func exit_tension_and_resume_ambient(delay_seconds: float = 30.0) -> void:
@@ -252,6 +269,10 @@ func _queue_ambient_restart(delay_seconds: float) -> void:
 func _on_player_finished() -> void:
 	if _mode == Mode.INTRO:
 		_mode = Mode.NONE
+		return
+	if _mode == Mode.CHASE:
+		if _player.stream != null:
+			_player.play()
 		return
 	if _mode == Mode.AMBIENCE:
 		_queue_ambient_restart(ambience_restart_delay)

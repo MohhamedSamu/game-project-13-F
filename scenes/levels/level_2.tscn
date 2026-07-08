@@ -883,6 +883,7 @@ jumpscare_path = NodePath("../Scene4BathroomExitJumpscare")
 [node name="Scene5" type="Node3D" parent="."]
 
 [node name="FinalScene" parent="Jumpscares" instance=ExtResource("71_finalscene")]
+invisible_wall_path = NodePath("../../invisibleObjects/InvisibleWallEndOfRoad")
 
 [node name="TerrorHead01" parent="Scene5" instance=ExtResource("56_g8c2j")]
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 9.02209, 3.22026, -14.1725)

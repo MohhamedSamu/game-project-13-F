@@ -414,12 +414,6 @@ func _run_scene4_bathroom_exit_jumpscare(player: Node3D) -> void:
 		arrival_marker.global_position,
 		arrival_marker.global_position.y
 	)
-	print(
-		"Scene4BathroomExitJumpscare: NPC en spawn ",
-		gas_npc.global_position,
-		" -> llegada ",
-		arrival_pos
-	)
 	var look_pos := player.global_position if player != null and player.is_inside_tree() else arrival_pos
 	var run_duration := _compute_scare_run_duration(spawn_pos, arrival_pos)
 	_play_actor_animation_on(gas_npc, _resolve_charge_animation_for(gas_npc), run_animation_speed_scale)

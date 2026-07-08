@@ -77,7 +77,6 @@ func reset_scene4_bathroom_dev_state() -> void:
 			var npc := scene.find_child("GasStationNPC", true, false) as GasStationNPC
 			if npc != null:
 				npc.restore_after_scene4_dev_reset()
-	print("GameManager: flags escena 4 baño reseteadas.")
 
 
 func set_flag(flag_name: String, value: bool = true) -> void:

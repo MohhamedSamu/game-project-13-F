@@ -15,12 +15,10 @@ func _ready() -> void:
 func _connect_trigger() -> void:
 	var setup := get_node_or_null(setup_path)
 	if setup == null or not setup.has_method("get_trigger_zone"):
-		push_warning("Scene6FinalChaseConnector: no se encontró Scene6FinalSceneSetup.")
 		return
 
 	var trigger := setup.call("get_trigger_zone") as JumpscareTriggerZone
 	if trigger == null:
-		push_warning("Scene6FinalChaseConnector: asigna ChaseTrigger en FinalScene.")
 		return
 
 	if not trigger.player_entered.is_connected(_on_player_entered):
