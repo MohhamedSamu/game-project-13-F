@@ -49,13 +49,14 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export_range(0.0, 1.0, 0.01) var cross_post_rotation_hold_time: float = 0.25
 @export_range(0.0, 1.0, 0.01) var cross_to_ghost_dark_pause: float = 0.10
 @export_range(1.0, 10.0, 0.1) var old_lady_idle_duration: float = 4.0
-@export_range(0.0, 8.0, 0.05) var cross_reveal_light_energy: float = 0.95
+## Intensidad de la luz de cruz al aparecer y girar (antes era la tenue del fantasma).
+@export_range(0.0, 8.0, 0.05) var cross_reveal_light_energy: float = 0.28
 @export_range(0.5, 8.0, 0.05) var cross_reveal_omni_range: float = 3.5
 @export_range(0.0, 3.0, 0.05) var cross_reveal_omni_attenuation: float = 1.75
 @export var cross_reveal_light_color: Color = Color(0.9, 0.84, 0.72, 1.0)
 @export_range(0.1, 6.0, 0.01) var cross_idle_hold_before_rotation: float = 3.24
-## Intensidad de la luz de cruz mientras el fantasma está en escena (referencia de cruz invertida).
-@export_range(0.0, 8.0, 0.05) var cross_ghost_hold_light_energy: float = 0.28
+## Intensidad aún más tenue cuando el fantasma ya está en escena (más tétrica que el giro).
+@export_range(0.0, 8.0, 0.05) var cross_ghost_hold_light_energy: float = 0.16
 ## Apagado suave de la cruz antes de que aparezca el fantasma.
 @export_range(0.0, 1.5, 0.05) var cross_pre_ghost_fade_out_time: float = 0.22
 ## Cuánto permanece todo oscuro antes de revelar al fantasma.
@@ -66,7 +67,8 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export_group("Phase 2 Timing")
 @export var phase_2_duration: float = 7.0
 @export var phase_2_final_blackout_time: float = 0.30
-@export var phase_2_empty_red_hold: float = 0.15
+## Oscuridad fija al revelar al NPC sangriento, antes del parpadeo aleatorio.
+@export_range(0.1, 2.5, 0.05) var phase_2_initial_dark_hold: float = 0.45
 
 @export_group("Phase 2 Flicker")
 @export var phase_2_flicker_count_min: int = 2
@@ -316,11 +318,7 @@ func _run_phase_2() -> void:
 	await get_tree().create_timer(0.06).timeout
 
 	_set_blood_cashier_active(false)
-	_apply_phase_2_visual(Phase2VisualState.RED)
-	await get_tree().create_timer(phase_2_empty_red_hold).timeout
-
 	_apply_phase_2_visual(Phase2VisualState.DARK)
-	await get_tree().create_timer(randf_range(0.08, 0.18)).timeout
 
 	_activate_phase_2_horror_cast()
 	await _run_phase_2_light_sequence()
@@ -377,6 +375,10 @@ func _get_ghost_animation_player() -> AnimationPlayer:
 
 
 func _run_phase_2_light_sequence() -> void:
+	_apply_phase_2_visual(Phase2VisualState.DARK)
+	if phase_2_initial_dark_hold > 0.0:
+		await get_tree().create_timer(phase_2_initial_dark_hold).timeout
+
 	var major_count := randi_range(phase_2_flicker_count_min, phase_2_flicker_count_max)
 	var major_times: Array[float] = []
 	var cursor := randf_range(0.8, 1.6)
