@@ -124,8 +124,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.0414, 0.0413998)
-shader_parameter/cirrus_position2 = Vector2(0.0414, 0.0413998)
+shader_parameter/cirrus_position1 = Vector2(0.66305, 0.66305)
+shader_parameter/cirrus_position2 = Vector2(0.66305, 0.66305)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -135,7 +135,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(5.20784, 5.20784)
+shader_parameter/cumulus_position = Vector2(13.3357, 13.3357)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -874,12 +874,13 @@ transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 9.05085, 3.22773, -1
 [node name="BloodNpcSupermarket" parent="Scene5" instance=ExtResource("59_852cy")]
 transform = Transform3D(0.193258, 0, -0.981148, 0, 1, 0, 0.981148, 0, 0.193258, 7.79693, 0.130802, -14.0548)
 
-[node name="SupermarketGhostRevealSequence" parent="Scene5" node_paths=PackedStringArray("cashier_npc", "old_lady_ghost", "supermarket_lights", "gas_station_lights", "background_street_lamp", "christian_cross", "reveal_dimmed_lights", "bathroom_lights", "blood_cashier") instance=ExtResource("57_ghostseq")]
+[node name="SupermarketGhostRevealSequence" parent="Scene5" node_paths=PackedStringArray("cashier_npc", "old_lady_ghost", "supermarket_lights", "gas_station_lights", "background_street_lamp", "extra_background_street_lamps", "christian_cross", "reveal_dimmed_lights", "bathroom_lights", "blood_cashier") instance=ExtResource("57_ghostseq")]
 cashier_npc = NodePath("../../SupermarketNPC")
 old_lady_ghost = NodePath("../OldLadyGhost")
 supermarket_lights = [NodePath("../../iluminacion/OmniLight3DSuper1"), NodePath("../../iluminacion/OmniLight3DSuper2"), NodePath("../../iluminacion/OmniLight3DSuper3"), NodePath("../../iluminacion/OmniLight3DSuper4"), NodePath("../../iluminacion/OmniLight3DSuper6"), NodePath("../../iluminacion/OmniLight3DSuperStorage")]
 gas_station_lights = [NodePath("../../iluminacion/OmniLight3D"), NodePath("../../iluminacion/SpotLight3D"), NodePath("../../iluminacion/SpotLight3D2"), NodePath("../../iluminacion/SpotLight3D3"), NodePath("../../iluminacion/SpotLight3D4"), NodePath("../../iluminacion/SpotLight3D5"), NodePath("../../iluminacion/SpotLight3D6"), NodePath("../../iluminacion/SpotLight3D7"), NodePath("../../iluminacion/SpotLight3D8"), NodePath("../../iluminacion/SpotLight3D9"), NodePath("../../iluminacion/SpotLight3D10"), NodePath("../../iluminacion/SpotLight3D11"), NodePath("../../iluminacion/SpotLight3D12"), NodePath("../../iluminacion/OmniLight3D2"), NodePath("../../iluminacion/OmniLight3D3"), NodePath("../../iluminacion/OmniLight3D4"), NodePath("../../iluminacion/OmniLight3D5")]
 background_street_lamp = NodePath("../../StreetLamps/StreetLampConfigurable2")
+extra_background_street_lamps = [NodePath("../../StreetLamps/StreetLampConfigurable")]
 christian_cross = NodePath("../ChristianCross")
 reveal_dimmed_lights = [NodePath("../../iluminacion/OmniLight3DSuper6"), NodePath("../../iluminacion/OmniLight3DSuper4")]
 bathroom_lights = [NodePath("../../Jumpscares/BathroomSinkHorror/OmniLight3DBath1"), NodePath("../../Jumpscares/BathroomSinkHorror/OmniLight3DBath2")]

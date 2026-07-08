@@ -11,8 +11,9 @@ const FALLBACK_CHEST_LIGHT_POS := Vector3(0.0, 3.1, 0.5)
 @export var idle_hold_before_stretch: float = 3.0
 @export var idle_animation_name: String = "old_lady_idle"
 @export var stretch_animation_name: String = "neck_stretching_trim2"
-@export var stretch_blend_time: float = 0.85
-@export_range(0.1, 1.5, 0.05) var stretch_playback_speed: float = 0.58
+@export_range(0.2, 3.0, 0.05) var stretch_blend_time: float = 1.35
+@export_range(0.05, 1.5, 0.05) var stretch_playback_speed: float = 0.42
+@export_range(0.0, 5.0, 0.1) var stretch_post_hold_time: float = 1.5
 
 @export_group("Reveal Light")
 @export var use_reveal_light: bool = true
@@ -74,12 +75,14 @@ func reveal() -> void:
 	await _run_reveal_sequence()
 
 
-func appear_with_reveal_lights() -> void:
+func appear_with_reveal_lights(on_became_visible: Callable = Callable()) -> void:
 	_cache_bones()
 	_lock_reveal_light_positions = true
 	_apply_fallback_light_positions()
 	visible = true
 	_set_reveal_lights_active(true)
+	if on_became_visible.is_valid():
+		on_became_visible.call()
 	var model := _get_model()
 	if model != null:
 		model.ensure_animations_ready()
@@ -103,6 +106,9 @@ func run_idle_hold_then_stretch(idle_duration: float) -> void:
 
 	if _reveal_running:
 		await _play_stretch_and_wait(model)
+
+	if _reveal_running and stretch_post_hold_time > 0.0:
+		await get_tree().create_timer(stretch_post_hold_time).timeout
 
 	if _reveal_running:
 		stretch_animation_finished.emit(StringName(stretch_animation_name))
@@ -168,6 +174,9 @@ func _run_reveal_sequence() -> void:
 		if _reveal_running:
 			await _play_stretch_and_wait(model)
 
+	if _reveal_running and stretch_post_hold_time > 0.0:
+		await get_tree().create_timer(stretch_post_hold_time).timeout
+
 	if _reveal_running:
 		stretch_animation_finished.emit(StringName(stretch_animation_name))
 
@@ -189,15 +198,17 @@ func _play_idle() -> void:
 func _play_stretch() -> void:
 	var model := _get_model()
 	if model != null:
-		model.play_animation(stretch_animation_name, -1.0, stretch_playback_speed)
+		model.play_animation(stretch_animation_name, stretch_blend_time, stretch_playback_speed)
 
 
 func _play_stretch_and_wait(model: Node) -> void:
-	if model.has_method("play_animation"):
-		model.play_animation(stretch_animation_name, -1.0, stretch_playback_speed)
 	var player := _get_animation_player()
 	if player == null:
 		return
+
+	if model.has_method("play_animation"):
+		model.play_animation(stretch_animation_name, stretch_blend_time, stretch_playback_speed)
+
 	var stretch_name := StringName(stretch_animation_name)
 	var finished := [false]
 	var on_finished := func(finished_name: StringName) -> void:
@@ -206,8 +217,23 @@ func _play_stretch_and_wait(model: Node) -> void:
 	if player.animation_finished.is_connected(on_finished):
 		player.animation_finished.disconnect(on_finished)
 	player.animation_finished.connect(on_finished, CONNECT_ONE_SHOT)
+
 	while _reveal_running and not finished[0]:
 		await get_tree().process_frame
+
+	if not _reveal_running:
+		return
+
+	_freeze_stretch_pose(player)
+
+
+func _freeze_stretch_pose(player: AnimationPlayer) -> void:
+	var anim := player.get_animation(stretch_animation_name)
+	if anim == null:
+		player.pause()
+		return
+	player.seek(anim.length, true)
+	player.pause()
 
 
 func get_animation_player() -> AnimationPlayer:

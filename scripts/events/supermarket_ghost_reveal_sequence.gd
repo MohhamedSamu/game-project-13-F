@@ -23,6 +23,7 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export var gas_station_lights: Array[Light3D] = []
 @export var background_street_lamp: StreetLampController
 @export var background_street_lamp_path: NodePath = ^"../../StreetLamps/StreetLampConfigurable2"
+@export var extra_background_street_lamps: Array[StreetLampController] = []
 @export var christian_cross: Node3D
 @export var reveal_dimmed_lights: Array[Light3D] = []
 @export var bathroom_lights: Array[Light3D] = []
@@ -43,19 +44,27 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 
 @export_group("Phase 1 Cross Inversion")
 @export var enable_cross_inversion: bool = true
-@export_range(0.5, 12.0, 0.1) var cross_inversion_duration: float = 5.0
+@export_range(0.5, 16.0, 0.1) var cross_inversion_duration: float = 9.0
 @export_range(0.0, 1.0, 0.01) var cross_light_fade_in_time: float = 0.18
-@export_range(0.0, 1.0, 0.01) var cross_pre_rotation_hold_time: float = 0.15
 @export_range(0.0, 1.0, 0.01) var cross_post_rotation_hold_time: float = 0.25
 @export_range(0.0, 1.0, 0.01) var cross_to_ghost_dark_pause: float = 0.10
-@export_range(0.5, 8.0, 0.1) var old_lady_idle_duration: float = 3.0
+@export_range(1.0, 10.0, 0.1) var old_lady_idle_duration: float = 4.0
 @export_range(0.0, 8.0, 0.05) var cross_reveal_light_energy: float = 0.95
 @export_range(0.5, 8.0, 0.05) var cross_reveal_omni_range: float = 3.5
 @export_range(0.0, 3.0, 0.05) var cross_reveal_omni_attenuation: float = 1.75
 @export var cross_reveal_light_color: Color = Color(0.9, 0.84, 0.72, 1.0)
+@export_range(0.1, 6.0, 0.01) var cross_idle_hold_before_rotation: float = 3.24
+## Intensidad de la luz de cruz mientras el fantasma está en escena (referencia de cruz invertida).
+@export_range(0.0, 8.0, 0.05) var cross_ghost_hold_light_energy: float = 0.28
+## Apagado suave de la cruz antes de que aparezca el fantasma.
+@export_range(0.0, 1.5, 0.05) var cross_pre_ghost_fade_out_time: float = 0.22
+## Cuánto permanece todo oscuro antes de revelar al fantasma.
+@export_range(0.1, 2.5, 0.05) var cross_pre_ghost_dark_hold_duration: float = 0.55
+## Fade-in rápido a intensidad tenue cuando el fantasma aparece.
+@export_range(0.0, 1.0, 0.02) var cross_pre_ghost_light_restore_time: float = 0.12
 
 @export_group("Phase 2 Timing")
-@export var phase_2_duration: float = 6.0
+@export var phase_2_duration: float = 7.0
 @export var phase_2_final_blackout_time: float = 0.30
 @export var phase_2_empty_red_hold: float = 0.15
 
@@ -71,6 +80,9 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 
 @export_group("Phase 2 Stretch")
 @export var stretch_animation_name: String = "neck_stretching_trim2"
+@export_range(0.2, 3.0, 0.05) var old_lady_stretch_blend_time: float = 1.35
+@export_range(0.05, 1.5, 0.05) var old_lady_stretch_playback_speed: float = 0.42
+@export_range(0.0, 5.0, 0.1) var old_lady_stretch_post_hold_time: float = 1.5
 
 @export_group("Iluminación cajera")
 @export_range(0.0, 1.0, 0.05) var reveal_dimmed_light_multiplier: float = 0.0
@@ -95,6 +107,8 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export_group("Audio")
 @export var scream_audio: AudioStream = preload("res://assets/audio/SFX/screams/soft1.mp3")
 @export_range(-40.0, 6.0, 0.5) var scream_volume_db: float = 0.0
+@export_range(0.0, 2.0, 0.01) var scream_playback_offset: float = 0.0
+@export_range(0.0, 24.0, 0.5) var cross_whispers_duck_on_scream_db: float = 10.0
 @export var phase_2_transition_sound: AudioStream = preload("res://assets/audio/SFX/screams/soft2.mp3")
 @export_range(-40.0, 6.0, 0.5) var phase_2_transition_volume_db: float = 0.0
 @export var phase_2_horror_yell: AudioStream = preload(
@@ -102,6 +116,12 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 )
 @export_range(-40.0, 6.0, 0.5) var phase_2_horror_yell_volume_db: float = 0.0
 @export_range(0.0, 8.0, 0.1) var phase_2_horror_yell_delay_after_soft2: float = 3.0
+@export var cross_idle_sound: AudioStream = preload("res://assets/audio/SFX/cross/sound_idle_cross.mp3")
+@export_range(-40.0, 12.0, 0.5) var cross_idle_sound_volume_db: float = 4.0
+@export var cross_whispers_sound: AudioStream = preload(
+	"res://assets/audio/SFX/cross/creepy-female-ghost-whispers-430175.mp3"
+)
+@export_range(-40.0, 6.0, 0.5) var cross_whispers_volume_db: float = 0.0
 @export var dip_ambient_during_sequence: bool = false
 @export_range(-24.0, 0.0, 0.5) var ambient_dip_db: float = -6.0
 @export var ambient_bus_name: StringName = &"Music"
@@ -111,6 +131,7 @@ var _phase_2_running: bool = false
 var _light_states: Dictionary = {}
 var _gas_station_light_states: Dictionary = {}
 var _background_street_lamp_saved_mode: StreetLampController.LampMode = StreetLampController.LampMode.STABLE
+var _extra_background_street_lamp_saved_modes: Dictionary = {}
 var _reveal_dimmed_light_states: Dictionary = {}
 var _bathroom_light_states: Dictionary = {}
 var _cashier_interact: InteractableDialogueComponent
@@ -120,6 +141,8 @@ var _cashier_deactivated: bool = false
 var _scream_player: AudioStreamPlayer
 var _phase_2_sound_player: AudioStreamPlayer
 var _phase_2_horror_yell_player: AudioStreamPlayer
+var _cross_idle_player: AudioStreamPlayer
+var _cross_whispers_player: AudioStreamPlayer
 var _horror_yell_schedule_id: int = 0
 var _red_overlay_layer: CanvasLayer
 var _red_rect: ColorRect
@@ -134,7 +157,9 @@ var _cross_reveal_light: OmniLight3D
 var _cross_pivot_initial_rotation: Vector3 = Vector3.ZERO
 var _cross_light_tween: Tween
 var _cross_rotation_tween: Tween
+var _cross_light_dim_running: bool = false
 var _cross_state_initialized: bool = false
+var _cross_idle_sound_start_msec: int = -1
 
 
 func _ready() -> void:
@@ -142,6 +167,8 @@ func _ready() -> void:
 	_scream_player = get_node_or_null("ScreamSFX") as AudioStreamPlayer
 	_phase_2_sound_player = get_node_or_null("Phase2TransitionSFX") as AudioStreamPlayer
 	_phase_2_horror_yell_player = get_node_or_null("Phase2HorrorYellSFX") as AudioStreamPlayer
+	_cross_idle_player = get_node_or_null("CrossIdleSFX") as AudioStreamPlayer
+	_cross_whispers_player = get_node_or_null("CrossWhispersSFX") as AudioStreamPlayer
 	_red_overlay_layer = get_node_or_null("Phase2RedOverlay") as CanvasLayer
 	if _red_overlay_layer != null:
 		_red_rect = _red_overlay_layer.get_node_or_null("RedRect") as ColorRect
@@ -150,6 +177,7 @@ func _ready() -> void:
 		_scream_player.stream = scream_audio
 		_scream_player.volume_db = scream_volume_db
 		_scream_player.bus = &"SFX"
+		_prewarm_scream_player()
 
 	if _phase_2_sound_player != null and phase_2_transition_sound != null:
 		_phase_2_sound_player.stream = phase_2_transition_sound
@@ -160,6 +188,16 @@ func _ready() -> void:
 		_phase_2_horror_yell_player.stream = phase_2_horror_yell
 		_phase_2_horror_yell_player.volume_db = phase_2_horror_yell_volume_db
 		_phase_2_horror_yell_player.bus = &"SFX"
+
+	if _cross_idle_player != null and cross_idle_sound != null:
+		_cross_idle_player.stream = cross_idle_sound
+		_cross_idle_player.volume_db = cross_idle_sound_volume_db
+		_cross_idle_player.bus = &"SFX"
+
+	if _cross_whispers_player != null and cross_whispers_sound != null:
+		_cross_whispers_player.stream = cross_whispers_sound
+		_cross_whispers_player.volume_db = cross_whispers_volume_db
+		_cross_whispers_player.bus = &"SFX"
 
 	_set_blood_cashier_active(false)
 	_set_red_overlay_active(false)
@@ -218,15 +256,10 @@ func _run_sequence() -> void:
 	_lock_player_flashlight()
 	_set_cashier_active(false)
 
-	await get_tree().create_timer(blackout_time).timeout
-
 	await _run_phase_1_cross_moment()
 
 	if lights_return_delay > 0.0:
 		await get_tree().create_timer(lights_return_delay).timeout
-
-	_restore_lights(true)
-	_apply_reveal_dimmed_lights()
 
 	if ghost_reveal_delay_after_lights > 0.0:
 		await get_tree().create_timer(ghost_reveal_delay_after_lights).timeout
@@ -269,6 +302,7 @@ func start_phase_2() -> void:
 
 
 func _run_phase_2() -> void:
+	_stop_cross_whispers()
 	_start_phase_2_camera_shake()
 	await _flicker_phase_2_transition()
 	_turn_lights_off()
@@ -547,6 +581,7 @@ func _stop_phase_2_horror_yell() -> void:
 
 
 func _activate_phase_2_horror_cast() -> void:
+	_turn_off_cross_reveal_light()
 	_set_counter_items_visible(false)
 	_set_phase_2_terror_props_visible(true)
 	_set_blood_cashier_active(true)
@@ -783,6 +818,7 @@ func _apply_post_sequence_state() -> void:
 	_set_phase_2_terror_props_visible(false)
 	_set_red_overlay_active(false)
 	_reset_cross_to_initial_state()
+	_stop_cross_horror_audio()
 	if old_lady_ghost != null and old_lady_ghost.has_method("hide_ghost"):
 		old_lady_ghost.hide_ghost()
 	_resolve_cashier_refs()
@@ -798,6 +834,7 @@ func _safe_cleanup() -> void:
 	_force_clear_phase_2_camera_shake()
 	_kill_cross_tweens()
 	_reset_cross_to_initial_state()
+	_stop_cross_horror_audio()
 	_unlock_player_flashlight()
 	_clear_sequence_look_limits()
 	_unlock_player()
@@ -854,8 +891,15 @@ func _cache_light_states() -> void:
 func _cache_background_street_lamp_state() -> void:
 	var lamp := _resolve_background_street_lamp()
 	if lamp == null:
-		return
-	_background_street_lamp_saved_mode = lamp.get_mode()
+		_background_street_lamp_saved_mode = StreetLampController.LampMode.STABLE
+	else:
+		_background_street_lamp_saved_mode = lamp.get_mode()
+
+	_extra_background_street_lamp_saved_modes.clear()
+	for extra_lamp in _get_all_background_street_lamps():
+		if extra_lamp == null or extra_lamp == lamp:
+			continue
+		_extra_background_street_lamp_saved_modes[extra_lamp.get_instance_id()] = extra_lamp.get_mode()
 
 
 func _resolve_background_street_lamp() -> StreetLampController:
@@ -876,16 +920,32 @@ func _resolve_background_street_lamp() -> StreetLampController:
 	return lamp
 
 
+func _get_all_background_street_lamps() -> Array[StreetLampController]:
+	var lamps: Array[StreetLampController] = []
+	var primary_lamp := _resolve_background_street_lamp()
+	if primary_lamp != null:
+		lamps.append(primary_lamp)
+
+	for extra_lamp in extra_background_street_lamps:
+		if extra_lamp == null or not is_instance_valid(extra_lamp):
+			continue
+		if lamps.has(extra_lamp):
+			continue
+		lamps.append(extra_lamp)
+
+	return lamps
+
+
 func _prepare_background_street_lamp() -> void:
-	var lamp := _resolve_background_street_lamp()
-	if lamp == null:
+	var lamps := _get_all_background_street_lamps()
+	if lamps.is_empty():
 		push_warning(
-			"SupermarketGhostRevealSequence: no se encontró background_street_lamp (%s)."
-			% background_street_lamp_path
+			"SupermarketGhostRevealSequence: no se encontraron farolas de fondo controladas."
 		)
 		return
-	while is_instance_valid(lamp) and not lamp.is_controller_ready():
-		await get_tree().process_frame
+	for lamp in lamps:
+		while is_instance_valid(lamp) and not lamp.is_controller_ready():
+			await get_tree().process_frame
 
 
 func _set_lights_energy(multiplier: float) -> void:
@@ -953,27 +1013,30 @@ func _restore_gas_station_lights() -> void:
 
 
 func _set_background_street_lamp_flicker(multiplier: float) -> void:
-	var lamp := _resolve_background_street_lamp()
-	if lamp == null or not lamp.is_controller_ready():
-		return
-	if multiplier <= 0.001:
-		lamp.force_off()
-	else:
-		lamp.force_on()
+	for lamp in _get_all_background_street_lamps():
+		if lamp == null or not lamp.is_controller_ready():
+			continue
+		if multiplier <= 0.001:
+			lamp.force_off()
+		else:
+			lamp.force_on()
 
 
 func _turn_background_street_lamp_off() -> void:
-	var lamp := _resolve_background_street_lamp()
-	if lamp == null:
-		return
-	lamp.set_off()
+	for lamp in _get_all_background_street_lamps():
+		if lamp == null:
+			continue
+		lamp.set_off()
 
 
 func _restore_background_street_lamp() -> void:
-	var lamp := _resolve_background_street_lamp()
-	if lamp == null or not lamp.is_controller_ready():
-		return
-	lamp.set_mode(_background_street_lamp_saved_mode)
+	for lamp in _get_all_background_street_lamps():
+		if lamp == null or not lamp.is_controller_ready():
+			continue
+		var saved_mode := _background_street_lamp_saved_mode
+		if lamp != background_street_lamp and _extra_background_street_lamp_saved_modes.has(lamp.get_instance_id()):
+			saved_mode = _extra_background_street_lamp_saved_modes[lamp.get_instance_id()]
+		lamp.set_mode(saved_mode)
 
 
 func _restore_lights(apply_cashier_override: bool = true) -> void:
@@ -1038,11 +1101,14 @@ func _flicker_lights_short() -> void:
 	var step_count := FLICKER_PATTERN.size()
 	var step_duration := pre_blackout_flicker_time / float(step_count)
 
-	for multiplier in FLICKER_PATTERN:
+	for step_index in range(step_count):
+		var multiplier: float = FLICKER_PATTERN[step_index]
 		_set_lights_energy(multiplier)
 		_set_gas_station_lights_energy(multiplier)
 		_set_background_street_lamp_flicker(multiplier)
 		_set_flashlight_flicker_multiplier(multiplier)
+		if step_index == step_count - 1 and multiplier <= 0.001:
+			_play_cross_idle_sound()
 		await get_tree().create_timer(step_duration).timeout
 
 
@@ -1216,17 +1282,20 @@ func _reveal_ghost() -> void:
 		return
 
 	_configure_old_lady_idle_timing()
-	_play_scream()
+	_stop_cross_idle_sound()
+	await _run_cross_light_pre_ghost_darken()
 
 	if old_lady_ghost.has_method("appear_with_reveal_lights"):
-		old_lady_ghost.appear_with_reveal_lights()
+		old_lady_ghost.appear_with_reveal_lights(Callable(self, "_on_ghost_became_visible"))
 	elif old_lady_ghost.has_method("reveal"):
 		await old_lady_ghost.reveal()
 		return
-	elif old_lady_ghost.has_method("set_visible_state"):
-		old_lady_ghost.set_visible_state(true)
 	else:
-		old_lady_ghost.visible = true
+		if old_lady_ghost.has_method("set_visible_state"):
+			old_lady_ghost.set_visible_state(true)
+		else:
+			old_lady_ghost.visible = true
+		_on_ghost_became_visible()
 
 	if old_lady_ghost.has_method("run_idle_hold_then_stretch"):
 		await old_lady_ghost.run_idle_hold_then_stretch(old_lady_idle_duration)
@@ -1239,6 +1308,12 @@ func _configure_old_lady_idle_timing() -> void:
 		old_lady_ghost.play_full_idle_before_stretch = false
 	if "idle_hold_before_stretch" in old_lady_ghost:
 		old_lady_ghost.idle_hold_before_stretch = old_lady_idle_duration
+	if "stretch_blend_time" in old_lady_ghost:
+		old_lady_ghost.stretch_blend_time = old_lady_stretch_blend_time
+	if "stretch_playback_speed" in old_lady_ghost:
+		old_lady_ghost.stretch_playback_speed = old_lady_stretch_playback_speed
+	if "stretch_post_hold_time" in old_lady_ghost:
+		old_lady_ghost.stretch_post_hold_time = old_lady_stretch_post_hold_time
 
 
 func _initialize_cross_state() -> void:
@@ -1285,13 +1360,19 @@ func _resolve_cross_references() -> bool:
 
 func _run_phase_1_cross_moment() -> void:
 	if not enable_cross_inversion:
+		if blackout_time > 0.0:
+			await get_tree().create_timer(blackout_time).timeout
 		return
 	if christian_cross == null or not is_instance_valid(christian_cross):
 		push_warning(
 			"SupermarketGhostRevealSequence: christian_cross no asignada; se omite inversión."
 		)
+		if blackout_time > 0.0:
+			await get_tree().create_timer(blackout_time).timeout
 		return
 	if not _resolve_cross_references():
+		if blackout_time > 0.0:
+			await get_tree().create_timer(blackout_time).timeout
 		return
 
 	if _cross_pivot != null:
@@ -1299,16 +1380,15 @@ func _run_phase_1_cross_moment() -> void:
 
 	await _fade_cross_reveal_light(true, cross_light_fade_in_time)
 
-	if cross_pre_rotation_hold_time > 0.0:
-		await get_tree().create_timer(cross_pre_rotation_hold_time).timeout
+	await _wait_for_cross_idle_hold_before_rotation()
 
+	_play_cross_whispers()
 	await _animate_cross_inversion()
 
 	if cross_post_rotation_hold_time > 0.0:
 		await get_tree().create_timer(cross_post_rotation_hold_time).timeout
 
-	_kill_cross_tweens()
-	_set_cross_reveal_light_energy(0.0)
+	_kill_cross_rotation_tween()
 
 	if cross_to_ghost_dark_pause > 0.0:
 		await get_tree().create_timer(cross_to_ghost_dark_pause).timeout
@@ -1365,6 +1445,78 @@ func _set_cross_reveal_light_energy(energy: float) -> void:
 	_cross_reveal_light.light_energy = maxf(energy, 0.0)
 
 
+func _on_ghost_became_visible() -> void:
+	_play_scream()
+	_restore_cross_light_for_ghost_hold()
+	_restore_ghost_reveal_interior_lights()
+
+
+func _run_cross_light_pre_ghost_darken() -> void:
+	if not _resolve_cross_references() or _cross_reveal_light == null:
+		return
+
+	_kill_cross_light_tween()
+	_cross_light_dim_running = false
+	await _fade_cross_reveal_light(false, cross_pre_ghost_fade_out_time)
+
+	if cross_pre_ghost_dark_hold_duration > 0.0:
+		await get_tree().create_timer(cross_pre_ghost_dark_hold_duration).timeout
+
+	_set_cross_reveal_light_energy(0.0)
+
+
+func _restore_ghost_reveal_interior_lights() -> void:
+	for light in supermarket_lights:
+		if light == null:
+			continue
+		if reveal_dimmed_lights.has(light):
+			continue
+		var id := light.get_instance_id()
+		if not _light_states.has(id):
+			continue
+		var state: Dictionary = _light_states[id]
+		light.visible = state["visible"]
+		light.light_energy = state["energy"]
+		if state.has("color"):
+			light.light_color = state["color"]
+
+	for light in reveal_dimmed_lights:
+		if light == null:
+			continue
+		light.light_energy = 0.0
+		light.visible = false
+
+
+func _restore_cross_light_for_ghost_hold() -> void:
+	if _cross_reveal_light == null:
+		if not _resolve_cross_references():
+			return
+	if _cross_reveal_light == null:
+		return
+
+	_kill_cross_light_tween()
+	var target_energy := minf(cross_ghost_hold_light_energy, cross_reveal_light_energy)
+	if cross_pre_ghost_light_restore_time <= 0.001:
+		_set_cross_reveal_light_energy(target_energy)
+		return
+
+	_cross_light_tween = create_tween()
+	_cross_light_tween.set_trans(Tween.TRANS_SINE)
+	_cross_light_tween.set_ease(Tween.EASE_OUT)
+	_cross_light_tween.tween_method(
+		_set_cross_reveal_light_energy,
+		0.0,
+		target_energy,
+		cross_pre_ghost_light_restore_time
+	)
+
+
+func _turn_off_cross_reveal_light() -> void:
+	_cross_light_dim_running = false
+	_kill_cross_light_tween()
+	_set_cross_reveal_light_energy(0.0)
+
+
 func _reset_cross_to_initial_state() -> void:
 	if christian_cross == null or not is_instance_valid(christian_cross):
 		return
@@ -1376,24 +1528,93 @@ func _reset_cross_to_initial_state() -> void:
 	_kill_cross_tweens()
 	if _cross_pivot != null:
 		_cross_pivot.rotation = _cross_pivot_initial_rotation
-	_set_cross_reveal_light_energy(0.0)
+	_turn_off_cross_reveal_light()
 
 
 func _kill_cross_tweens() -> void:
+	_kill_cross_light_tween()
+	_kill_cross_rotation_tween()
+
+
+func _kill_cross_light_tween() -> void:
+	_cross_light_dim_running = false
 	if _cross_light_tween != null and _cross_light_tween.is_valid():
 		_cross_light_tween.kill()
+	_cross_light_tween = null
+
+
+func _kill_cross_rotation_tween() -> void:
 	if _cross_rotation_tween != null and _cross_rotation_tween.is_valid():
 		_cross_rotation_tween.kill()
-	_cross_light_tween = null
 	_cross_rotation_tween = null
+
+
+func _play_cross_idle_sound() -> void:
+	if _cross_idle_player == null or cross_idle_sound == null:
+		return
+	_cross_idle_sound_start_msec = Time.get_ticks_msec()
+	_cross_idle_player.volume_db = cross_idle_sound_volume_db
+	_cross_idle_player.stop()
+	_cross_idle_player.play()
+
+
+func _play_cross_whispers() -> void:
+	if _cross_whispers_player == null or cross_whispers_sound == null:
+		return
+	_cross_whispers_player.volume_db = cross_whispers_volume_db
+	_cross_whispers_player.stop()
+	_cross_whispers_player.play()
+
+
+func _stop_cross_idle_sound() -> void:
+	if _cross_idle_player != null:
+		_cross_idle_player.stop()
+	_cross_idle_sound_start_msec = -1
+
+
+func _stop_cross_whispers() -> void:
+	if _cross_whispers_player != null:
+		_cross_whispers_player.stop()
+
+
+func _stop_cross_horror_audio() -> void:
+	_stop_cross_idle_sound()
+	_stop_cross_whispers()
+
+
+func _wait_for_cross_idle_hold_before_rotation() -> void:
+	if _cross_idle_sound_start_msec < 0:
+		if cross_idle_hold_before_rotation > 0.0:
+			await get_tree().create_timer(cross_idle_hold_before_rotation).timeout
+		return
+
+	var target_msec := _cross_idle_sound_start_msec + int(cross_idle_hold_before_rotation * 1000.0)
+	var remaining_msec := target_msec - Time.get_ticks_msec()
+	if remaining_msec > 0:
+		await get_tree().create_timer(float(remaining_msec) / 1000.0).timeout
+
+
+func _prewarm_scream_player() -> void:
+	if _scream_player == null or scream_audio == null:
+		return
+	var saved_volume := _scream_player.volume_db
+	_scream_player.volume_db = -80.0
+	_scream_player.play(0.0)
+	_scream_player.stop()
+	_scream_player.volume_db = saved_volume
 
 
 func _play_scream() -> void:
 	if _scream_player == null or scream_audio == null:
 		return
 	_scream_player.volume_db = scream_volume_db
-	_scream_player.stop()
-	_scream_player.play()
+	if _cross_whispers_player != null and _cross_whispers_player.playing:
+		_cross_whispers_player.volume_db = cross_whispers_volume_db - cross_whispers_duck_on_scream_db
+	var start_position := maxf(scream_playback_offset, 0.0)
+	if _scream_player.playing:
+		_scream_player.seek(start_position)
+	else:
+		_scream_player.play(start_position)
 
 
 func _resolve_cashier_refs() -> void:
