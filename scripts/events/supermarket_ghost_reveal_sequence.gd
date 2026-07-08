@@ -47,7 +47,6 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export_range(0.0, 1.0, 0.01) var cross_light_fade_in_time: float = 0.18
 @export_range(0.0, 1.0, 0.01) var cross_pre_rotation_hold_time: float = 0.15
 @export_range(0.0, 1.0, 0.01) var cross_post_rotation_hold_time: float = 0.25
-@export_range(0.0, 1.0, 0.01) var cross_light_fade_out_time: float = 0.18
 @export_range(0.0, 1.0, 0.01) var cross_to_ghost_dark_pause: float = 0.10
 @export_range(0.5, 8.0, 0.1) var old_lady_idle_duration: float = 3.0
 @export_range(0.0, 8.0, 0.05) var cross_reveal_light_energy: float = 0.95
@@ -294,6 +293,7 @@ func _run_phase_2() -> void:
 
 	_stop_phase_2_camera_shake()
 	_apply_phase_2_visual(Phase2VisualState.DARK)
+	_reset_cross_to_initial_state()
 	await get_tree().create_timer(phase_2_final_blackout_time).timeout
 
 	_deactivate_phase_2_horror_cast()
@@ -782,6 +782,7 @@ func _apply_post_sequence_state() -> void:
 	_set_blood_cashier_active(false)
 	_set_phase_2_terror_props_visible(false)
 	_set_red_overlay_active(false)
+	_reset_cross_to_initial_state()
 	if old_lady_ghost != null and old_lady_ghost.has_method("hide_ghost"):
 		old_lady_ghost.hide_ghost()
 	_resolve_cashier_refs()
@@ -796,7 +797,7 @@ func _safe_cleanup() -> void:
 	_restore_lights(false)
 	_force_clear_phase_2_camera_shake()
 	_kill_cross_tweens()
-	_set_cross_reveal_light_energy(0.0)
+	_reset_cross_to_initial_state()
 	_unlock_player_flashlight()
 	_clear_sequence_look_limits()
 	_unlock_player()
@@ -1306,7 +1307,8 @@ func _run_phase_1_cross_moment() -> void:
 	if cross_post_rotation_hold_time > 0.0:
 		await get_tree().create_timer(cross_post_rotation_hold_time).timeout
 
-	await _fade_cross_reveal_light(false, cross_light_fade_out_time)
+	_kill_cross_tweens()
+	_set_cross_reveal_light_energy(0.0)
 
 	if cross_to_ghost_dark_pause > 0.0:
 		await get_tree().create_timer(cross_to_ghost_dark_pause).timeout
@@ -1361,6 +1363,20 @@ func _set_cross_reveal_light_energy(energy: float) -> void:
 	if _cross_reveal_light == null:
 		return
 	_cross_reveal_light.light_energy = maxf(energy, 0.0)
+
+
+func _reset_cross_to_initial_state() -> void:
+	if christian_cross == null or not is_instance_valid(christian_cross):
+		return
+	if not _cross_state_initialized and not _resolve_cross_references():
+		return
+	if _cross_pivot == null and not _resolve_cross_references():
+		return
+
+	_kill_cross_tweens()
+	if _cross_pivot != null:
+		_cross_pivot.rotation = _cross_pivot_initial_rotation
+	_set_cross_reveal_light_energy(0.0)
 
 
 func _kill_cross_tweens() -> void:
