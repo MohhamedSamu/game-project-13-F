@@ -66,7 +66,7 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 
 @export_group("Phase 2 Timing")
 @export var phase_2_duration: float = 7.0
-@export var phase_2_final_blackout_time: float = 0.30
+@export var phase_2_final_blackout_time: float = 0.20
 ## Oscuridad fija al revelar al NPC sangriento, antes del parpadeo aleatorio.
 @export_range(0.1, 2.5, 0.05) var phase_2_initial_dark_hold: float = 0.45
 
@@ -79,6 +79,20 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export_range(0.25, 0.9, 0.05) var phase_2_clear_duration_max: float = 0.55
 ## Super4/Super6 encendidas al 100% en CLEAR (las de arriba de la cajera).
 @export_range(0.5, 1.0, 0.05) var phase_2_cashier_spotlight_multiplier: float = 1.0
+
+@export_group("Phase 2 Reaching Jumpscare")
+@export var phase_2_jumpscare_enabled: bool = true
+@export var phase_2_reaching_animation: StringName = &"reaching_out_blood"
+@export_range(1.0, 4.0, 0.1) var phase_2_reaching_playback_speed: float = 3.0
+## Desplazamiento local en X hacia el jugador (7.797 → 7.636 ≈ -0.161).
+@export_range(-1.0, 0.0, 0.001) var phase_2_jumpscare_lunge_x_offset: float = -0.161
+@export_range(0.0, 1.5, 0.01) var phase_2_jumpscare_lunge_duration: float = 0.0
+@export_range(0.04, 0.35, 0.01) var phase_2_jumpscare_flicker_step_min: float = 0.05
+@export_range(0.06, 0.45, 0.01) var phase_2_jumpscare_flicker_step_max: float = 0.10
+@export var phase_2_jumpscare_scream: AudioStream = preload("res://assets/audio/SFX/screams/med2.mp3")
+@export_range(-40.0, 6.0, 0.5) var phase_2_jumpscare_scream_volume_db: float = 2.0
+## Oscuridad al terminar reaching (oculta la pose final antes de restaurar la escena).
+@export_range(0.0, 0.6, 0.01) var phase_2_jumpscare_end_blackout_hold: float = 0.30
 
 @export_group("Phase 2 Stretch")
 @export var stretch_animation_name: String = "neck_stretching_trim2"
@@ -143,6 +157,11 @@ var _cashier_deactivated: bool = false
 var _scream_player: AudioStreamPlayer
 var _phase_2_sound_player: AudioStreamPlayer
 var _phase_2_horror_yell_player: AudioStreamPlayer
+var _phase_2_jumpscare_player: AudioStreamPlayer
+var _blood_cashier_home_position: Vector3 = Vector3.ZERO
+var _blood_cashier_home_captured: bool = false
+var _blood_cashier_lunge_tween: Tween
+var _jumpscare_flicker_cancelled: bool = false
 var _cross_idle_player: AudioStreamPlayer
 var _cross_whispers_player: AudioStreamPlayer
 var _horror_yell_schedule_id: int = 0
@@ -169,6 +188,7 @@ func _ready() -> void:
 	_scream_player = get_node_or_null("ScreamSFX") as AudioStreamPlayer
 	_phase_2_sound_player = get_node_or_null("Phase2TransitionSFX") as AudioStreamPlayer
 	_phase_2_horror_yell_player = get_node_or_null("Phase2HorrorYellSFX") as AudioStreamPlayer
+	_phase_2_jumpscare_player = get_node_or_null("Phase2JumpscareSFX") as AudioStreamPlayer
 	_cross_idle_player = get_node_or_null("CrossIdleSFX") as AudioStreamPlayer
 	_cross_whispers_player = get_node_or_null("CrossWhispersSFX") as AudioStreamPlayer
 	_red_overlay_layer = get_node_or_null("Phase2RedOverlay") as CanvasLayer
@@ -190,6 +210,11 @@ func _ready() -> void:
 		_phase_2_horror_yell_player.stream = phase_2_horror_yell
 		_phase_2_horror_yell_player.volume_db = phase_2_horror_yell_volume_db
 		_phase_2_horror_yell_player.bus = &"SFX"
+
+	if _phase_2_jumpscare_player != null and phase_2_jumpscare_scream != null:
+		_phase_2_jumpscare_player.stream = phase_2_jumpscare_scream
+		_phase_2_jumpscare_player.volume_db = phase_2_jumpscare_scream_volume_db
+		_phase_2_jumpscare_player.bus = &"SFX"
 
 	if _cross_idle_player != null and cross_idle_sound != null:
 		_cross_idle_player.stream = cross_idle_sound
@@ -238,6 +263,11 @@ func try_start_sequence() -> void:
 
 	_running = true
 	GameManager.set_flag(STARTED_FLAG, true)
+	_resolve_cashier_refs()
+	# No ocultar a la cajera aquí: el prompt ya se bloquea vía flags + lock_player.
+	# La desaparición visual ocurre en _turn_lights_off() (con luces apagadas).
+	_clear_player_interaction_focus()
+	_lock_player()
 	_run_sequence()
 
 
@@ -322,6 +352,8 @@ func _run_phase_2() -> void:
 
 	_activate_phase_2_horror_cast()
 	await _run_phase_2_light_sequence()
+	if phase_2_jumpscare_enabled:
+		await _run_phase_2_reaching_jumpscare()
 
 	_stop_phase_2_camera_shake()
 	_apply_phase_2_visual(Phase2VisualState.DARK)
@@ -407,6 +439,9 @@ func _run_phase_2_light_sequence() -> void:
 		_apply_phase_2_visual(state)
 		await get_tree().create_timer(duration).timeout
 		elapsed += duration
+
+	if phase_2_jumpscare_enabled:
+		_apply_phase_2_visual(Phase2VisualState.CLEAR)
 
 
 func _run_major_phase_2_flicker() -> void:
@@ -586,11 +621,14 @@ func _activate_phase_2_horror_cast() -> void:
 	_turn_off_cross_reveal_light()
 	_set_counter_items_visible(false)
 	_set_phase_2_terror_props_visible(true)
+	_capture_blood_cashier_home_position()
 	_set_blood_cashier_active(true)
 
 
 func _deactivate_phase_2_horror_cast() -> void:
 	_stop_phase_2_horror_yell()
+	_stop_phase_2_jumpscare_scream()
+	_reset_blood_cashier_transform()
 	_set_blood_cashier_active(false)
 	_set_phase_2_terror_props_visible(false)
 	_restore_counter_items()
@@ -785,9 +823,121 @@ func _set_blood_cashier_active(active: bool) -> void:
 func _play_blood_cashier_idle() -> void:
 	if blood_cashier == null:
 		return
-	var player := blood_cashier.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	var player := _get_blood_cashier_animation_player()
 	if player != null and player.has_animation("idle_supermarket"):
+		player.speed_scale = 1.0
 		player.play("idle_supermarket")
+
+
+func _get_blood_cashier_animation_player() -> AnimationPlayer:
+	if blood_cashier == null:
+		return null
+	return blood_cashier.find_child("AnimationPlayer", true, false) as AnimationPlayer
+
+
+func _capture_blood_cashier_home_position() -> void:
+	if blood_cashier == null:
+		return
+	_blood_cashier_home_position = blood_cashier.position
+	_blood_cashier_home_captured = true
+
+
+func _reset_blood_cashier_transform() -> void:
+	_kill_blood_cashier_lunge_tween()
+	if blood_cashier == null or not _blood_cashier_home_captured:
+		return
+	blood_cashier.position = _blood_cashier_home_position
+	var player := _get_blood_cashier_animation_player()
+	if player != null:
+		player.speed_scale = 1.0
+
+
+func _kill_blood_cashier_lunge_tween() -> void:
+	if _blood_cashier_lunge_tween != null and _blood_cashier_lunge_tween.is_valid():
+		_blood_cashier_lunge_tween.kill()
+	_blood_cashier_lunge_tween = null
+
+
+func _run_phase_2_reaching_jumpscare() -> void:
+	if blood_cashier == null or not _phase_2_running:
+		return
+	if not _blood_cashier_home_captured:
+		_capture_blood_cashier_home_position()
+
+	var anim_player := _get_blood_cashier_animation_player()
+	if anim_player == null or not anim_player.has_animation(phase_2_reaching_animation):
+		push_warning(
+			"SupermarketGhostRevealSequence: falta animación '%s' en blood_cashier."
+			% phase_2_reaching_animation
+		)
+		return
+
+	var reaching_anim: Animation = anim_player.get_animation(phase_2_reaching_animation)
+	var lunge_duration := phase_2_jumpscare_lunge_duration
+	if lunge_duration <= 0.001 and reaching_anim != null:
+		lunge_duration = reaching_anim.length / maxf(phase_2_reaching_playback_speed, 0.01)
+
+	_apply_phase_2_visual(Phase2VisualState.CLEAR)
+	_jumpscare_flicker_cancelled = false
+	_run_jumpscare_visible_flicker(lunge_duration)
+
+	blood_cashier.position = _blood_cashier_home_position
+	_kill_blood_cashier_lunge_tween()
+	var lunge_target := _blood_cashier_home_position + Vector3(
+		phase_2_jumpscare_lunge_x_offset, 0.0, 0.0
+	)
+	_blood_cashier_lunge_tween = create_tween()
+	_blood_cashier_lunge_tween.set_trans(Tween.TRANS_LINEAR)
+	_blood_cashier_lunge_tween.set_ease(Tween.EASE_IN)
+	_blood_cashier_lunge_tween.tween_property(blood_cashier, "position", lunge_target, lunge_duration)
+
+	anim_player.speed_scale = phase_2_reaching_playback_speed
+	anim_player.play(phase_2_reaching_animation)
+	_play_phase_2_jumpscare_scream()
+
+	var done := [false]
+	var on_finished := func(finished_name: StringName) -> void:
+		if finished_name == phase_2_reaching_animation:
+			done[0] = true
+	anim_player.animation_finished.connect(on_finished, CONNECT_ONE_SHOT)
+	while _phase_2_running and not done[0]:
+		await get_tree().process_frame
+
+	_jumpscare_flicker_cancelled = true
+	anim_player.speed_scale = 1.0
+	_apply_phase_2_visual(Phase2VisualState.DARK)
+	if phase_2_jumpscare_end_blackout_hold > 0.001:
+		await get_tree().create_timer(phase_2_jumpscare_end_blackout_hold).timeout
+	if _phase_2_running:
+		_reset_blood_cashier_transform()
+
+
+func _run_jumpscare_visible_flicker(duration: float) -> void:
+	var elapsed := 0.0
+	while elapsed < duration and _phase_2_running and not _jumpscare_flicker_cancelled:
+		var state := (
+			Phase2VisualState.CLEAR
+			if randf() < phase_2_clear_chance
+			else Phase2VisualState.RED
+		)
+		_apply_phase_2_visual(state)
+		var step := randf_range(phase_2_jumpscare_flicker_step_min, phase_2_jumpscare_flicker_step_max)
+		await get_tree().create_timer(step).timeout
+		elapsed += step
+
+
+func _play_phase_2_jumpscare_scream() -> void:
+	if _phase_2_jumpscare_player == null or phase_2_jumpscare_scream == null:
+		return
+	_phase_2_jumpscare_player.volume_db = phase_2_jumpscare_scream_volume_db
+	_phase_2_jumpscare_player.stop()
+	_phase_2_jumpscare_player.play()
+
+
+func _stop_phase_2_jumpscare_scream() -> void:
+	if _phase_2_jumpscare_player == null:
+		return
+	_phase_2_jumpscare_player.stop()
 
 
 func _start_after_vision_dialogue() -> void:
@@ -816,6 +966,8 @@ func _on_after_vision_dialogue_finished() -> void:
 
 func _apply_post_sequence_state() -> void:
 	_register_phase_2_terror_props()
+	_stop_phase_2_jumpscare_scream()
+	_reset_blood_cashier_transform()
 	_set_blood_cashier_active(false)
 	_set_phase_2_terror_props_visible(false)
 	_set_red_overlay_active(false)

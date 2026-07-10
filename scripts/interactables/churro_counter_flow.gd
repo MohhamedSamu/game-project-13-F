@@ -85,6 +85,9 @@ static func _find_place_setup() -> Node:
 static func _on_counter_dialogue_finished() -> void:
 	GameManager.set_flag("churro_placed_on_counter", true)
 	GameManager.set_flag("ready_for_cashier_jumpscare", true)
+	var player := GameManager.get_player()
+	if player != null and player.has_method("clear_interaction_focus"):
+		player.clear_interaction_focus()
 	CounterPlaceCamera.refresh_counter_interact_areas()
 	_trigger_supermarket_ghost_reveal()
 
