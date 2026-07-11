@@ -12,4 +12,4 @@ func _ready() -> void:
 
 
 func grab_menu_focus() -> void:
-	GamepadUINav.grab_first_focus(_scroll_root)
+	GamepadUINav.grab_menu_focus_if_needed(_scroll_root)

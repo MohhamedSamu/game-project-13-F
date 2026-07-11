@@ -22,6 +22,13 @@ const SECURITY_GROUP := &"security_lighting_zones"
 
 var _menu_sky3d: Sky3D
 var _gameplay_sky3d: Sky3D
+var _baseline_ambient_energy: float = 0.34
+var _baseline_sky_contribution: float = 0.42
+var _baseline_night_sky_contribution: float = 0.42
+var _baseline_skydome_energy: float = 0.78
+var _baseline_camera_exposure: float = 1.08
+var _baseline_env_ambient_energy: float = 0.34
+var _baseline_env_sky_contribution: float = 0.42
 
 
 func _ready() -> void:
@@ -214,6 +221,44 @@ func _apply_gameplay(sky3d: Sky3D) -> void:
 
 	sky3d._start_sky_contrib_tween(false)
 	_connect_gameplay_lighting_signals(sky3d)
+	_store_ambient_baseline(sky3d)
+	add_to_group(&"sky3d_graphics_profiles")
+	call_deferred("_deferred_apply_graphics_ambient")
+
+
+func _deferred_apply_graphics_ambient() -> void:
+	apply_graphics_ambient(Settings.get_graphics_quality())
+
+
+func _store_ambient_baseline(sky3d: Sky3D) -> void:
+	_baseline_ambient_energy = sky3d.ambient_energy
+	_baseline_sky_contribution = sky3d.sky_contribution
+	_baseline_night_sky_contribution = sky3d.night_sky_contribution
+	_baseline_skydome_energy = sky3d.skydome_energy
+	_baseline_camera_exposure = sky3d.camera_exposure
+	if sky3d.environment:
+		_baseline_env_ambient_energy = sky3d.environment.ambient_light_energy
+		_baseline_env_sky_contribution = sky3d.environment.ambient_light_sky_contribution
+
+
+func apply_graphics_ambient(quality: int) -> void:
+	if profile != Profile.GAMEPLAY or _gameplay_sky3d == null:
+		return
+	var sky3d := _gameplay_sky3d
+	var ambient := _baseline_ambient_energy + Settings.get_graphics_ambient_offset(quality)
+	var contribution := _baseline_sky_contribution + Settings.get_graphics_sky_contribution_offset(quality)
+	var night_contribution := _baseline_night_sky_contribution + Settings.get_graphics_sky_contribution_offset(quality)
+	var skydome := _baseline_skydome_energy + Settings.get_graphics_skydome_energy_offset(quality)
+	var exposure := _baseline_camera_exposure + Settings.get_graphics_camera_exposure_offset(quality)
+
+	sky3d.ambient_energy = ambient
+	sky3d.sky_contribution = contribution
+	sky3d.night_sky_contribution = night_contribution
+	sky3d.skydome_energy = skydome
+	sky3d.camera_exposure = exposure
+	if sky3d.environment:
+		sky3d.environment.ambient_light_energy = ambient
+		sky3d.environment.ambient_light_sky_contribution = contribution
 
 
 func _connect_gameplay_lighting_signals(sky3d: Sky3D) -> void:

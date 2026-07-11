@@ -44,6 +44,8 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _try_activate_gamepad_menu_focus(event):
+		return
 	if event.is_action_pressed("ui_cancel") and current_panel != 0:
 		get_viewport().set_input_as_handled()
 		if current_panel == 1:
@@ -52,18 +54,39 @@ func _unhandled_input(event: InputEvent) -> void:
 			_on_v_box_container_back_pressed()
 		return
 	if event.is_action_pressed("ui_accept"):
+		if not GamepadUINav.should_auto_focus_menu():
+			return
 		var focused := get_viewport().gui_get_focus_owner() as Control
 		if focused is BaseButton and not (focused as BaseButton).disabled:
 			get_viewport().set_input_as_handled()
 			(focused as BaseButton).pressed.emit()
 
 
+func _try_activate_gamepad_menu_focus(event: InputEvent) -> bool:
+	if GamepadUINav.should_auto_focus_menu():
+		return false
+	if not (event is InputEventJoypadButton or event is InputEventJoypadMotion):
+		return false
+	if event is InputEventJoypadButton and not (event as InputEventJoypadButton).pressed:
+		return false
+	if event is InputEventJoypadMotion and absf((event as InputEventJoypadMotion).axis_value) < 0.35:
+		return false
+	match current_panel:
+		0:
+			GamepadUINav.grab_first_focus($UI/MainBtns)
+		1:
+			GamepadUINav.grab_first_focus(checkpoint_list)
+		2:
+			_focus_options_panel()
+	return false
+
+
 func _focus_main_panel() -> void:
-	GamepadUINav.grab_first_focus($UI/MainBtns)
+	GamepadUINav.grab_menu_focus_if_needed($UI/MainBtns)
 
 
 func _focus_start_panel() -> void:
-	GamepadUINav.grab_first_focus(checkpoint_list)
+	GamepadUINav.grab_menu_focus_if_needed(checkpoint_list)
 
 
 func _focus_options_panel() -> void:

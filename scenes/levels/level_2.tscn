@@ -436,6 +436,7 @@ spot_range = 20.0
 spot_attenuation = 0.8
 spot_angle = 38.0
 script = ExtResource("11_secspot")
+required_graphics_quality = 0
 night_light_energy = 5.0
 day_light_energy = 2.0
 
@@ -463,6 +464,7 @@ spot_range = 20.0
 spot_attenuation = 0.8
 spot_angle = 38.0
 script = ExtResource("11_secspot")
+required_graphics_quality = 0
 night_light_energy = 5.0
 day_light_energy = 2.0
 
@@ -491,6 +493,7 @@ spot_range = 20.0
 spot_attenuation = 0.8
 spot_angle = 38.0
 script = ExtResource("11_secspot")
+required_graphics_quality = 0
 night_light_energy = 5.0
 
 [node name="SpotLight3D7" type="SpotLight3D" parent="iluminacion"]
@@ -518,6 +521,7 @@ spot_range = 20.0
 spot_attenuation = 0.8
 spot_angle = 38.0
 script = ExtResource("11_secspot")
+required_graphics_quality = 0
 night_light_energy = 5.0
 day_light_energy = 2.0
 
@@ -545,6 +549,7 @@ spot_range = 20.0
 spot_attenuation = 0.8
 spot_angle = 38.0
 script = ExtResource("11_secspot")
+required_graphics_quality = 0
 night_light_energy = 5.0
 day_light_energy = 2.0
 
@@ -573,6 +578,7 @@ spot_range = 20.0
 spot_attenuation = 0.8
 spot_angle = 38.0
 script = ExtResource("11_secspot")
+required_graphics_quality = 0
 night_light_energy = 5.0
 
 [node name="OmniLight3D2" type="OmniLight3D" parent="iluminacion"]

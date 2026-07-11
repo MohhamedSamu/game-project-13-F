@@ -30,6 +30,8 @@ func _ready() -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if GameManager.level_intro_active or GameManager.instructions_overlay_active:
 		return
+	if _try_activate_gamepad_menu_focus(event):
+		return
 	if not is_open:
 		# Durante el minijuego del baño, ui_cancel (Esc/Start) es la salida del minijuego
 		# (toilet_pee_setup._unhandled_input): no robarle el evento abriendo la pausa.
@@ -47,10 +49,29 @@ func _unhandled_input(event: InputEvent) -> void:
 			_resume()
 		return
 	if event.is_action_pressed("ui_accept"):
+		if not GamepadUINav.should_auto_focus_menu():
+			return
 		var focused := get_viewport().gui_get_focus_owner() as Control
 		if focused is BaseButton and not (focused as BaseButton).disabled:
 			get_viewport().set_input_as_handled()
 			(focused as BaseButton).pressed.emit()
+
+
+func _try_activate_gamepad_menu_focus(event: InputEvent) -> bool:
+	if not is_open or GamepadUINav.should_auto_focus_menu():
+		return false
+	if not (event is InputEventJoypadButton or event is InputEventJoypadMotion):
+		return false
+	if event is InputEventJoypadButton and not (event as InputEventJoypadButton).pressed:
+		return false
+	if event is InputEventJoypadMotion and absf((event as InputEventJoypadMotion).axis_value) < 0.35:
+		return false
+	if config_module.visible:
+		if config_module.has_method("grab_menu_focus"):
+			config_module.grab_menu_focus()
+	else:
+		_focus_main_menu()
+	return false
 
 
 func open() -> void:
@@ -98,7 +119,7 @@ func _go_main_menu() -> void:
 
 
 func _focus_main_menu() -> void:
-	GamepadUINav.grab_first_focus(menu_box)
+	GamepadUINav.grab_menu_focus_if_needed(menu_box)
 
 
 func _restore_player_mouse_mode() -> void:

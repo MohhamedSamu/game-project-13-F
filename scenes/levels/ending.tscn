@@ -706,7 +706,8 @@ _data = {
 
 [node name="Ending" type="Node3D"]
 script = ExtResource("24_director")
-camera_travel_duration = 18.0
+camera_travel_duration = 30.0
+credits_total_duration = 30.0
 camera_end_position = Vector3(20, 3.5, 30)
 
 [node name="Gas_station" parent="." instance=ExtResource("1_ftwiq")]

@@ -17,6 +17,11 @@ extends OmniLight3D
 @export var day_light_energy: float = 0.0
 @export var day_volumetric_fog_energy: float = 0.0
 
+@export_group("Calidad gráfica")
+@export var required_graphics_quality: int = Settings.GraphicsQuality.LOW
+
+var _time_profile_wants_visible: bool = true
+
 @export_group("Sombras")
 @export var cast_shadows: bool = true
 @export_range(0.0, 2.0, 0.01) var shadow_bias_setting: float = 0.12
@@ -30,6 +35,11 @@ func _ready() -> void:
 	light_specular = light_specular_amount
 	_apply_shadow_settings()
 	apply_time_profile(1.0, 1.0)
+	call_deferred("_deferred_apply_graphics_quality")
+
+
+func _deferred_apply_graphics_quality() -> void:
+	apply_graphics_quality(Settings.get_graphics_quality())
 
 func _apply_shadow_settings() -> void:
 	shadow_enabled = cast_shadows
@@ -50,9 +60,28 @@ func apply_time_profile(_day_factor: float, night_factor: float) -> void:
 	)
 	if is_in_group(&"flicker_managed"):
 		light_size = night_light_size
-		_apply_shadow_settings()
+		_time_profile_wants_visible = light_energy > 0.05
+		_apply_quality_gate()
 		return
 	light_energy = lerpf(day_light_energy, night_light_energy, night_blend)
 	light_size = night_light_size
-	visible = light_energy > 0.05
-	_apply_shadow_settings()
+	_time_profile_wants_visible = light_energy > 0.05
+	_apply_quality_gate()
+
+
+func apply_graphics_quality(quality: int) -> void:
+	_apply_quality_gate(quality)
+
+
+func _apply_quality_gate(quality: int = -1) -> void:
+	if quality < 0:
+		quality = Settings.get_graphics_quality()
+	var quality_allows := quality <= required_graphics_quality
+	visible = _time_profile_wants_visible and quality_allows
+	if not visible:
+		shadow_enabled = false
+		return
+	if quality == Settings.GraphicsQuality.LOW:
+		shadow_enabled = false
+	else:
+		_apply_shadow_settings()

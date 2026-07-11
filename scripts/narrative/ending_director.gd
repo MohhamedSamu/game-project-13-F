@@ -11,14 +11,20 @@ const OldLadyGhostBake := preload("res://scripts/characters/old_lady_ghost_bake.
 const MAIN_MENU_SCENE_PATH := "res://scenes/main/main_menu.tscn"
 
 @export_group("Cámara")
-@export_range(1.0, 60.0, 0.5) var camera_travel_duration: float = 15.0
+@export_range(1.0, 60.0, 0.5) var camera_travel_duration: float = 30.0
 @export var camera_end_position: Vector3 = Vector3(14.226, 2.808, 22.961)
 
 @export_group("Créditos")
-@export var thanks_text: String = "gracias por jugar"
-@export var thanks_continue_text: String = "gracias por jugar. Da click para volver al menu principal"
-@export_range(0.0, 3.0, 0.05) var thanks_fade_in_duration: float = 1.0
-@export_range(0.0, 1.0, 0.05) var thanks_fade_delay: float = 0.35
+@export_range(1.0, 60.0, 0.5) var credits_total_duration: float = 30.0
+@export var credits_opening_text: String = "Gracias por jugar"
+@export_range(0.5, 20.0, 0.5) var credits_opening_duration: float = 5.0
+@export var credits_info_texts: PackedStringArray = PackedStringArray([
+	"Proyecto 13F será un juego de terror psicológico inspirado en historias locales",
+	"La historia seguirá a un vigilante asignado a la Iglesia Virgen de Fátima, en San Salvador",
+	"Durante un turno que no debió aceptar. Esperalo Pronto ...",
+])
+@export var thanks_continue_text: String = "Gracias por jugar. Da click para volver al menu principal"
+@export_range(0.0, 1.5, 0.05) var credit_text_fade_duration: float = 0.45
 @export_range(0.0, 2.0, 0.05) var continue_text_fade_duration: float = 0.65
 
 @export_group("Audio")
@@ -49,8 +55,7 @@ func _begin_sequence() -> void:
 	await _prepare_characters_for_ending()
 	_start_character_dances()
 	_start_camera_travel()
-	_show_thanks_text()
-	await _wait_for_camera_travel_finished()
+	await _play_credits_timeline()
 	await _show_continue_prompt()
 	await _wait_for_menu_input()
 	_go_to_main_menu()
@@ -114,23 +119,67 @@ func _start_camera_travel() -> void:
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
 
 
-func _wait_for_camera_travel_finished() -> void:
-	if camera_travel_duration <= 0.0:
+func _play_credits_timeline() -> void:
+	var lines: Array[Dictionary] = []
+	lines.append({
+		"text": credits_opening_text,
+		"duration": credits_opening_duration,
+	})
+	var info_duration := _get_info_line_duration()
+	for info_text in credits_info_texts:
+		if String(info_text).strip_edges().is_empty():
+			continue
+		lines.append({
+			"text": String(info_text),
+			"duration": info_duration,
+		})
+	for line in lines:
+		await _show_credit_line(String(line["text"]), float(line["duration"]))
+
+
+func _get_info_line_duration() -> float:
+	var info_count := 0
+	for info_text in credits_info_texts:
+		if not String(info_text).strip_edges().is_empty():
+			info_count += 1
+	if info_count <= 0:
+		return 0.0
+	var remaining := maxf(credits_total_duration - credits_opening_duration, 0.0)
+	return remaining / float(info_count)
+
+
+func _show_credit_line(text: String, segment_duration: float) -> void:
+	if _thanks_label == null or text.is_empty() or segment_duration <= 0.0:
 		return
-	await get_tree().create_timer(camera_travel_duration).timeout
+	var is_first_line := _thanks_label.modulate.a <= 0.01
+	_thanks_label.text = text
+	if is_first_line:
+		await _fade_thanks_label(1.0)
+	else:
+		_thanks_label.modulate.a = 1.0
+	await get_tree().create_timer(segment_duration).timeout
 
 
 func _show_continue_prompt() -> void:
 	if _thanks_label == null:
 		return
-	_kill_thanks_tween()
+	if _thanks_label.modulate.a > 0.01:
+		await _fade_thanks_label(0.0)
 	_thanks_label.text = thanks_continue_text
+	await _fade_thanks_label(1.0, continue_text_fade_duration)
+
+
+func _fade_thanks_label(target_alpha: float, duration: float = -1.0) -> void:
+	if _thanks_label == null:
+		return
+	_kill_thanks_tween()
+	var fade_duration := credit_text_fade_duration if duration < 0.0 else duration
 	_thanks_tween = create_tween()
 	_thanks_tween.tween_property(
 		_thanks_label,
 		"modulate:a",
-		1.0,
-		maxf(continue_text_fade_duration, 0.05)
+		clampf(target_alpha, 0.0, 1.0),
+		maxf(fade_duration, 0.05)
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 	await _thanks_tween.finished
 
@@ -252,9 +301,9 @@ func _setup_thanks_overlay() -> void:
 	var anchor := MarginContainer.new()
 	anchor.name = "ThanksAnchor"
 	anchor.set_anchors_preset(Control.PRESET_CENTER_BOTTOM)
-	anchor.offset_left = -420.0
-	anchor.offset_top = -120.0
-	anchor.offset_right = 420.0
+	anchor.offset_left = -520.0
+	anchor.offset_top = -180.0
+	anchor.offset_right = 520.0
 	anchor.offset_bottom = -28.0
 	anchor.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	anchor.add_theme_constant_override("margin_left", 24)
@@ -263,7 +312,7 @@ func _setup_thanks_overlay() -> void:
 
 	_thanks_label = Label.new()
 	_thanks_label.name = "ThanksLabel"
-	_thanks_label.text = thanks_text
+	_thanks_label.text = ""
 	_thanks_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_thanks_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_thanks_label.add_theme_font_override("font", THANKS_FONT)
@@ -273,21 +322,6 @@ func _setup_thanks_overlay() -> void:
 	_thanks_label.add_theme_constant_override("outline_size", 2)
 	_thanks_label.modulate.a = 0.0
 	anchor.add_child(_thanks_label)
-
-
-func _show_thanks_text() -> void:
-	if _thanks_label == null:
-		return
-	_kill_thanks_tween()
-	_thanks_tween = create_tween()
-	if thanks_fade_delay > 0.0:
-		_thanks_tween.tween_interval(thanks_fade_delay)
-	_thanks_tween.tween_property(
-		_thanks_label,
-		"modulate:a",
-		1.0,
-		maxf(thanks_fade_in_duration, 0.05)
-	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 
 
 func _start_outro_music() -> void:

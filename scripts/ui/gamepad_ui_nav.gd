@@ -1,6 +1,23 @@
 extends Node
 
 
+func should_auto_focus_menu() -> bool:
+	return OS.has_feature("mobile")
+
+
+func grab_menu_focus_if_needed(root: Control) -> void:
+	if should_auto_focus_menu():
+		grab_first_focus(root)
+	else:
+		release_menu_focus()
+
+
+func release_menu_focus() -> void:
+	var viewport := get_viewport()
+	if viewport != null:
+		viewport.gui_release_focus()
+
+
 func grab_first_focus(root: Control) -> void:
 	if root == null or not root.is_inside_tree():
 		return
@@ -9,6 +26,9 @@ func grab_first_focus(root: Control) -> void:
 
 func ensure_focus(root: Control) -> void:
 	if root == null or not root.is_inside_tree():
+		return
+	if not should_auto_focus_menu():
+		release_menu_focus()
 		return
 	var viewport := root.get_viewport()
 	if viewport == null:

@@ -17,6 +17,30 @@ const GRAPHICS_SHADOW_SIZES := {
 	GraphicsQuality.MEDIUM: 2048,
 	GraphicsQuality.LOW: 1024,
 }
+
+const GRAPHICS_AMBIENT_OFFSET := {
+	GraphicsQuality.HIGH: 0.0,
+	GraphicsQuality.MEDIUM: 0.16,
+	GraphicsQuality.LOW: 0.30,
+}
+
+const GRAPHICS_SKY_CONTRIBUTION_OFFSET := {
+	GraphicsQuality.HIGH: 0.0,
+	GraphicsQuality.MEDIUM: 0.14,
+	GraphicsQuality.LOW: 0.26,
+}
+
+const GRAPHICS_SKYDOME_ENERGY_OFFSET := {
+	GraphicsQuality.HIGH: 0.0,
+	GraphicsQuality.MEDIUM: 0.10,
+	GraphicsQuality.LOW: 0.18,
+}
+
+const GRAPHICS_CAMERA_EXPOSURE_OFFSET := {
+	GraphicsQuality.HIGH: 0.0,
+	GraphicsQuality.MEDIUM: 0.04,
+	GraphicsQuality.LOW: 0.08,
+}
 ## Alta [4096] por defecto en una partida nueva (pedido de diseño).
 const DEFAULT_GRAPHICS_QUALITY := GraphicsQuality.HIGH
 
@@ -152,17 +176,68 @@ func get_graphics_shadow_size() -> int:
 	return int(GRAPHICS_SHADOW_SIZES.get(get_graphics_quality(), 4096))
 
 
-## Aplica el tamaño del atlas de sombras EN VIVO (posicional + direccional).
-## Funciona mientras el juego corre: cambiar de Alta→Baja se refleja al instante
-## sin reiniciar. No añade ni quita luces; solo la resolución de las sombras.
+## Aplica sombras, luces locales y compensación de Sky3D EN VIVO.
 func apply_graphics_quality() -> void:
 	var size := get_graphics_shadow_size()
 	var tree := get_tree()
 	if tree != null and tree.root != null:
-		# Atlas de las luces posicionales (12 focos de la estación, 15 farolas, linterna...).
 		tree.root.positional_shadow_atlas_size = size
-	# Atlas de la sombra direccional (sol/luna gestionados por Sky3D).
 	RenderingServer.directional_shadow_atlas_set_size(size, true)
+	_apply_security_lights_quality(tree)
+	_apply_sky_ambient_quality(tree)
+
+
+func _apply_security_lights_quality(tree: SceneTree) -> void:
+	if tree == null:
+		return
+	var quality := get_graphics_quality()
+	for node in tree.get_nodes_in_group(&"security_lights"):
+		if node.has_method("apply_graphics_quality"):
+			node.call("apply_graphics_quality", quality)
+	for node in tree.get_nodes_in_group(&"security_lighting_zones"):
+		if node.has_method("apply_time_of_day"):
+			var sky3d := _find_gameplay_sky3d(tree)
+			if sky3d != null:
+				var profile := sky3d.get_node_or_null("ProjectProfile")
+				if profile != null and profile.has_method("_time_factors"):
+					var factors: Vector2 = profile.call("_time_factors", sky3d)
+					node.call("apply_time_of_day", factors.x, factors.y)
+
+
+func _apply_sky_ambient_quality(tree: SceneTree) -> void:
+	if tree == null:
+		return
+	for node in tree.get_nodes_in_group(&"sky3d_graphics_profiles"):
+		if node.has_method("apply_graphics_ambient"):
+			node.call("apply_graphics_ambient", get_graphics_quality())
+
+
+func _find_gameplay_sky3d(tree: SceneTree) -> Sky3D:
+	for node in tree.get_nodes_in_group(&"sky3d_graphics_profiles"):
+		var sky3d := node.get_parent() as Sky3D
+		if sky3d != null:
+			return sky3d
+	if tree.current_scene != null:
+		var direct := tree.current_scene.get_node_or_null("Sky3D") as Sky3D
+		if direct != null:
+			return direct
+	return null
+
+
+func get_graphics_ambient_offset(quality: int) -> float:
+	return float(GRAPHICS_AMBIENT_OFFSET.get(quality, 0.0))
+
+
+func get_graphics_sky_contribution_offset(quality: int) -> float:
+	return float(GRAPHICS_SKY_CONTRIBUTION_OFFSET.get(quality, 0.0))
+
+
+func get_graphics_skydome_energy_offset(quality: int) -> float:
+	return float(GRAPHICS_SKYDOME_ENERGY_OFFSET.get(quality, 0.0))
+
+
+func get_graphics_camera_exposure_offset(quality: int) -> float:
+	return float(GRAPHICS_CAMERA_EXPOSURE_OFFSET.get(quality, 0.0))
 
 
 func get_graphics_quality_display_name() -> String:
