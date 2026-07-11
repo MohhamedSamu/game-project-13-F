@@ -1331,6 +1331,15 @@ func clear_camera_focus() -> void:
 	clear_dialogue_reposition()
 
 
+func await_camera_focus_completion(max_wait: float = 0.85) -> void:
+	if not focusing_camera:
+		return
+	var elapsed := 0.0
+	while focusing_camera and elapsed < max_wait:
+		await get_tree().physics_frame
+		elapsed += get_physics_process_delta_time()
+
+
 func start_dialogue_reposition(ideal_position: Vector3) -> void:
 	dialogue_reposition_goal = global_position.lerp(ideal_position, dialogue_reposition_blend)
 	var horizontal_delta := Vector2(

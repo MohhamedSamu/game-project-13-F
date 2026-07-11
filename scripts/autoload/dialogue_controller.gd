@@ -54,6 +54,13 @@ func _run_start_dialogue(
 	):
 		await GameManager.player.reposition_for_dialogue(stand_owner.get_dialogue_stand_position())
 
+	if (
+		use_camera_focus
+		and GameManager.player
+		and GameManager.player.has_method("await_camera_focus_completion")
+	):
+		await GameManager.player.await_camera_focus_completion()
+
 	current_balloon = DialogueManager.show_dialogue_balloon(dialogue_resource, title)
 
 	if current_balloon:

@@ -785,7 +785,7 @@ tree_variant = &"Tree_1"
 [node name="Jumpscares" type="Node3D" parent="."]
 
 [node name="BathroomSinkHorror" parent="Jumpscares" instance=ExtResource("46_sinkhorror")]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 20.5175, 0.00875831, -15.0694)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 20.5702, 0.00875831, -15.2051)
 bathroom_door_path = NodePath("../../Gas_station/BathroomDoorSetup")
 bathroom_blocker_wall_path = NodePath("../../invisibleObjects/InvisibleWallBath5")
 pursuit_sound = ExtResource("39_px4x2")
