@@ -41,6 +41,7 @@ runtime/balloon_path="res://scenes/dialogue/balloon.tscn"
 
 window/size/mode=3
 window/stretch/mode="canvas_items"
+window/handheld/orientation=4
 
 [editor_plugins]
 
