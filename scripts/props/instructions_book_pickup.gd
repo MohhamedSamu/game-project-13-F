@@ -53,7 +53,7 @@ func get_item_id() -> StringName:
 
 
 func use_held_item() -> void:
-	InstructionsOverlay.toggle_instructions(InputHints.instructions_body(), true)
+	InstructionsOverlay.toggle_instructions(InputHints.instructions_body())
 
 
 func pickup_to_hand(hand: Node3D) -> void:

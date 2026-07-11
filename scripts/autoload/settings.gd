@@ -39,6 +39,8 @@ var data := {
 	"music_volume": 1.0,
 	"sfx_volume": 1.0,
 	"fullscreen": false,
+	"input_device_scheme": "keyboard",
+	"gamepad_family": "xbox",
 }
 
 

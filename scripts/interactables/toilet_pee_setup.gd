@@ -138,6 +138,7 @@ func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 	if _state == State.ACTIVE:
+		_update_active_controls(delta)
 		if _spraying:
 			if _is_bladder_empty():
 				_bladder_remaining = 0.0
@@ -164,7 +165,11 @@ func _notification(what: int) -> void:
 func _unhandled_input(event: InputEvent) -> void:
 	if _state != State.ACTIVE:
 		return
-	if event.is_action_pressed("interact"):
+	if event.is_action_pressed("ui_cancel"):
+		_request_exit()
+		get_viewport().set_input_as_handled()
+		return
+	if event.is_action_pressed("interact") and not InputHints.is_gamepad():
 		_request_exit()
 		get_viewport().set_input_as_handled()
 		return
@@ -400,9 +405,9 @@ func get_interaction_prompt() -> String:
 	if GameManager.get_flag("bathroom_sink_horror_done"):
 		return ""
 	if _state == State.ACTIVE:
-		return prompt_exit
+		return _exit_prompt()
 	if _state == State.IDLE and _is_bathroom_accessible() and not _is_bladder_empty():
-		return prompt_enter
+		return InputHints.adapt_prompt(prompt_enter)
 	return ""
 
 
@@ -518,7 +523,7 @@ func _set_overlay_visible(is_visible: bool) -> void:
 func _update_hud_labels(active: bool) -> void:
 	if _aim_label != null:
 		_aim_label.visible = active
-		_aim_label.text = aim_hint
+		_aim_label.text = _aim_hint_text()
 	if _bladder_label != null:
 		_bladder_label.visible = active and show_bladder_ui
 	if _bladder_bar != null:
@@ -720,3 +725,34 @@ func _play_audio_once(player: AudioStreamPlayer) -> void:
 func _on_stream_player_finished() -> void:
 	if _spraying and not _is_bladder_empty() and _stream_player != null:
 		_stream_player.play()
+
+
+func _update_active_controls(delta: float) -> void:
+	if InputHints.is_gamepad():
+		var device_id := 0
+		var pads := Input.get_connected_joypads()
+		if not pads.is_empty():
+			device_id = int(pads[0])
+		var aim := Vector2(
+			Input.get_joy_axis(device_id, JoyAxis.JOY_AXIS_RIGHT_X),
+			Input.get_joy_axis(device_id, JoyAxis.JOY_AXIS_RIGHT_Y)
+		)
+		if aim.length() > 0.2:
+			_apply_nozzle_aim(aim * nozzle_sensitivity * 120.0 * delta)
+		if Input.is_action_pressed("interact") and not _is_bladder_empty():
+			if not _spraying:
+				_start_spray()
+		elif _spraying:
+			_stop_spray()
+
+
+func _aim_hint_text() -> String:
+	var exit_label := InputHints.label_menu_back() if InputHints.is_gamepad() else "[E]"
+	return "%s · %s para salir" % [InputHints.label_spray_hold(), exit_label]
+
+
+func _exit_prompt() -> String:
+	if InputHints.is_gamepad():
+		return "Presiona %s para salir" % InputHints.label_menu_back()
+	return InputHints.adapt_prompt(prompt_exit)
+

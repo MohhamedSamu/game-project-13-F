@@ -13,8 +13,6 @@ const DEFAULT_CLOSE_HINT := "Clic o [E] para cerrar"
 
 var _is_open: bool = false
 var _open_frame: int = -1
-var _refresh_body_on_scheme_change: bool = false
-var _last_scheme: int = -1
 
 
 func _ready() -> void:
@@ -31,15 +29,13 @@ func is_open() -> bool:
 	return _is_open
 
 
-func show_instructions(body_text: String, refresh_on_scheme_change: bool = false) -> void:
+func show_instructions(body_text: String, _refresh_on_scheme_change: bool = false) -> void:
 	if body_text.is_empty():
 		return
 	if _is_open:
 		return
 	_is_open = true
 	_open_frame = Engine.get_process_frames()
-	_refresh_body_on_scheme_change = refresh_on_scheme_change
-	_last_scheme = InputHints.active_scheme
 	if _body_label != null:
 		_body_label.text = body_text
 	if _hint_label != null:
@@ -54,8 +50,6 @@ func hide_instructions() -> void:
 	if not _is_open:
 		return
 	_is_open = false
-	_refresh_body_on_scheme_change = false
-	_last_scheme = -1
 	visible = false
 	set_process(false)
 	GameManager.instructions_overlay_active = false
@@ -63,26 +57,30 @@ func hide_instructions() -> void:
 	instructions_closed.emit()
 
 
-func toggle_instructions(body_text: String, refresh_on_scheme_change: bool = false) -> void:
+func toggle_instructions(body_text: String, _refresh_on_scheme_change: bool = false) -> void:
 	if _is_open:
 		hide_instructions()
 	else:
-		show_instructions(body_text, refresh_on_scheme_change)
+		show_instructions(body_text)
 
 
 func _process(_delta: float) -> void:
 	if not _is_open:
 		return
-	if _refresh_body_on_scheme_change and InputHints.active_scheme != _last_scheme:
-		_last_scheme = InputHints.active_scheme
-		if _body_label != null:
-			_body_label.text = InputHints.instructions_body()
 	if _hint_label != null:
 		_hint_label.text = InputHints.close_instructions_hint()
 	if Engine.get_process_frames() <= _open_frame:
 		return
-	if Input.is_action_just_pressed("interact"):
+	if _should_close():
 		hide_instructions()
+
+
+func _should_close() -> bool:
+	if Input.is_action_just_pressed("interact") and not InputHints.is_gamepad():
+		return true
+	if Input.is_action_just_pressed("ui_accept") or Input.is_action_just_pressed("ui_cancel"):
+		return true
+	return false
 
 
 func _on_root_gui_input(event: InputEvent) -> void:

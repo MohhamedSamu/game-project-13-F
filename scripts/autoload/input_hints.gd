@@ -1,31 +1,63 @@
 extends Node
 
 enum DeviceScheme { KEYBOARD_MOUSE, GAMEPAD }
+enum GamepadFamily { XBOX, PLAYSTATION, GENERIC }
 
 var active_scheme: DeviceScheme = DeviceScheme.KEYBOARD_MOUSE
+var gamepad_family: GamepadFamily = GamepadFamily.XBOX
+var gamepad_locked: bool = false
+
+
+func _ready() -> void:
+	_load_from_settings()
 
 
 func _input(event: InputEvent) -> void:
 	if _is_gamepad_event(event):
-		active_scheme = DeviceScheme.GAMEPAD
-	elif _is_keyboard_mouse_event(event):
+		_lock_gamepad_scheme(event)
+	elif not gamepad_locked and _is_keyboard_mouse_event(event):
 		active_scheme = DeviceScheme.KEYBOARD_MOUSE
+		_save_to_settings()
 
 
 func is_gamepad() -> bool:
-	return active_scheme == DeviceScheme.GAMEPAD
+	return gamepad_locked or active_scheme == DeviceScheme.GAMEPAD
+
+
+func get_family_name() -> String:
+	match gamepad_family:
+		GamepadFamily.PLAYSTATION:
+			return "PlayStation"
+		GamepadFamily.XBOX:
+			return "Xbox"
+	return "Mando"
 
 
 func label_interact() -> String:
-	return "[B]" if is_gamepad() else "[E]"
+	if not is_gamepad():
+		return "[E]"
+	match gamepad_family:
+		GamepadFamily.PLAYSTATION:
+			return "[Cruz]"
+	return "[B]"
 
 
 func label_pickup() -> String:
-	return "[Y]" if is_gamepad() else "[E]"
+	if not is_gamepad():
+		return "[E]"
+	match gamepad_family:
+		GamepadFamily.PLAYSTATION:
+			return "[Triángulo]"
+	return "[Y]"
 
 
 func label_drop() -> String:
-	return "[X]" if is_gamepad() else "[Q]"
+	if not is_gamepad():
+		return "[Q]"
+	match gamepad_family:
+		GamepadFamily.PLAYSTATION:
+			return "[Cuadrado]"
+	return "[X]"
 
 
 func label_sprint() -> String:
@@ -33,27 +65,54 @@ func label_sprint() -> String:
 
 
 func label_jump() -> String:
-	return "[A]" if is_gamepad() else "Espacio"
+	if not is_gamepad():
+		return "Espacio"
+	match gamepad_family:
+		GamepadFamily.PLAYSTATION:
+			return "[Cruz]"
+	return "[A]"
 
 
 func label_flashlight() -> String:
-	return "[Y]" if is_gamepad() else "[F]"
+	return label_pickup() if is_gamepad() else "[F]"
 
 
 func label_pause() -> String:
-	return "Start" if is_gamepad() else "Esc"
+	if not is_gamepad():
+		return "Esc"
+	match gamepad_family:
+		GamepadFamily.PLAYSTATION:
+			return "Options"
+	return "Start"
+
+
+func label_menu_confirm() -> String:
+	if not is_gamepad():
+		return "Enter"
+	match gamepad_family:
+		GamepadFamily.PLAYSTATION:
+			return "[Cruz]"
+	return "[A]"
+
+
+func label_menu_back() -> String:
+	return label_pause() if is_gamepad() else "Esc"
+
+
+func label_spray_hold() -> String:
+	if not is_gamepad():
+		return "Clic izquierdo (mantener)"
+	return "%s (mantener)" % label_interact()
 
 
 func close_instructions_hint() -> String:
 	if is_gamepad():
-		return "Clic o %s para cerrar" % label_interact()
+		return "%s o %s para cerrar" % [label_menu_confirm(), label_interact()]
 	return "Clic o [E] para cerrar"
 
 
 func adapt_pickup_prompt(prompt: String) -> String:
-	if prompt.is_empty():
-		return prompt
-	if not is_gamepad():
+	if prompt.is_empty() or not is_gamepad():
 		return prompt
 	return prompt.replace("[E]", label_pickup())
 
@@ -69,21 +128,13 @@ func adapt_prompt(prompt: String) -> String:
 
 
 func instructions_body() -> String:
-	if is_gamepad():
-		return """Controles (mando)
+	if not is_gamepad():
+		return _keyboard_instructions_body()
+	return _gamepad_instructions_body()
 
-• Stick izquierdo — caminar y moverte por el entorno.
-• L3 — correr.
-• A — saltar.
-• B — interactuar (puertas, NPCs, leer el libro en la mano).
-• Y — recoger objetos / usar lo que llevas en la mano.
-• X — soltar lo que llevas en la mano.
-• Stick derecho — mirar.
-• Start — pausa.
 
-Explora la zona: debería haber una linterna cerca.
-Recógela con %s y cámbiala con %s cuando la lleves en la mano.""" % [label_pickup(), label_flashlight()]
-	return """Controles
+func _keyboard_instructions_body() -> String:
+	return """Controles (teclado y ratón)
 
 • WASD — caminar y moverte por el entorno.
 • Mantén SHIFT — correr.
@@ -92,9 +143,118 @@ Recógela con %s y cámbiala con %s cuando la lleves en la mano.""" % [label_pic
 • E — interactuar y recoger objetos.
 • Q — soltar lo que llevas en la mano.
 • F — usar / cambiar lo que llevas en la mano (linterna).
+• Ratón — mirar.
+• Esc — pausa.
 
 Explora la zona: debería haber una linterna cerca.
 Recógela con [E] y cámbiala con [F] cuando la lleves en la mano."""
+
+
+func _gamepad_instructions_body() -> String:
+	var family := get_family_name()
+	if gamepad_family == GamepadFamily.PLAYSTATION:
+		return """Controles (%s)
+
+• Stick izquierdo — caminar.
+• L3 (stick izquierdo) — correr.
+• %s — saltar.
+• %s — interactuar (puertas, NPCs, leer el libro).
+• %s — recoger objetos / usar en la mano.
+• %s — soltar lo que llevas.
+• Stick derecho — mirar.
+• %s — pausa / menús.
+• %s — confirmar en menús.
+• %s — volver en menús.
+
+Explora la zona: debería haber una linterna cerca.
+Recógela con %s y cámbiala con %s en la mano.""" % [
+			family,
+			label_jump(),
+			label_interact(),
+			label_pickup(),
+			label_drop(),
+			label_pause(),
+			label_menu_confirm(),
+			label_menu_back(),
+			label_pickup(),
+			label_flashlight(),
+		]
+	return """Controles (%s)
+
+• Stick izquierdo — caminar.
+• L3 — correr.
+• %s — saltar.
+• %s — interactuar (puertas, NPCs, leer el libro).
+• %s — recoger objetos / usar en la mano.
+• %s — soltar lo que llevas.
+• Stick derecho — mirar.
+• %s — pausa / menús.
+• %s — confirmar en menús.
+• %s — volver en menús.
+
+Explora la zona: debería haber una linterna cerca.
+Recógela con %s y cámbiala con %s en la mano.""" % [
+		family,
+		label_jump(),
+		label_interact(),
+		label_pickup(),
+		label_drop(),
+		label_pause(),
+		label_menu_confirm(),
+		label_menu_back(),
+		label_pickup(),
+		label_flashlight(),
+	]
+
+
+func _lock_gamepad_scheme(event: InputEvent) -> void:
+	active_scheme = DeviceScheme.GAMEPAD
+	if not gamepad_locked:
+		gamepad_locked = true
+	if event is InputEventJoypadButton or event is InputEventJoypadMotion:
+		var device_id := event.device
+		gamepad_family = _detect_family(device_id)
+	_save_to_settings()
+
+
+func _detect_family(device_id: int) -> GamepadFamily:
+	var joy_name := String(Input.get_joy_name(device_id)).to_lower()
+	if joy_name.contains("sony") or joy_name.contains("playstation") or joy_name.contains("dualshock") or joy_name.contains("dualsense"):
+		return GamepadFamily.PLAYSTATION
+	if joy_name.contains("xbox") or joy_name.contains("xinput") or joy_name.contains("microsoft"):
+		return GamepadFamily.XBOX
+	return GamepadFamily.XBOX
+
+
+func _load_from_settings() -> void:
+	var scheme := String(Settings.get_value("input_device_scheme", "keyboard"))
+	gamepad_locked = scheme == "gamepad"
+	active_scheme = DeviceScheme.GAMEPAD if gamepad_locked else DeviceScheme.KEYBOARD_MOUSE
+	var family := String(Settings.get_value("gamepad_family", "xbox"))
+	match family:
+		"playstation":
+			gamepad_family = GamepadFamily.PLAYSTATION
+		"generic":
+			gamepad_family = GamepadFamily.GENERIC
+		_:
+			gamepad_family = GamepadFamily.XBOX
+	if gamepad_locked and not Input.get_connected_joypads().is_empty():
+		gamepad_family = _detect_family(int(Input.get_connected_joypads()[0]))
+
+
+func _save_to_settings() -> void:
+	if gamepad_locked:
+		Settings.set_value("input_device_scheme", "gamepad")
+	else:
+		Settings.set_value("input_device_scheme", "keyboard")
+	match gamepad_family:
+		GamepadFamily.PLAYSTATION:
+			Settings.set_value("gamepad_family", "playstation")
+		GamepadFamily.GENERIC:
+			Settings.set_value("gamepad_family", "generic")
+		_:
+			Settings.set_value("gamepad_family", "xbox")
+	Settings.save_settings()
 
 
 func _is_gamepad_event(event: InputEvent) -> bool:

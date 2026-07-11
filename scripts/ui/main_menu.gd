@@ -40,9 +40,36 @@ func _ready() -> void:
 	current_panel = 0
 	start_panel.visible = false
 	options_panel.visible = false
-	_rebuild_checkpoint_list()
+	call_deferred("_focus_main_panel")
 
-# ---------- Main buttons ----------
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_cancel") and current_panel != 0:
+		get_viewport().set_input_as_handled()
+		if current_panel == 1:
+			_on_btn_back_pressed()
+		elif current_panel == 2:
+			_on_v_box_container_back_pressed()
+		return
+	if event.is_action_pressed("ui_accept"):
+		var focused := get_viewport().gui_get_focus_owner() as Control
+		if focused is BaseButton and not (focused as BaseButton).disabled:
+			get_viewport().set_input_as_handled()
+			(focused as BaseButton).pressed.emit()
+
+
+func _focus_main_panel() -> void:
+	GamepadUINav.grab_first_focus($UI/MainBtns)
+
+
+func _focus_start_panel() -> void:
+	GamepadUINav.grab_first_focus(checkpoint_list)
+
+
+func _focus_options_panel() -> void:
+	var config := $UI/OptionsPanel/VBoxContainer
+	if config.has_method("grab_menu_focus"):
+		config.grab_menu_focus()
 func _on_btn_start_pressed() -> void:
 	_rebuild_checkpoint_list()
 	start_panel.visible = true
@@ -50,6 +77,7 @@ func _on_btn_start_pressed() -> void:
 	current_panel = 1
 	anim.play("to_start")
 	_play_enter()
+	call_deferred("_focus_start_panel")
 
 func _on_btn_options_pressed() -> void:
 	options_panel.visible = true
@@ -57,6 +85,7 @@ func _on_btn_options_pressed() -> void:
 	current_panel = 2
 	anim.play("to_options")
 	_play_enter()
+	call_deferred("_focus_options_panel")
 
 func _on_btn_exit_pressed() -> void:
 	_play_back()
@@ -68,6 +97,7 @@ func _on_btn_back_pressed() -> void:
 	current_panel = 0
 	anim.play("to_main")
 	_play_back()
+	call_deferred("_focus_main_panel")
 
 # ---------- Animation finished ----------
 func _on_menu_animator_animation_finished(anim_name: StringName) -> void:
@@ -112,7 +142,8 @@ func _on_checkpoint_selected(id: String) -> void:
 
 
 func _on_v_box_container_back_pressed() -> void:
-		# Back desde Options
+	# Back desde Options
 	current_panel = 0
 	anim.play("from_opt_to_main")
 	_play_back()
+	call_deferred("_focus_main_panel")
