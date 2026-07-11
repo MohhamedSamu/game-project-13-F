@@ -901,6 +901,7 @@ jumpscare_path = NodePath("../Scene4BathroomExitJumpscare")
 
 [node name="FinalScene" parent="Jumpscares" instance=ExtResource("71_finalscene")]
 invisible_wall_path = NodePath("../../invisibleObjects/InvisibleWallEndOfRoad")
+unlock_on_end_of_road_cross = false
 endcam_height_scale = 1.8
 endcam_face_look_z = 0.8
 endcam_forward_distance_scale = 3.5
