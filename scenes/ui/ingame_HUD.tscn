@@ -1,9 +1,19 @@
-[gd_scene load_steps=3 format=3 uid="uid://baiidha04m3ud"]
+[gd_scene load_steps=4 format=3 uid="uid://baiidha04m3ud"]
 
 [ext_resource type="PackedScene" uid="uid://dw4cb8cb6na7s" path="res://scenes/ui/pause_menu.tscn" id="1_3dvcu"]
 [ext_resource type="PackedScene" uid="uid://c68eum8tnbfwj" path="res://scenes/ui/interaction_crosshair.tscn" id="2_576ia"]
+[ext_resource type="Script" path="res://scripts/ui/touch_controls.gd" id="3_touchc"]
 
 [node name="InGameHUD" type="CanvasLayer"]
+
+[node name="TouchControls" type="Control" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("3_touchc")
 
 [node name="PauseMenu" parent="." instance=ExtResource("1_3dvcu")]
 size_flags_horizontal = 4
