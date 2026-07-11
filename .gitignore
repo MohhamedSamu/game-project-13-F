@@ -9,6 +9,8 @@
 public/*.exe
 public/*.pck
 public/*.console.exe
+public/*.apk
+*.apk
 
 # APK/AAB de Android y artefactos de exportación
 /build/
