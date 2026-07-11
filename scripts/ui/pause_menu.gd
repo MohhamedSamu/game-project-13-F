@@ -31,6 +31,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if GameManager.level_intro_active or GameManager.instructions_overlay_active:
 		return
 	if not is_open:
+		# Durante el minijuego del baño, ui_cancel (Esc/Start) es la salida del minijuego
+		# (toilet_pee_setup._unhandled_input): no robarle el evento abriendo la pausa.
+		if GameManager.minigame_active:
+			return
 		if event.is_action_pressed("ui_cancel"):
 			get_viewport().set_input_as_handled()
 			open()

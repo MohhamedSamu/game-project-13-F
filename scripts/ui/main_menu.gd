@@ -119,6 +119,8 @@ func _rebuild_checkpoint_list() -> void:
 
 		b.add_theme_color_override("font_color", Color.WHITE)
 		b.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.35))
+		# Focus visible al navegar con gamepad/teclado (los botones son flat).
+		b.add_theme_color_override("font_focus_color", Color(1.0, 0.85, 0.4))
 		b.add_theme_font_size_override("font_size", 34)
 
 		var id := str(entry.id)

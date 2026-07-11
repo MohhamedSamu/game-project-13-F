@@ -245,8 +245,11 @@ func _unhandled_input(event: InputEvent) -> void:
 	if minigame_mode:
 		return
 	# Libro en la mano: clic abre las instrucciones (cerrar: overlay con clic o [E]).
+	# En pantalla táctil NO: el arrastre de cámara emula un clic izquierdo y dispararía
+	# el objeto sin querer; en móvil el libro se abre con [E] y la linterna con [F].
 	if (
-		not GameManager.instructions_overlay_active
+		not DisplayServer.is_touchscreen_available()
+		and not GameManager.instructions_overlay_active
 		and input_enabled
 		and _held_pickup != null
 		and _held_pickup.has_method("use_held_item")

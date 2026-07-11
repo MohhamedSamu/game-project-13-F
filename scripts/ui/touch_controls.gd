@@ -56,6 +56,7 @@ var _btn_drop: TouchScreenButton
 var _btn_flashlight: TouchScreenButton
 var _btn_sprint: TouchScreenButton
 var _btn_pause: TouchScreenButton
+var _btn_exit_minigame: TouchScreenButton
 var _blocker_joystick: Control
 var _blocker_cluster: Control
 var _blocker_hamburger: Control
@@ -116,6 +117,11 @@ func _build_buttons() -> void:
 	# Sprint es toggle (tap enciende / tap apaga): sin action directa, se maneja por señal.
 	_btn_sprint = _make_action_button("SprintButton", "»", 44.0, "")
 	_btn_sprint.pressed.connect(_on_sprint_toggled)
+
+	# Salir del minijuego del baño: envía ui_cancel (misma salida que Esc/Start).
+	# No usa la propiedad `action` porque toilet_pee escucha el EVENTO en _unhandled_input.
+	_btn_exit_minigame = _make_action_button("ExitMinigameButton", "✕", 44.0, "")
+	_btn_exit_minigame.pressed.connect(_on_exit_minigame_pressed)
 
 	_btn_pause = TouchScreenButton.new()
 	_btn_pause.name = "PauseButton"
@@ -198,6 +204,7 @@ func _layout() -> void:
 	_place_button(_btn_drop, Vector2(vs.x - 224.0, vs.y - 216.0), 38.0)
 	_place_button(_btn_flashlight, Vector2(vs.x - 96.0, vs.y - 248.0), 38.0)
 	_place_button(_btn_sprint, Vector2(vs.x - 370.0, vs.y - 86.0), 44.0)
+	_place_button(_btn_exit_minigame, Vector2(vs.x - 118.0, vs.y - 118.0), 44.0)
 	_cluster_zone = Rect2(vs.x - 430.0, vs.y - 300.0, 430.0, 300.0)
 
 	# Hamburguesa: esquina superior derecha.
@@ -230,6 +237,9 @@ func _process(_delta: float) -> void:
 
 func _update_visibility() -> void:
 	var paused := get_tree().paused
+	# Con un gamepad conectado (también en teléfono con mando) se ocultan los controles
+	# virtuales: el jugador usa el mando para todo, incluida la pausa (Start).
+	var joypad_connected: bool = not Input.get_connected_joypads().is_empty()
 	var overlay_block: bool = (
 		GameManager.dialogue_active
 		or GameManager.level_intro_active
@@ -237,24 +247,46 @@ func _update_visibility() -> void:
 	)
 	var player := GameManager.get_player()
 	var player_ok: bool = player != null and player.input_enabled
-	var gameplay_ok := not paused and not overlay_block and player_ok and not GameManager.minigame_active
+	var gameplay_ok := (
+		not paused
+		and not joypad_connected
+		and not overlay_block
+		and player_ok
+		and not GameManager.minigame_active
+	)
 
 	if _gameplay_controls_visible and not gameplay_ok:
 		_force_release_all()
 	_gameplay_controls_visible = gameplay_ok
 
+	# Botones contextuales: solo aparecen cuando su acción se puede usar ahora mismo.
+	var held: Node = player.get_held_pickup() if player_ok and player.has_method("get_held_pickup") else null
+	var focus: Node = player.get("_focus_interactable") if player_ok else null
+	_btn_interact.visible = gameplay_ok and (
+		focus != null
+		or (held != null and held.has_method("use_held_item"))
+	)
+	_btn_drop.visible = gameplay_ok and held != null
+	_btn_flashlight.visible = gameplay_ok and held != null and held.has_method("toggle_spotlight")
 	_btn_jump.visible = gameplay_ok
-	_btn_drop.visible = gameplay_ok
-	_btn_flashlight.visible = gameplay_ok
 	_btn_sprint.visible = gameplay_ok
 	_blocker_joystick.visible = gameplay_ok
-	# El interact (E) sigue visible en el minijuego del baño: salir usa la acción "interact".
-	_btn_interact.visible = gameplay_ok or (not paused and GameManager.minigame_active)
-	_blocker_cluster.visible = _btn_interact.visible
 
-	# Hamburguesa: mismas condiciones en las que Esc abre pausa (pause_menu._unhandled_input).
+	# Minijuego del baño: botón ✕ para salir (equivale a Esc/Start via ui_cancel).
+	var minigame_touch: bool = (
+		not paused
+		and not joypad_connected
+		and GameManager.minigame_active
+	)
+	_btn_exit_minigame.visible = minigame_touch
+	_blocker_cluster.visible = gameplay_ok or minigame_touch
+
+	# Hamburguesa: como Esc, pero oculta durante diálogos (pausar en medio de un
+	# diálogo dejaba la UI de opciones sin respuesta en táctil) y con gamepad presente.
 	var pause_ok: bool = (
 		not paused
+		and not joypad_connected
+		and not GameManager.dialogue_active
 		and not GameManager.level_intro_active
 		and not GameManager.instructions_overlay_active
 	)
@@ -366,7 +398,7 @@ func _force_release_all() -> void:
 func _is_point_on_controls(pos: Vector2) -> bool:
 	if _gameplay_controls_visible and _joystick_zone.has_point(pos):
 		return true
-	if _btn_interact.visible and _cluster_zone.has_point(pos):
+	if _blocker_cluster.visible and _cluster_zone.has_point(pos):
 		return true
 	if _btn_pause.visible and _hamburger_zone.has_point(pos):
 		return true
@@ -403,6 +435,22 @@ func _on_sprint_toggled() -> void:
 func _update_sprint_visual() -> void:
 	if _btn_sprint != null:
 		_btn_sprint.modulate = Color(1.0, 0.85, 0.4, 1.0) if _sprint_on else Color.WHITE
+
+
+func _on_exit_minigame_pressed() -> void:
+	if get_tree().paused or not GameManager.minigame_active:
+		return
+	# ui_cancel por el pipeline de eventos: toilet_pee_setup lo escucha en
+	# _unhandled_input (misma ruta que Esc/Start). El pause menu lo ignora
+	# durante minigames (gate en pause_menu.gd).
+	var press := InputEventAction.new()
+	press.action = "ui_cancel"
+	press.pressed = true
+	Input.parse_input_event(press)
+	var release := InputEventAction.new()
+	release.action = "ui_cancel"
+	release.pressed = false
+	Input.parse_input_event(release)
 
 
 func _on_pause_pressed() -> void:
