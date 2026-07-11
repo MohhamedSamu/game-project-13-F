@@ -517,7 +517,7 @@ func _get_voice_profile_for_character(character_name: String) -> DialogueVoicePr
 	if upper_name == "NATHAN":
 		return adult_male_neutral_profile
 
-	if upper_name == "OLD MAN":
+	if upper_name in ["OLD MAN", "JUAN CARLOS", "JUAN"]:
 		return adult_male_neutral_profile
 
 	return default_voice_profile

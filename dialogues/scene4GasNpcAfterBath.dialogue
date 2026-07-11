@@ -2,18 +2,18 @@
 
 Player: ¡QUITESE! ¡Ese baño está MALDITO.
 
-Old Man: ¿Cómo que maldito?
+Juan Carlos: ¿Cómo que maldito?
 
 Player: ¡Está saliendo sangre del lavamanos! ¡Y hay una cara de venado en la pared!
 
-Old Man: ...
+Juan Carlos: ...
 
 do Scene4BathroomExitDirector.peek_into_empty_bathroom()
 
-Old Man: Aquí no hay venados, muchacho. estamos en Apopa.
-Old Man: Y tampoco hay agua, porque... estamos en Apopa.
-Old Man: Mejor váyase a comer algo y a tomarse una soda. Usted ya anda viendo cosas.
-Old Man: Yo me voy, porque la oficina me está llamando y tengo que hacer unas llamadas.
+Juan Carlos: Aquí no hay venados, muchacho. estamos en Apopa.
+Juan Carlos: Y tampoco hay agua, porque... estamos en Apopa.
+Juan Carlos: Mejor váyase a comer algo y a tomarse una soda. Usted ya anda viendo cosas.
+Juan Carlos: Yo me voy, porque la oficina me está llamando y tengo que hacer unas llamadas.
 
 do Scene4BathroomExitDirector.trigger_toilet_cubicle_exit()
 

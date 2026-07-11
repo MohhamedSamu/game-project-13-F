@@ -1,5 +1,5 @@
 extends Node
-## Tras el diálogo de Juan: espera [code]start_walking[/code], luego [code]walking[/code] y recorre markers.
+## Tras el diálogo de Juan: recorre markers y reproduce [code]walking[/code] solo al desplazarse.
 
 @export var jumpscare_setup_path: NodePath = ^"../FlashlightJumpscareSetup"
 @export var police_npc_path: NodePath = ^"../PoliceNpc"
@@ -16,17 +16,22 @@ extends Node
 @export var next_scene_id: String = "explore_gas_station"
 @export var departure_flag: String = "level2_juan_departed"
 
-const START_WALK_ANIM := &"start_walking"
 const WALK_ANIM := &"walking"
 const MIXAMO_YAW_CORRECTION := PI
 
 var _walking: bool = false
+var _walk_anim_started: bool = false
 
 
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
 	call_deferred("_connect_jumpscare")
+	call_deferred("_sync_blocker_walls")
+
+
+func _sync_blocker_walls() -> void:
+	Scene1FlashlightBlocker.sync_from_flags()
 
 
 func _connect_jumpscare() -> void:
@@ -39,6 +44,7 @@ func _connect_jumpscare() -> void:
 
 
 func _on_jumpscare_dialogue_finished() -> void:
+	Scene1FlashlightBlocker.clear_after_dialogue()
 	MusicDirector.play_ambience()
 	await _run_exit_walk()
 
@@ -61,8 +67,7 @@ func _run_exit_walk() -> void:
 			player.clear_camera_focus()
 
 	await get_tree().process_frame
-	await _await_start_walking(police)
-	_play_walking(police)
+	_walk_anim_started = false
 	_walking = true
 
 	for marker in waypoints:
@@ -103,21 +108,6 @@ func _collect_waypoints() -> Array[Marker3D]:
 	return result
 
 
-func _await_start_walking(police: Node3D) -> void:
-	var animation_player := _get_animation_player(police)
-	if animation_player == null:
-		return
-	if animation_player.current_animation == String(START_WALK_ANIM):
-		await _await_animation(police, START_WALK_ANIM)
-		return
-	if animation_player.has_animation(String(START_WALK_ANIM)):
-		if police.has_method("play_animation"):
-			police.play_animation(String(START_WALK_ANIM))
-		else:
-			animation_player.play(String(START_WALK_ANIM))
-		await _await_animation(police, START_WALK_ANIM)
-
-
 func _play_walking(police: Node3D) -> void:
 	var animation_player := _get_animation_player(police)
 	if animation_player == null:
@@ -127,6 +117,13 @@ func _play_walking(police: Node3D) -> void:
 	else:
 		animation_player.play(String(WALK_ANIM))
 	animation_player.speed_scale = walk_animation_speed_scale
+
+
+func _start_walk_animations_on_move(police: Node3D) -> void:
+	if _walk_anim_started:
+		return
+	_walk_anim_started = true
+	_play_walking(police)
 
 
 func _walk_to_marker(police: Node3D, target: Vector3) -> void:
@@ -142,6 +139,7 @@ func _walk_to_marker(police: Node3D, target: Vector3) -> void:
 				police
 			)
 			break
+		_start_walk_animations_on_move(police)
 		var step := minf(dist, walk_speed * get_physics_process_delta_time())
 		var direction := offset / dist
 		var next_pos := police.global_position + direction * step
@@ -177,12 +175,3 @@ func _get_animation_player(police: Node3D) -> AnimationPlayer:
 	if police.has_method("get_animation_player"):
 		return police.call("get_animation_player") as AnimationPlayer
 	return police.find_child("AnimationPlayer", true, false) as AnimationPlayer
-
-
-func _await_animation(police: Node3D, anim_name: StringName) -> void:
-	var animation_player := _get_animation_player(police)
-	if animation_player == null:
-		return
-	if animation_player.current_animation != String(anim_name):
-		return
-	await animation_player.animation_finished
