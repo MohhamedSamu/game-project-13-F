@@ -282,11 +282,13 @@ func _update_visibility() -> void:
 	_blocker_cluster.visible = gameplay_ok or minigame_touch
 
 	# Hamburguesa: como Esc, pero oculta durante diálogos (pausar en medio de un
-	# diálogo dejaba la UI de opciones sin respuesta en táctil) y con gamepad presente.
+	# diálogo dejaba la UI de opciones sin respuesta en táctil), en el minijuego
+	# del baño (ahí la salida es ✕) y con gamepad presente.
 	var pause_ok: bool = (
 		not paused
 		and not joypad_connected
 		and not GameManager.dialogue_active
+		and not GameManager.minigame_active
 		and not GameManager.level_intro_active
 		and not GameManager.instructions_overlay_active
 	)

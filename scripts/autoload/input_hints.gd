@@ -21,6 +21,12 @@ func _input(event: InputEvent) -> void:
 
 
 func is_gamepad() -> bool:
+	# Sin ningún mando conectado no hay modo gamepad posible. Evita que el lock
+	# persistido en settings deje el juego en modo mando para siempre (en el
+	# teléfono rompía: E no recogía pickups, el spray del baño se apagaba solo
+	# y los prompts mostraban botones de mando en pantalla táctil).
+	if Input.get_connected_joypads().is_empty():
+		return false
 	return gamepad_locked or active_scheme == DeviceScheme.GAMEPAD
 
 
