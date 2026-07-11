@@ -9,6 +9,17 @@ const REFERENCE_LOOK_SPEED := 0.002
 
 enum MovementProfile { PRODUCTION, DEVELOP }
 
+# --- GRÁFICOS: calidad de sombras (tamaño del atlas). Aplicable EN VIVO. ---
+enum GraphicsQuality { HIGH, MEDIUM, LOW }
+
+const GRAPHICS_SHADOW_SIZES := {
+	GraphicsQuality.HIGH: 4096,
+	GraphicsQuality.MEDIUM: 2048,
+	GraphicsQuality.LOW: 1024,
+}
+## Alta [4096] por defecto en una partida nueva (pedido de diseño).
+const DEFAULT_GRAPHICS_QUALITY := GraphicsQuality.HIGH
+
 const DEVELOP_WALK_SPEED := 7.0
 const DEVELOP_SPRINT_SPEED := 10.0
 const DEVELOP_FREEFLY_SPEED := 25.0
@@ -22,6 +33,7 @@ const PRODUCTION_JUMP_VELOCITY := DEVELOP_JUMP_VELOCITY * 0.7071067811865476
 var data := {
 	"mouse_sensitivity": DEFAULT_MOUSE_SENSITIVITY,
 	"camera_fov": DEFAULT_CAMERA_FOV,
+	"graphics_quality": DEFAULT_GRAPHICS_QUALITY,
 	"movement_profile": "production",
 	"master_volume": 1.0,
 	"music_volume": 1.0,
@@ -34,6 +46,7 @@ func _ready() -> void:
 	load_settings()
 	apply_audio()
 	_apply_display()
+	apply_graphics_quality()
 
 
 func set_value(key: String, value) -> void:
@@ -99,6 +112,53 @@ func mouse_sensitivity_to_look_speed(mouse_sensitivity: float) -> float:
 	var sens := maxf(mouse_sensitivity, 0.001)
 	return REFERENCE_LOOK_SPEED * (sens / DEFAULT_MOUSE_SENSITIVITY)
 
+
+# --- GRÁFICOS -----------------------------------------------------------------
+
+## Devuelve la calidad guardada (int del enum GraphicsQuality). Se valida contra
+## los tamaños conocidos; si el valor guardado es inválido, cae al default (Alta).
+func get_graphics_quality() -> int:
+	var q := int(get_value("graphics_quality", DEFAULT_GRAPHICS_QUALITY))
+	if not GRAPHICS_SHADOW_SIZES.has(q):
+		q = int(DEFAULT_GRAPHICS_QUALITY)
+	return q
+
+
+func set_graphics_quality(quality: int) -> void:
+	if not GRAPHICS_SHADOW_SIZES.has(quality):
+		quality = int(DEFAULT_GRAPHICS_QUALITY)
+	data["graphics_quality"] = quality
+
+
+func get_graphics_shadow_size() -> int:
+	return int(GRAPHICS_SHADOW_SIZES.get(get_graphics_quality(), 4096))
+
+
+## Aplica el tamaño del atlas de sombras EN VIVO (posicional + direccional).
+## Funciona mientras el juego corre: cambiar de Alta→Baja se refleja al instante
+## sin reiniciar. No añade ni quita luces; solo la resolución de las sombras.
+func apply_graphics_quality() -> void:
+	var size := get_graphics_shadow_size()
+	var tree := get_tree()
+	if tree != null and tree.root != null:
+		# Atlas de las luces posicionales (12 focos de la estación, 15 farolas, linterna...).
+		tree.root.positional_shadow_atlas_size = size
+	# Atlas de la sombra direccional (sol/luna gestionados por Sky3D).
+	RenderingServer.directional_shadow_atlas_set_size(size, true)
+
+
+func get_graphics_quality_display_name() -> String:
+	match get_graphics_quality():
+		GraphicsQuality.HIGH:
+			return "Alta"
+		GraphicsQuality.MEDIUM:
+			return "Medios"
+		GraphicsQuality.LOW:
+			return "Bajos"
+	return "Alta"
+
+
+# --- MOVEMENT PROFILE ---------------------------------------------------------
 
 func get_movement_profile() -> MovementProfile:
 	return MovementProfile.PRODUCTION

@@ -235,6 +235,24 @@ max_value = 90.0
 value = 75.0
 script = ExtResource("5_fov")
 
+[node name="lblGraphics" type="Label" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 434.0
+offset_right = 456.0
+offset_bottom = 458.0
+theme_override_fonts/font = ExtResource("2_6hfwq")
+theme_override_font_sizes/font_size = 20
+text = "Graphics"
+
+[node name="GraphicsControl" type="OptionButton" parent="VScrollBar"]
+layout_mode = 2
+offset_top = 462.0
+offset_right = 456.0
+offset_bottom = 497.0
+theme_override_fonts/font = ExtResource("2_6hfwq")
+theme_override_font_sizes/font_size = 18
+script = ExtResource("7_moveprof")
+
 [node name="btnBack" type="Button" parent="VScrollBar"]
 custom_minimum_size = Vector2(456, 79)
 layout_mode = 2
