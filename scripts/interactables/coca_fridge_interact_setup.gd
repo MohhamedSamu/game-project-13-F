@@ -42,7 +42,12 @@ func _on_dialogue_finished_give_coca() -> void:
 func _sync_dialogue_enabled() -> void:
 	if _dialogue == null:
 		return
-	_dialogue.enabled = can_handle_interaction()
+	# Mantener el Area activo mientras escena 4 esté pendiente; can_handle_interaction() filtra en runtime.
+	var blocked_by_coca := (
+		GameManager.get_flag("has_coca_in_left_hand")
+		or GameManager.get_flag("coca_placed_on_counter")
+	)
+	_dialogue.enabled = not blocked_by_coca
 
 
 func refresh_interaction_state() -> void:

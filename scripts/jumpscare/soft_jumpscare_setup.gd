@@ -322,8 +322,7 @@ func _run_soft_jumpscare_async(player: Node3D) -> void:
 	_triggered = true
 	if not trigger_flag.is_empty():
 		GameManager.set_flag(trigger_flag, true)
-		if trigger_flag == "scene4_bathroom_exit_jumpscare_done":
-			get_tree().call_group(&"coca_fridge_interact", &"refresh_interaction_state")
+		_notify_trigger_flag_side_effects()
 
 	_prepare_external_actor_for_jumpscare(actor)
 
@@ -398,6 +397,7 @@ func _run_scene4_bathroom_exit_jumpscare(player: Node3D) -> void:
 	_triggered = true
 	if not trigger_flag.is_empty():
 		GameManager.set_flag(trigger_flag, true)
+		_notify_trigger_flag_side_effects()
 
 	gas_npc.prepare_for_bathroom_exit_jumpscare()
 	var spawn_pos := _project_to_floor(
@@ -792,6 +792,11 @@ func _resolve_animation_player_for_actor(actor: Node3D) -> AnimationPlayer:
 		if explicit != null:
 			return explicit
 	return _find_animation_player(actor)
+
+
+func _notify_trigger_flag_side_effects() -> void:
+	if trigger_flag == "scene4_bathroom_exit_jumpscare_done":
+		get_tree().call_group(&"coca_fridge_interact", &"refresh_interaction_state")
 
 
 func _is_scene4_bathroom_exit_jumpscare() -> bool:
