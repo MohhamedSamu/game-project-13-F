@@ -1,6 +1,6 @@
 extends Node3D
 
-## Libro de instrucciones: recogible con [E], leer con [E] o clic en la mano.
+## Libro de instrucciones: recogible con [E]/[Y], leer con [E]/[B] o clic en la mano.
 
 @export_group("UI")
 @export var pickup_prompt: String = "[E] Recoger libro de instrucciones"
@@ -8,15 +8,6 @@ extends Node3D
 
 @export_group("Identity")
 @export var item_id: StringName = &"instructions_book"
-
-@export_group("Contenido")
-@export_multiline var instructions_text: String = """Controles
-
-• WASD — caminar y moverte por el entorno.
-• Mantén SHIFT — correr.
-
-Explora la zona: debería haber una linterna cerca.
-Recógela con [E] y cámbiala con [F] cuando la lleves en la mano."""
 
 @export_group("En la mano")
 @export var hold_offset: Vector3 = Vector3(0.14, -0.1, -0.34)
@@ -48,13 +39,13 @@ func _ready() -> void:
 
 
 func get_interaction_prompt() -> String:
-	return pickup_prompt
+	return InputHints.adapt_pickup_prompt(pickup_prompt)
 
 
 func get_use_prompt() -> String:
 	if InstructionsOverlay.is_open():
 		return ""
-	return use_prompt
+	return InputHints.adapt_prompt(use_prompt)
 
 
 func get_item_id() -> StringName:
@@ -62,7 +53,7 @@ func get_item_id() -> StringName:
 
 
 func use_held_item() -> void:
-	InstructionsOverlay.toggle_instructions(instructions_text)
+	InstructionsOverlay.toggle_instructions(InputHints.instructions_body(), true)
 
 
 func pickup_to_hand(hand: Node3D) -> void:

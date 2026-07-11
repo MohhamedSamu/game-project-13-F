@@ -54,6 +54,15 @@ const DEVELOP_SPRINT_SPEED := 10.0
 const DEVELOP_FREEFLY_SPEED := 25.0
 const DEFAULT_PITCH_LIMIT_RAD := deg_to_rad(85.0)
 
+@export_group("Gamepad")
+## Velocidad de cámara con stick derecho (rad/s a inclinación completa).
+@export var gamepad_look_speed : float = 2.75
+
+const INPUT_LOOK_LEFT := "look_left"
+const INPUT_LOOK_RIGHT := "look_right"
+const INPUT_LOOK_UP := "look_up"
+const INPUT_LOOK_DOWN := "look_down"
+
 @export_group("Input Actions")
 ## Name of Input Action to move Left.
 @export var input_left : String = "left"
@@ -64,7 +73,7 @@ const DEFAULT_PITCH_LIMIT_RAD := deg_to_rad(85.0)
 ## Name of Input Action to move Backward.
 @export var input_back : String = "down"
 ## Name of Input Action to Jump.
-@export var input_jump : String = "ui_accept"
+@export var input_jump : String = "jump"
 ## Name of Input Action to Sprint.
 @export var input_sprint : String = "sprint"
 
@@ -84,6 +93,7 @@ const DEFAULT_PITCH_LIMIT_RAD := deg_to_rad(85.0)
 @export var dialogue_reposition_speed: float = 1.4
 @export var dialogue_reposition_stop_threshold: float = 0.05
 @export var input_interact: String = "interact"
+@export var input_pickup: String = "pickup_item"
 @export var input_drop_item: String = "drop_item"
 @export var input_flashlight_toggle: String = "flashlight_toggle"
 ## Si llevas algo y miras otro objeto recogible.
@@ -127,6 +137,7 @@ const DEFAULT_PITCH_LIMIT_RAD := deg_to_rad(85.0)
 @export var min_downward_speed_for_land: float = 1.2
 
 var mouse_captured : bool = false
+var _gamepad_look_speed : float = 2.75
 var look_rotation : Vector2
 var move_speed : float = 0.0
 var freeflying : bool = false
@@ -195,6 +206,7 @@ func _ready() -> void:
 	look_rotation.x = head.rotation.x
 
 	_apply_movement_profile_from_settings()
+	_gamepad_look_speed = gamepad_look_speed
 
 	GameManager.register_player(self)
 	_connect_left_hand_dialogue_visibility()
@@ -281,10 +293,14 @@ func _physics_process(delta: float) -> void:
 	if focusing_camera:
 		_update_dialogue_camera_focus(delta)
 
-	if input_enabled and interaction_enabled and mouse_captured and not freeflying:
+	_apply_gamepad_look(delta)
+
+	if input_enabled and interaction_enabled and _player_controls_active() and not freeflying:
 		if not GameManager.interaction_prep_active:
 			if Input.is_action_just_pressed(input_interact):
-				_try_interact_focused()
+				_try_interact_focused(not InputHints.is_gamepad())
+			if Input.is_action_just_pressed(input_pickup):
+				_try_pickup_action()
 		if Input.is_action_just_pressed(input_drop_item):
 			_try_drop_held()
 		if Input.is_action_just_pressed(input_flashlight_toggle):
@@ -354,7 +370,7 @@ func _physics_process(delta: float) -> void:
 		if grounded_end and not grounded_start and vy_before_move <= -min_downward_speed_for_land:
 			_play_land_sfx()
 			_footstep_stride_accum = 0.0
-	if interaction_enabled and mouse_captured and not freeflying:
+	if interaction_enabled and _player_controls_active() and not freeflying:
 		_update_interaction_focus()
 	if footsteps_enabled and not freeflying:
 		_update_footsteps(delta)
@@ -590,15 +606,29 @@ func _ensure_crosshair_ref() -> void:
 func _interaction_prompt(node: Node) -> String:
 	if node == null:
 		return ""
+	var prompt := ""
 	if node.has_method("get_interaction_prompt"):
 		var p: Variant = node.call("get_interaction_prompt")
 		if p is String:
-			return p as String
-	if node.has_method("get_interaction_text"):
+			prompt = p as String
+	elif node.has_method("get_interaction_text"):
 		var t: Variant = node.call("get_interaction_text")
 		if t is String:
-			return t as String
-	return ""
+			prompt = t as String
+	if prompt.is_empty():
+		return ""
+	if node.is_in_group("pickup"):
+		return InputHints.adapt_pickup_prompt(prompt)
+	return InputHints.adapt_prompt(prompt)
+
+
+func _drop_before_pickup_prompt() -> String:
+	if InputHints.is_gamepad():
+		return "Ya llevas un objeto en la mano. Pulsa %s para soltarlo antes de coger otro (%s)." % [
+			InputHints.label_drop(),
+			InputHints.label_pickup(),
+		]
+	return prompt_need_drop_before_pickup
 
 
 func _interaction_ray_exclude_rids() -> Array[RID]:
@@ -692,7 +722,7 @@ func _update_interaction_focus() -> void:
 		if _held_pickup != null and _held_pickup.has_method("get_use_prompt"):
 			var use_prompt: Variant = _held_pickup.get_use_prompt()
 			if use_prompt is String and not (use_prompt as String).is_empty():
-				_apply_crosshair_ui(true, use_prompt as String)
+				_apply_crosshair_ui(true, InputHints.adapt_prompt(use_prompt as String))
 				_apply_interaction_highlight(null)
 				return
 		_clear_interaction_focus_ui()
@@ -706,7 +736,7 @@ func _update_interaction_focus() -> void:
 	_focus_interactable = focus
 	var prompt: String = ""
 	if _held_pickup != null and focus != _held_pickup and focus.is_in_group("pickup"):
-		prompt = prompt_need_drop_before_pickup
+		prompt = _drop_before_pickup_prompt()
 	else:
 		prompt = _interaction_prompt(focus)
 	_apply_crosshair_ui(true, prompt)
@@ -920,7 +950,7 @@ func _apply_crosshair_ui(active: bool, prompt: String) -> void:
 		_interaction_crosshair.call("update_focus", active, prompt)
 
 
-func _try_interact_focused() -> void:
+func _try_interact_focused(include_pickup: bool = true) -> void:
 	if _try_toggle_held_instructions():
 		return
 	if _focus_interactable == null:
@@ -928,7 +958,8 @@ func _try_interact_focused() -> void:
 	if _focus_interactable.has_method("can_interact") and not _focus_interactable.can_interact():
 		return
 	if (
-		_held_pickup == null
+		include_pickup
+		and _held_pickup == null
 		and hand_right != null
 		and _focus_interactable.is_in_group("pickup")
 		and _focus_interactable.has_method("pickup_to_hand")
@@ -940,6 +971,25 @@ func _try_interact_focused() -> void:
 		return
 	if _focus_interactable.has_method("interact"):
 		_focus_interactable.interact()
+
+
+func _try_pickup_action() -> void:
+	if _try_use_held_item():
+		return
+	if _held_pickup != null:
+		return
+	if _focus_interactable == null:
+		return
+	if _focus_interactable.has_method("can_interact") and not _focus_interactable.can_interact():
+		return
+	if not _focus_interactable.is_in_group("pickup"):
+		return
+	if hand_right == null or not _focus_interactable.has_method("pickup_to_hand"):
+		return
+	_focus_interactable.pickup_to_hand(hand_right)
+	_held_pickup = _focus_interactable as Node3D
+	_play_pickup_acquire_sound()
+	pickup_acquired.emit(_held_pickup, _resolve_pickup_item_id(_held_pickup))
 
 
 func _play_pickup_acquire_sound() -> void:
@@ -974,11 +1024,13 @@ func _try_drop_held() -> void:
 		_held_pickup = null
 
 
-func _try_use_held_item() -> void:
+func _try_use_held_item() -> bool:
 	if _held_pickup == null or GameManager.instructions_overlay_active:
-		return
+		return false
 	if _held_pickup.has_method("toggle_spotlight"):
 		_held_pickup.toggle_spotlight()
+		return true
+	return false
 
 
 func force_held_flashlight_near() -> void:
@@ -1443,8 +1495,24 @@ func set_input_enabled(value: bool) -> void:
 
 func apply_control_settings(mouse_sensitivity: float, camera_fov: float) -> void:
 	look_speed = Settings.mouse_sensitivity_to_look_speed(mouse_sensitivity)
+	_gamepad_look_speed = gamepad_look_speed * (mouse_sensitivity / Settings.DEFAULT_MOUSE_SENSITIVITY)
 	if camera_3d != null:
 		camera_3d.fov = clampf(camera_fov, 40.0, Settings.MAX_CAMERA_FOV)
+
+
+func _player_controls_active() -> bool:
+	return mouse_captured or not Input.get_connected_joypads().is_empty()
+
+
+func _apply_gamepad_look(delta: float) -> void:
+	if not input_enabled or minigame_mode or focusing_camera:
+		return
+	if GameManager.dialogue_active or GameManager.level_intro_active or GameManager.interaction_prep_active:
+		return
+	var look_dir := Input.get_vector(INPUT_LOOK_LEFT, INPUT_LOOK_RIGHT, INPUT_LOOK_UP, INPUT_LOOK_DOWN)
+	if look_dir.length_squared() < 0.01:
+		return
+	rotate_look(look_dir * _gamepad_look_speed * delta * 60.0)
 
 
 func begin_cinematic_zoom(zoom_fov: float, duration: float = 0.9) -> void:
