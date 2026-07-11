@@ -1,5 +1,7 @@
 [gd_scene load_steps=4 format=4 uid="uid://c6crdqoonoer8"]
 
+[ext_resource type="Texture2D" path="res://assets/characters/Personajes_terror/Pe3.png" id="1_tex"]
+
 [sub_resource type="ArrayMesh" id="ArrayMesh_ip7ar"]
 _surfaces = [{
 "aabb": AABB(-0.641548, -1.38462, -1.58161, 1.2831, 2.76925, 3.16323),
@@ -13,13 +15,11 @@ _surfaces = [{
 "vertex_data": PackedByteArray("AEaTPrBoVj9gcso/AOkTPi1Zkz/gWsQ/gDwkv6Yneb+g46y/AFy/vo73n78gGJm/gDwkv6Yneb+g46y/AEaTPrBoVj9gcso/AFy/vo73n78gGJm/AOkTPi1Zkz/gWsQ/AGqxPYTatT4ArIe9gFuNvtPVQ7/AuDa/gKDaPlU7sT+A078/AHRfvhBVDz4ALDU+gDwkPxmxhj/ARsY/AKbnvg5JYL+AvRO/AFMdv8Eam7/ALci/AHRfvhBVDz4ALDU+AKbnvg5JYL+AvRO/AFMdv8Eam7/ALci/gDwkPxmxhj/ARsY/AOkTPi1Zkz/gWsQ/gKDaPlU7sT+A078/AEaTPrBoVj9gcso/gJnXPk1Tqz8g4LE/APggP336hj/gGL8/AMDIPQCz2LsAcPM+AM64PsBlPD0AutA9gAHzvsW1Ob8gKYm/AJBjvgoTer+AyG6/wLgJvxs4lL9Acsq/AMDIPQCz2LsAcPM+gO6FPhqJaz/AcUs/ANNbPnFImz8AKMM/ADzRPtJUbT9gtMg/ACiTPGZuPT+APXw/AEjwvcSPgT4Apak+gLD0PlwRKj9AFG0/AIxtPvQo8D6AlI8/AIEAPkD43D4ANgs+gGmvPljANj6AH4s+AFyKPUAKOr6A0bg+gAzgviWnGr+AeE2/QD0dvw6GNb+Apiu/gMvBvqhmiL8Azly/wJ4hvzD+Tb/gFYG/AOeCvvfflr+gM5y/wOUFvxqRab+ACK+/ANa9vmCKqb9Arb6/AOTkvlY7sb8gzLu/AFyKPUAKOr6A0bg+AEjwvcSPgT4Apak+QD0dvw6GNb+Apiu/AIxtPvQo8D6AlI8/gMvBvqhmiL8Azly/ACiTPGZuPT+APXw/wJ4hvzD+Tb/gFYG/AOTkvlY7sb8gzLu/ANNbPnFImz8AKMM/ANNbPnFImz8AKMM/ADzRPtJUbT9gtMg/AOkTPi1Zkz/gWsQ/ADzRPtJUbT9gtMg/ADzRPtJUbT9gtMg/ANNbPnFImz8AKMM/gDwkPxmxhj/ARsY/T3WcUkYE9sh+Ry2eA7DX8RITVKXo5Cr1xHd6MJVIGM4QE1Cl5GkUlFF1nFLO0eyew3d6MHTxQbV9Ryuesoyxo1G8Xvgr6wOv+u4uY657Pp+GjFfUGfIZtpouqpkAuGj6IsZhcGtgGZ0mcAc/5DNK0PQYcjyyx6KVmi6omfF5T58mcAY/X+MjrfMYczzZoEuTAIDZkNqQAAAAgNmQI28AAACA2ZDakAAAAIDZkCNvAACEt3nymudcrQbzyl/kf6WZg36/QzkCf8Ft8j1iYX9VnAO2xvMz7Xe34Oodd6l0yJ8b5Zr0Ws5apIV+vkPf4BGjSbn4+xbwM7HcWWiyeMgo6Yyc+GFILRG2CBkYkPq7Bv2sKmuWorbc+4/xNmevezKdJH2YOf8ceMcEsj74+u66sBL633mlfJ6cdIUdQ4YVCsOASu3/3vScsqMX8YZlQqf9bXpPNgggjsgbE8aYLMLZ+J3ogF5WeUekzcCU8yHlCK3q4jk4rZXeqKJiPQ5enpu3c4UcQ7Hlx6KtKmmW8HrAnaUX7obEgUqXJH2YOZDr4KpuelA2LO78rgkZFJADeByaGRPBmHZv+ZejYj0O1cnGtwCA2ZDakAAAAIDZkCNvAAAAgNmQI28AAACA2ZAjbwAAAIDZkCNvAAAAgNmQI28AAACA2ZAjbwAAAIDZkCNvAAA=")
 }]
 
-[sub_resource type="CompressedTexture2D" id="CompressedTexture2D_761nj"]
-load_path = "res://.godot/imported/Pe3.png-91828f55838391ca47d77b707363f8d2.s3tc.ctex"
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_x5er6"]
 resource_name = "Material"
 cull_mode = 2
-albedo_texture = SubResource("CompressedTexture2D_761nj")
+albedo_texture = ExtResource("1_tex")
 roughness = 0.0764706
 
 [node name="TerrorHead09" type="Node3D"]
