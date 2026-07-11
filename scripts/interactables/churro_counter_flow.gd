@@ -26,7 +26,7 @@ static func place_churro_from_counter(setup: Node) -> void:
 
 
 static func place_churro_from_cashier(focus_target: Node3D) -> void:
-	_execute_place(null, false, focus_target)
+	_execute_place(null, true, focus_target)
 
 
 static func _execute_place(
@@ -56,13 +56,31 @@ static func _execute_place(
 	GameManager.set_flag("has_churro_in_left_hand", false)
 	GameManager.set_flag("churro_placed_on_counter", true)
 
-	var focus := focus_target
-	if focus == null and place_setup.has_method("get_cashier_focus"):
-		focus = place_setup.get_cashier_focus()
+	var focus := _resolve_cashier_dialogue_focus(focus_target, place_setup)
 
 	InnerThoughts.hide_thought()
 	var focus_speed := CounterPlaceCamera.resolve_focus_speed(place_setup, use_camera_focus)
 	_start_cashier_final_dialogue(focus, use_camera_focus, focus_speed)
+
+
+static func _resolve_cashier_dialogue_focus(fallback: Node3D, place_setup: Node) -> Node3D:
+	var npc := _find_cashier_npc()
+	if npc != null:
+		var face_focus := npc.get_node_or_null("DialogueFocusPoint") as Node3D
+		if face_focus != null:
+			return face_focus
+	if fallback != null:
+		return fallback
+	if place_setup != null and place_setup.has_method("get_cashier_focus"):
+		return place_setup.get_cashier_focus()
+	return null
+
+
+static func _find_cashier_npc() -> Node:
+	var tree := Engine.get_main_loop() as SceneTree
+	if tree == null or tree.current_scene == null:
+		return null
+	return tree.current_scene.find_child("SupermarketNPC", true, false)
 
 
 static func _start_cashier_final_dialogue(
