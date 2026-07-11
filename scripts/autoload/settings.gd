@@ -45,10 +45,26 @@ var data := {
 
 
 func _ready() -> void:
+	# En móvil el juego arranca en fullscreen por defecto (partida/instalación nueva).
+	data["fullscreen"] = OS.has_feature("mobile")
 	load_settings()
+	_migrate_mobile_fullscreen_default()
 	apply_audio()
 	_apply_display()
 	apply_graphics_quality()
+
+
+## Una sola vez por instalación: en móvil activa fullscreen aunque ya exista un
+## settings.json previo guardado con fullscreen=false (instalaciones anteriores).
+## Después, el jugador puede apagarlo en el menú y se respeta su elección.
+func _migrate_mobile_fullscreen_default() -> void:
+	if not OS.has_feature("mobile"):
+		return
+	if bool(get_value("fullscreen_mobile_defaulted", false)):
+		return
+	data["fullscreen"] = true
+	data["fullscreen_mobile_defaulted"] = true
+	save_settings()
 
 
 func set_value(key: String, value) -> void:
