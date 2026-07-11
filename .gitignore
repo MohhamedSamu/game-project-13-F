@@ -4,3 +4,8 @@
 
 # Windows: DLL bloqueadas por el editor al cargar plugins nativos (no commitear)
 **/~*.dll
+
+# Builds exportados (distribuir por Releases, no en Git)
+public/*.exe
+public/*.pck
+public/*.console.exe

@@ -34,7 +34,7 @@ shader_parameter/atm_horizon_light_tint = Color(0.980392, 0.635294, 0.462745, 1)
 shader_parameter/atm_night_tint = Color(0, 0, 0, 0)
 shader_parameter/atm_level_params = Vector3(1, 0, 0)
 shader_parameter/atm_thickness = 0.7
-shader_parameter/atm_beta_ray = Vector3(5.80454e-06, 1.35629e-05, 3.31126e-05)
+shader_parameter/atm_beta_ray = Vector3(5.804544e-06, 1.3562913e-05, 3.311258e-05)
 shader_parameter/atm_beta_mie = Vector3(3.038e-08, 3.038e-08, 3.038e-08)
 shader_parameter/sun_light_color = Color(1, 1, 1, 1)
 shader_parameter/sun_disk_color = Color(0.996094, 0.541334, 0.140076, 1)
@@ -58,8 +58,8 @@ shader_parameter/starmap_flip_u = false
 shader_parameter/starmap_flip_v = false
 shader_parameter/starmap_alignment = Vector3(2.68288, -0.25891, 0.40101)
 shader_parameter/star_rotation_offset = 9.38899
-shader_parameter/star_rotation = -7.45391
-shader_parameter/star_tilt = -1.29154
+shader_parameter/star_rotation = -7.453910962403196
+shader_parameter/star_tilt = -1.2915436464758039
 shader_parameter/star_field_color = Color(1, 1, 1, 1)
 shader_parameter/star_field_texture = ExtResource("8_jrhf3")
 shader_parameter/star_scintillation = 0.75
@@ -74,8 +74,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.0144485, 0.0144484)
-shader_parameter/cirrus_position2 = Vector2(0.0144485, 0.0144484)
+shader_parameter/cirrus_position1 = Vector2(0.044500146, 0.044500034)
+shader_parameter/cirrus_position2 = Vector2(0.044500146, 0.044500034)
 shader_parameter/cirrus_texture = ExtResource("4_d4g5q")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -85,17 +85,17 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(0.0722436, 0.0722425)
+shader_parameter/cumulus_position = Vector2(0.22250652, 0.22250539)
 shader_parameter/cumulus_texture = ExtResource("5_2srlj")
-shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
+shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.042436, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
 shader_parameter/show_azimuthal_grid = false
-shader_parameter/azimuthal_grid_color = Color(0.870588, 0.721569, 0.529412, 1)
+shader_parameter/azimuthal_grid_color = Color(0.87058824, 0.72156864, 0.5294118, 1)
 shader_parameter/azimuthal_grid_rotation_offset = 0.03
 shader_parameter/show_equatorial_grid = false
 shader_parameter/equatorial_grid_color = Color(0, 0.75, 1, 1)
 shader_parameter/equatorial_grid_rotation_offset = 0.03
-shader_parameter/moon_matrix = Basis(-0.525804, -0.817655, -0.234459, 0.105471, 0.210839, -0.971814, 0.844041, -0.535713, -0.0246215)
+shader_parameter/moon_matrix = Basis(-0.5258043, -0.81765455, -0.23445868, 0.10547057, 0.21083893, -0.9718142, 0.84404135, -0.5357126, -0.024621524)
 
 [sub_resource type="Sky" id="Sky_sohg7"]
 sky_material = SubResource("ShaderMaterial_st2cm")
@@ -111,10 +111,8 @@ tonemap_white = 6.0
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_n08up"]
 
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w6ykx"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w6ykx"]
-bg_color = Color(0.10748, 0.10748, 0.10748, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1i17u"]
+bg_color = Color(1, 1, 1, 1)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
@@ -131,14 +129,16 @@ corner_radius_bottom_left = 16
 shadow_size = 5
 shadow_offset = Vector2(0, 3.41)
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1i17u"]
-bg_color = Color(1, 1, 1, 1)
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w6ykx"]
+bg_color = Color(0.10748, 0.10748, 0.10748, 1)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
 corner_radius_bottom_left = 16
 shadow_size = 5
 shadow_offset = Vector2(0, 3.41)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_w6ykx"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_hiibk"]
 
@@ -477,7 +477,7 @@ render_target_update_mode = 4
 [node name="MenuMapa" type="Node3D" parent="SubViewportContainer/SubViewport"]
 
 [node name="Camera3D" type="Camera3D" parent="SubViewportContainer/SubViewport/MenuMapa"]
-transform = Transform3D(-1, 0, -2.53518e-06, 0, 1, 0, 2.53518e-06, 0, -1, -592.313, 902.762, -568.519)
+transform = Transform3D(-1, 0, -2.5351817e-06, 0, 1, 0, 2.5351817e-06, 0, -1, -592.313, 902.762, -568.519)
 far = 10000.0
 
 [node name="terreno_juego_13_f" parent="SubViewportContainer/SubViewport/MenuMapa" instance=ExtResource("1_sd5it")]
@@ -493,20 +493,20 @@ wind_direction = 2.35619
 metadata/_custom_type_script = "uid://deo0gxkmk2ahd"
 
 [node name="SunLight" type="DirectionalLight3D" parent="SubViewportContainer/SubViewport/MenuMapa/Sky3D"]
-transform = Transform3D(-0.831205, 0.552641, -0.0607174, 0, 0.109211, 0.994019, 0.555966, 0.826233, -0.0907764, -0.0607174, 0.994019, -0.0907764)
+transform = Transform3D(-0.83120483, 0.5526409, -0.06071745, 0, 0.109210655, 0.9940187, 0.5559663, 0.82623315, -0.09077643, -0.060717445, 0.9940186, -0.09077642)
 shadow_enabled = true
 
 [node name="MoonLight" type="DirectionalLight3D" parent="SubViewportContainer/SubViewport/MenuMapa/Sky3D"]
-transform = Transform3D(0, -0.536278, 0.844041, -0.0459119, -0.843151, -0.535713, 0.998946, -0.0387515, -0.0246215, 0.844041, -0.535713, -0.0246215)
+transform = Transform3D(0, -0.5362781, 0.84404135, -0.045911856, -0.8431514, -0.5357126, 0.9989456, -0.038751505, -0.024621522, 0.84404135, -0.5357126, -0.024621522)
 light_color = Color(0.572549, 0.776471, 0.956863, 1)
 light_energy = 0.0
 
 [node name="SkyDome" type="Node" parent="SubViewportContainer/SubViewport/MenuMapa/Sky3D"]
 script = ExtResource("11_wnuh0")
-sun_azimuth = -5.69366
-sun_altitude = -0.109429
-moon_azimuth = -1.54163
-moon_altitude = -2.13615
+sun_azimuth = -5.6936603
+sun_altitude = -0.10942892
+moon_azimuth = -1.5416336
+moon_altitude = -2.1361477
 wind_direction = 2.35619
 
 [node name="TimeOfDay" type="Node" parent="SubViewportContainer/SubViewport/MenuMapa/Sky3D"]
@@ -558,10 +558,10 @@ theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_w6ykx")
 theme_override_font_sizes/font_size = 30
-theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
-theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
 theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
+theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
 text = "Start game"
 
 [node name="btnOptions" type="Button" parent="UI/MainBtns"]
@@ -572,10 +572,10 @@ theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_w6ykx")
 theme_override_font_sizes/font_size = 30
-theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
-theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
 theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
+theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
 text = "Options
 "
 
@@ -587,10 +587,10 @@ theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_w6ykx")
 theme_override_font_sizes/font_size = 30
-theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
-theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
 theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
+theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
 text = "Exit
 "
 
@@ -622,8 +622,8 @@ layout_mode = 1
 anchor_left = 0.434028
 anchor_right = 1.43403
 anchor_bottom = 1.0
-offset_left = -500.0
-offset_right = -500.0
+offset_left = -500.00024
+offset_right = -500.00024
 grow_horizontal = 2
 grow_vertical = 2
 metadata/_edit_use_anchors_ = true
@@ -651,10 +651,10 @@ theme_override_colors/font_focus_color = Color(0, 0, 0, 1)
 theme_override_colors/font_pressed_color = Color(0, 0, 0, 1)
 theme_override_fonts/font = ExtResource("3_w6ykx")
 theme_override_font_sizes/font_size = 30
-theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
-theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
-theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
 theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
+theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_w6ykx")
 text = "Back
 "
 
@@ -669,9 +669,9 @@ grow_vertical = 2
 [node name="VBoxContainer" parent="UI/OptionsPanel" instance=ExtResource("6_cnht7")]
 layout_mode = 0
 offset_left = 18.0
-offset_top = 93.0
+offset_top = 26.0
 offset_right = 474.0
-offset_bottom = 619.0
+offset_bottom = 552.0
 
 [node name="MenuAnimator" type="AnimationPlayer" parent="UI"]
 libraries = {

@@ -1,6 +1,7 @@
 class_name JumpscareScreamLibrary
 extends RefCounted
 ## Pool de gritos por intensidad (soft / med / hard) en assets/audio/SFX/screams.
+## Preload explícito: DirAccess.get_files_at() falla en builds exportadas (PCK).
 
 enum Tier {
 	SOFT,
@@ -8,9 +9,35 @@ enum Tier {
 	HARD,
 }
 
-const SCREAMS_DIR := "res://assets/audio/SFX/screams/"
+const _SOFT_CLIPS: Array[AudioStream] = [
+	preload("res://assets/audio/SFX/screams/soft1.mp3"),
+	preload("res://assets/audio/SFX/screams/soft2.mp3"),
+	preload("res://assets/audio/SFX/screams/soft3.mp3"),
+	preload("res://assets/audio/SFX/screams/soft4.mp3"),
+]
 
-static var _cache: Dictionary = {}
+const _MEDIUM_CLIPS: Array[AudioStream] = [
+	preload("res://assets/audio/SFX/screams/med1.mp3"),
+	preload("res://assets/audio/SFX/screams/med2.mp3"),
+	preload("res://assets/audio/SFX/screams/med3.mp3"),
+	preload("res://assets/audio/SFX/screams/med4.mp3"),
+]
+
+const _HARD_CLIPS: Array[AudioStream] = [
+	preload("res://assets/audio/SFX/screams/hard1.mp3"),
+	preload("res://assets/audio/SFX/screams/hard2.mp3"),
+	preload("res://assets/audio/SFX/screams/hard3.mp3"),
+	preload("res://assets/audio/SFX/screams/hard4.mp3"),
+	preload("res://assets/audio/SFX/screams/hard5.mp3"),
+	preload("res://assets/audio/SFX/screams/hard6.mp3"),
+	preload("res://assets/audio/SFX/screams/hard7.mp3"),
+]
+
+const _TIER_CLIPS := {
+	Tier.SOFT: _SOFT_CLIPS,
+	Tier.MEDIUM: _MEDIUM_CLIPS,
+	Tier.HARD: _HARD_CLIPS,
+}
 
 
 static func pick_random(tier: Tier) -> AudioStream:
@@ -21,36 +48,10 @@ static func pick_random(tier: Tier) -> AudioStream:
 
 
 static func get_clips(tier: Tier) -> Array[AudioStream]:
-	var key := int(tier)
-	if _cache.has(key):
-		return _cache[key]
-
-	var clips: Array[AudioStream] = []
-	var prefix := _tier_prefix(tier)
-
-	for file_name in DirAccess.get_files_at(SCREAMS_DIR):
-		if not file_name.begins_with(prefix):
-			continue
-		if not (file_name.ends_with(".mp3") or file_name.ends_with(".ogg") or file_name.ends_with(".wav")):
-			continue
-		var stream := load(SCREAMS_DIR.path_join(file_name)) as AudioStream
-		if stream != null:
-			clips.append(stream)
-
-	_cache[key] = clips
-	return clips
+	if not _TIER_CLIPS.has(tier):
+		return []
+	return (_TIER_CLIPS[tier] as Array).duplicate() as Array[AudioStream]
 
 
 static func clear_cache() -> void:
-	_cache.clear()
-
-
-static func _tier_prefix(tier: Tier) -> String:
-	match tier:
-		Tier.SOFT:
-			return "soft"
-		Tier.MEDIUM:
-			return "med"
-		Tier.HARD:
-			return "hard"
-	return ""
+	pass

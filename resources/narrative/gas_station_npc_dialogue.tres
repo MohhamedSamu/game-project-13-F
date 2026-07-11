@@ -7,48 +7,35 @@
 script = ExtResource("2_beat")
 beat_id = "kneel_interrupt"
 dialogue_title = "kneel_interrupt"
-required_scene_id = ""
 required_objectives = PackedStringArray()
-required_objectives_scene_id = ""
-required_objectives_any_scene = false
 forbidden_objectives = PackedStringArray()
 required_flags = PackedStringArray("gas_npc_kneel_interrupt_slot")
 forbidden_flags = null
 play_once = true
 complete_objectives_on_finish = PackedStringArray()
-set_scene_on_finish = ""
-set_flags_on_finish = {}
 
 [sub_resource type="Resource" id="beat_after_door_repeat"]
 script = ExtResource("2_beat")
 beat_id = "after_door_repeat"
 dialogue_title = "after_door_repeat"
-required_scene_id = ""
 required_objectives = PackedStringArray("tried_bathroom_door")
-required_objectives_scene_id = ""
 required_objectives_any_scene = true
 forbidden_objectives = PackedStringArray()
 required_flags = PackedStringArray("gas_npc_sent_to_supermarket")
 forbidden_flags = null
-play_once = false
 complete_objectives_on_finish = PackedStringArray()
-set_scene_on_finish = ""
-set_flags_on_finish = {}
 
 [sub_resource type="Resource" id="beat_after_door"]
 script = ExtResource("2_beat")
 beat_id = "after_door"
 dialogue_title = "after_door"
-required_scene_id = ""
 required_objectives = PackedStringArray("tried_bathroom_door")
-required_objectives_scene_id = ""
 required_objectives_any_scene = true
 forbidden_objectives = PackedStringArray()
 required_flags = PackedStringArray()
 forbidden_flags = null
 play_once = true
 complete_objectives_on_finish = PackedStringArray()
-set_scene_on_finish = ""
 set_flags_on_finish = {
 "gas_npc_sent_to_supermarket": true
 }
@@ -59,24 +46,16 @@ beat_id = "repeat"
 dialogue_title = "repeat"
 required_scene_id = "explore_gas_station"
 required_objectives = PackedStringArray()
-required_objectives_scene_id = ""
 required_objectives_any_scene = true
 forbidden_objectives = PackedStringArray("tried_bathroom_door")
 required_flags = PackedStringArray("gas_npc_intro_done")
 forbidden_flags = null
-play_once = false
 complete_objectives_on_finish = PackedStringArray()
-set_scene_on_finish = ""
-set_flags_on_finish = {}
 
 [sub_resource type="Resource" id="beat_intro"]
 script = ExtResource("2_beat")
 beat_id = "intro"
-dialogue_title = "start"
-required_scene_id = ""
 required_objectives = PackedStringArray()
-required_objectives_scene_id = ""
-required_objectives_any_scene = false
 forbidden_objectives = PackedStringArray()
 required_flags = PackedStringArray()
 forbidden_flags = null
@@ -90,5 +69,4 @@ set_flags_on_finish = {
 [resource]
 script = ExtResource("1_profile")
 npc_id = "gas_station_npc"
-fallback_title = "start"
 beats = Array[ExtResource("2_beat")]([SubResource("beat_kneel_interrupt"), SubResource("beat_after_door_repeat"), SubResource("beat_after_door"), SubResource("beat_repeat"), SubResource("beat_intro")])

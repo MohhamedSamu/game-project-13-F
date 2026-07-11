@@ -7,22 +7,18 @@
 [sub_resource type="Resource" id="demo_p1"]
 script = ExtResource("3_paragraph")
 text = "Gracias por querer jugar esta demo."
-style = 0
 
 [sub_resource type="Resource" id="demo_p2"]
 script = ExtResource("3_paragraph")
 text = "Esperamos que la disfruten tanto como nosotros la hemos disfrutado creándola."
-style = 0
 
 [sub_resource type="Resource" id="demo_p3"]
 script = ExtResource("3_paragraph")
 text = "Todos sus comentarios serán bien recibidos."
-style = 0
 
 [sub_resource type="Resource" id="demo_p4"]
 script = ExtResource("3_paragraph")
 text = "Esta es una demo de prueba de jugabilidad y mecánicas."
-style = 0
 
 [sub_resource type="Resource" id="page_demo_1"]
 script = ExtResource("2_page")
@@ -31,22 +27,18 @@ paragraphs = Array[ExtResource("3_paragraph")]([SubResource("demo_p1"), SubResou
 [sub_resource type="Resource" id="demo_p5"]
 script = ExtResource("3_paragraph")
 text = "No tiene nada que ver con la historia real del juego final."
-style = 0
 
 [sub_resource type="Resource" id="demo_p6"]
 script = ExtResource("3_paragraph")
 text = "No esperen lore definitivo: solo escenas con objetivos para probar la jugabilidad."
-style = 0
 
 [sub_resource type="Resource" id="demo_p7"]
 script = ExtResource("3_paragraph")
 text = "Muchas gracias de parte de Samuel, Walter y Diego."
-style = 0
 
 [sub_resource type="Resource" id="demo_p8"]
 script = ExtResource("3_paragraph")
 text = "Ahora sí… vamos al demo."
-style = 0
 
 [sub_resource type="Resource" id="page_demo_2"]
 script = ExtResource("2_page")
@@ -88,6 +80,3 @@ paragraphs = Array[ExtResource("3_paragraph")]([SubResource("thought_p4"), SubRe
 [resource]
 script = ExtResource("1_sequence")
 pages = Array[ExtResource("2_page")]([SubResource("page_demo_1"), SubResource("page_demo_2"), SubResource("page_thought_1"), SubResource("page_thought_2")])
-continue_hint = "Clic para seguir leyendo"
-fade_out_duration = 0.65
-final_scene_id = "arrival"
