@@ -20,6 +20,7 @@ extends Resource
 
 @export_group("Legacy Flags")
 @export var required_flags: PackedStringArray = PackedStringArray()
+@export var forbidden_flags: PackedStringArray = PackedStringArray()
 
 @export_group("On Play")
 @export var play_once: bool = false

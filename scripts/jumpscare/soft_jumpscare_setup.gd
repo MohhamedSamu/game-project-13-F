@@ -316,6 +316,8 @@ func _run_soft_jumpscare_async(player: Node3D) -> void:
 	_triggered = true
 	if not trigger_flag.is_empty():
 		GameManager.set_flag(trigger_flag, true)
+		if trigger_flag == "scene4_bathroom_exit_jumpscare_done":
+			get_tree().call_group(&"coca_fridge_interact", &"refresh_interaction_state")
 
 	_prepare_external_actor_for_jumpscare(actor)
 

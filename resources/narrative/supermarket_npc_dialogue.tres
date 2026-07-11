@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="NpcDialogueProfile" load_steps=8 format=3 uid="uid://xnv2fph2cxsk"]
+[gd_resource type="Resource" script_class="NpcDialogueProfile" load_steps=10 format=3 uid="uid://xnv2fph2cxsk"]
 
 [ext_resource type="Script" uid="uid://dxn1fgps4oaah" path="res://scripts/narrative/npc_dialogue_profile.gd" id="1_profile"]
 [ext_resource type="Script" uid="uid://b52s51m6jrkno" path="res://scripts/narrative/npc_dialogue_beat.gd" id="2_beat"]
@@ -13,6 +13,7 @@ required_objectives_scene_id = ""
 required_objectives_any_scene = false
 forbidden_objectives = PackedStringArray()
 required_flags = PackedStringArray("supermarket_ghost_reveal_done")
+forbidden_flags = PackedStringArray()
 play_once = false
 complete_objectives_on_finish = PackedStringArray()
 set_scene_on_finish = ""
@@ -28,6 +29,7 @@ required_objectives_scene_id = ""
 required_objectives_any_scene = false
 forbidden_objectives = PackedStringArray()
 required_flags = PackedStringArray("coca_placed_on_counter", "has_churro_in_left_hand")
+forbidden_flags = PackedStringArray()
 play_once = false
 complete_objectives_on_finish = PackedStringArray()
 set_scene_on_finish = ""
@@ -43,10 +45,45 @@ required_objectives_scene_id = ""
 required_objectives_any_scene = false
 forbidden_objectives = PackedStringArray()
 required_flags = PackedStringArray("coca_placed_on_counter", "needs_churro")
+forbidden_flags = PackedStringArray()
 play_once = false
 complete_objectives_on_finish = PackedStringArray()
 set_scene_on_finish = ""
 set_flags_on_finish = {}
+
+[sub_resource type="Resource" id="beat_after_scene4_repeat"]
+script = ExtResource("2_beat")
+beat_id = "after_scene4_repeat"
+dialogue_title = "after_scene4_repeat"
+required_scene_id = ""
+required_objectives = PackedStringArray()
+required_objectives_scene_id = ""
+required_objectives_any_scene = false
+forbidden_objectives = PackedStringArray()
+required_flags = PackedStringArray("scene4_bathroom_exit_jumpscare_done", "supermarket_scene5_cashier_hint_done")
+forbidden_flags = PackedStringArray("has_coca_in_left_hand", "coca_placed_on_counter")
+play_once = false
+complete_objectives_on_finish = PackedStringArray()
+set_scene_on_finish = ""
+set_flags_on_finish = {}
+
+[sub_resource type="Resource" id="beat_after_scene4_intro"]
+script = ExtResource("2_beat")
+beat_id = "after_scene4_intro"
+dialogue_title = "after_scene4_intro"
+required_scene_id = ""
+required_objectives = PackedStringArray()
+required_objectives_scene_id = ""
+required_objectives_any_scene = false
+forbidden_objectives = PackedStringArray()
+required_flags = PackedStringArray("scene4_bathroom_exit_jumpscare_done")
+forbidden_flags = PackedStringArray("supermarket_scene5_cashier_hint_done")
+play_once = true
+complete_objectives_on_finish = PackedStringArray()
+set_scene_on_finish = ""
+set_flags_on_finish = {
+"supermarket_scene5_cashier_hint_done": true
+}
 
 [sub_resource type="Resource" id="beat_repeat"]
 script = ExtResource("2_beat")
@@ -58,6 +95,7 @@ required_objectives_scene_id = ""
 required_objectives_any_scene = false
 forbidden_objectives = PackedStringArray()
 required_flags = PackedStringArray("supermarket_npc_intro_done")
+forbidden_flags = PackedStringArray("scene4_bathroom_exit_jumpscare_done")
 play_once = false
 complete_objectives_on_finish = PackedStringArray()
 set_scene_on_finish = ""
@@ -73,6 +111,7 @@ required_objectives_scene_id = ""
 required_objectives_any_scene = false
 forbidden_objectives = PackedStringArray()
 required_flags = PackedStringArray()
+forbidden_flags = PackedStringArray("scene4_bathroom_exit_jumpscare_done")
 play_once = true
 complete_objectives_on_finish = PackedStringArray()
 set_scene_on_finish = ""
@@ -85,4 +124,4 @@ set_flags_on_finish = {
 script = ExtResource("1_profile")
 npc_id = "supermarket_npc"
 fallback_title = "start"
-beats = Array[ExtResource("2_beat")]([SubResource("beat_after_vision"), SubResource("beat_waiting_churro_holding"), SubResource("beat_waiting_churro"), SubResource("beat_repeat"), SubResource("beat_intro")])
+beats = Array[ExtResource("2_beat")]([SubResource("beat_after_vision"), SubResource("beat_waiting_churro_holding"), SubResource("beat_waiting_churro"), SubResource("beat_after_scene4_repeat"), SubResource("beat_after_scene4_intro"), SubResource("beat_repeat"), SubResource("beat_intro")])

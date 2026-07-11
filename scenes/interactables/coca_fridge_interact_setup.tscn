@@ -7,7 +7,7 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_fridge"]
 size = Vector3(1.2, 1.64268, 1.71094)
 
-[node name="CocaFridgeInteractSetup" type="Node3D"]
+[node name="CocaFridgeInteractSetup" type="Node3D" groups=["coca_fridge_interact"]]
 script = ExtResource("1_setup")
 
 [node name="InteractableDialogueComponent" type="Area3D" parent="." node_paths=PackedStringArray("interaction_handler")]

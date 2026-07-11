@@ -44732,7 +44732,7 @@ skeleton = NodePath("")
 shape = SubResource("ConcavePolygonShape3D_dif83")
 
 [node name="Bushs_03" type="MeshInstance3D" parent="."]
-transform = Transform3D(15.8948, -39.2236, 90.6028, -98.4085, 1.08997, 17.7361, -7.94426, -91.98, -38.4261, 56.8624, 0.828727, 16.5618)
+transform = Transform3D(15.8948, -39.2236, 90.6028, -98.4085, 1.08997, 17.7361, -7.94426, -91.98, -38.4261, 56.8624, 0.828727, 16.4607)
 mesh = SubResource("ArrayMesh_xjxhw")
 skeleton = NodePath("")
 
@@ -44800,6 +44800,7 @@ skeleton = NodePath("")
 [node name="StaticBody3D" type="StaticBody3D" parent="Trees_003"]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Trees_003/StaticBody3D"]
+transform = Transform3D(1, 2.22045e-16, 7.45058e-09, -2.22045e-16, 1, 2.09555e-15, -7.45058e-09, -1.44329e-15, 1, 0.012281, 0, 0.000786424)
 shape = SubResource("ConcavePolygonShape3D_yaek1")
 
 [node name="Trees_006" type="MeshInstance3D" parent="."]

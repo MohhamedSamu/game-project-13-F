@@ -66,10 +66,12 @@ func clear_flag(flag_name: String) -> void:
 func reset_scene4_bathroom_dev_state() -> void:
 	clear_flag("scene4_gas_npc_after_bath_done")
 	clear_flag("scene4_bathroom_exit_jumpscare_done")
+	clear_flag("supermarket_scene5_cashier_hint_done")
 	var tree := get_tree()
 	if tree != null:
 		tree.call_group(&"scene4_bathroom_exit_jumpscare", &"reset_dev_state")
 		tree.call_group(&"scene4_bathroom_exit_jumpscare", &"refresh_armed_state")
+		tree.call_group(&"coca_fridge_interact", &"refresh_interaction_state")
 	print("GameManager: flags escena 4 baño reseteadas.")
 
 
@@ -83,6 +85,23 @@ func get_flag(flag_name: String) -> bool:
 
 func can_place_coca_on_counter() -> bool:
 	return get_flag("has_coca_in_left_hand") and not get_flag("coca_placed_on_counter")
+
+
+func is_supermarket_scene5_unlocked() -> bool:
+	return get_flag("scene4_bathroom_exit_jumpscare_done")
+
+
+## Escena 5 (supermercado: coca → churro → jumpscare → diálogo final).
+## Usar para desbloquear escena 6: `GameManager.is_level_2_scene5_done()`.
+const LEVEL_2_SCENE5_DONE_FLAG := "level_2_scene5_done"
+
+
+func is_level_2_scene5_done() -> bool:
+	return get_flag(LEVEL_2_SCENE5_DONE_FLAG)
+
+
+func mark_level_2_scene5_done() -> void:
+	set_flag(LEVEL_2_SCENE5_DONE_FLAG, true)
 
 
 func can_pickup_churro() -> bool:

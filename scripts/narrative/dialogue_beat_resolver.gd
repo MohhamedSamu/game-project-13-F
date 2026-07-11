@@ -37,6 +37,10 @@ static func _beat_matches(beat: NpcDialogueBeat) -> bool:
 		if not GameManager.get_flag(flag_name):
 			return false
 
+	for flag_name in beat.forbidden_flags:
+		if GameManager.get_flag(flag_name):
+			return false
+
 	for objective_id in beat.forbidden_objectives:
 		if _has_objective_for_beat(beat, objective_id):
 			return false

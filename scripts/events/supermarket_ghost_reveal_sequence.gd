@@ -996,6 +996,7 @@ func _start_after_vision_dialogue() -> void:
 func _on_after_vision_dialogue_finished() -> void:
 	_remove_counter_items_permanently()
 	SupermarketExitBlocker.set_enabled(false)
+	GameManager.mark_level_2_scene5_done()
 	_unlock_player_flashlight()
 	_clear_sequence_look_limits()
 	_unlock_player()
@@ -1012,6 +1013,8 @@ func _remove_counter_items_permanently() -> void:
 
 func _sync_supermarket_exit_blocker() -> void:
 	SupermarketExitBlocker.sync_from_flags()
+	if GameManager.get_flag(DONE_FLAG):
+		GameManager.mark_level_2_scene5_done()
 
 
 func _apply_post_sequence_state() -> void:

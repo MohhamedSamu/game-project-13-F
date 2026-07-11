@@ -9,6 +9,17 @@ Clerk: La llave está en la bodega — la puerta del fondo del súper.
 Clerk: Entra por ahí y búscala. Luego ya me compras lo que sea.
 => END
 
+~ after_scene4_intro
+Player: No me siento nada bien, quizá necesito azúcar.
+Clerk: Puede ir a tomar una coca, están en la refrigeradora al fondo del pasillo.
+Clerk: ¿Trae dinero para pagarme, verdad?
+Player: ...
+=> END
+
+~ after_scene4_repeat
+Clerk: Señor, las cocas están al fondo. Yo no la puedo ir a traer por usted.
+=> END
+
 ~ repeat
 Clerk: La llave está en la bodega, al fondo del súper.
 Clerk: ¿Necesitas algo más?
