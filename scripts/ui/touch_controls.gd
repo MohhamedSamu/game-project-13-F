@@ -46,7 +46,6 @@ var _move_vector := Vector2.ZERO
 var _look_fingers: Dictionary = {}
 
 # --- Zonas de control (para hit-test y bloqueo de ratón emulado) ---
-var _cluster_zone := Rect2()
 var _hamburger_zone := Rect2()
 
 # --- Nodos construidos por código ---
@@ -58,8 +57,10 @@ var _btn_sprint: TouchScreenButton
 var _btn_pause: TouchScreenButton
 var _btn_exit_minigame: TouchScreenButton
 var _blocker_joystick: Control
-var _blocker_cluster: Control
 var _blocker_hamburger: Control
+## Un bloqueador pequeño por botón (tamaño del botón + margen), no una zona gigante:
+## así el resto de la pantalla queda libre para girar la cámara. Botón -> Control.
+var _button_blockers: Dictionary = {}
 var _label_font: FontFile
 
 var _sprint_on: bool = false
@@ -97,7 +98,6 @@ func _build_blockers() -> void:
 	# gire la cámara (ProtoController escucha MouseMotion en _unhandled_input).
 	# Los TouchScreenButton usan el toque crudo, así que siguen funcionando debajo.
 	_blocker_joystick = _make_blocker("JoystickBlocker")
-	_blocker_cluster = _make_blocker("ClusterBlocker")
 	_blocker_hamburger = _make_blocker("HamburgerBlocker")
 
 
@@ -159,6 +159,7 @@ func _make_action_button(
 	btn.add_child(label)
 
 	add_child(btn)
+	_button_blockers[btn] = _make_blocker(btn_name + "Blocker")
 	return btn
 
 
@@ -192,11 +193,12 @@ func _make_hamburger_texture(size: int, color: Color) -> ImageTexture:
 func _layout() -> void:
 	var vs := get_viewport().get_visible_rect().size
 
-	# Joystick: zona inferior-izquierda (flotante dentro de la zona).
+	# Joystick: zona inferior-izquierda acotada a la esquina (flotante dentro de ella).
+	# Antes cubría 40% x 65% de la pantalla y mataba el giro de cámara en esa área.
 	_joystick_default_center = Vector2(joystick_radius + 70.0, vs.y - joystick_radius - 70.0)
 	_joystick_center = _joystick_default_center
 	_knob_pos = _joystick_center
-	_joystick_zone = Rect2(0.0, vs.y * 0.35, vs.x * 0.40, vs.y * 0.65)
+	_joystick_zone = Rect2(0.0, vs.y * 0.55, vs.x * 0.30, vs.y * 0.45)
 
 	# Cluster de botones: esquina inferior-derecha.
 	_place_button(_btn_interact, Vector2(vs.x - 118.0, vs.y - 118.0), 52.0)
@@ -205,26 +207,39 @@ func _layout() -> void:
 	_place_button(_btn_flashlight, Vector2(vs.x - 96.0, vs.y - 248.0), 38.0)
 	_place_button(_btn_sprint, Vector2(vs.x - 370.0, vs.y - 86.0), 44.0)
 	_place_button(_btn_exit_minigame, Vector2(vs.x - 118.0, vs.y - 118.0), 44.0)
-	_cluster_zone = Rect2(vs.x - 430.0, vs.y - 300.0, 430.0, 300.0)
 
 	# Hamburguesa: esquina superior derecha.
 	var pause_size := 30.0
 	_btn_pause.position = Vector2(vs.x - pause_size - 22.0, 18.0)
 	_hamburger_zone = Rect2(vs.x - pause_size - 34.0, 6.0, pause_size + 34.0, pause_size + 24.0)
 
-	# Bloqueadores de ratón emulado sobre cada zona.
+	# Bloqueadores de ratón emulado: joystick, hamburguesa y uno por botón (a su medida).
 	_blocker_joystick.position = _joystick_zone.position
 	_blocker_joystick.size = _joystick_zone.size
-	_blocker_cluster.position = _cluster_zone.position
-	_blocker_cluster.size = _cluster_zone.size
 	_blocker_hamburger.position = _hamburger_zone.position
 	_blocker_hamburger.size = _hamburger_zone.size
+	_sync_button_blockers()
 
 	queue_redraw()
 
 
 func _place_button(btn: TouchScreenButton, center: Vector2, radius: float) -> void:
 	btn.position = center - Vector2(radius, radius)
+
+
+const _BLOCKER_MARGIN := 8.0
+
+## Cada bloqueador copia posición/tamaño/visibilidad de su botón: solo la superficie
+## del botón visible roba el toque; el resto de la pantalla gira la cámara.
+func _sync_button_blockers() -> void:
+	for btn: TouchScreenButton in _button_blockers:
+		var blocker: Control = _button_blockers[btn]
+		var tex_size := Vector2.ZERO
+		if btn.texture_normal != null:
+			tex_size = btn.texture_normal.get_size()
+		blocker.position = btn.position - Vector2(_BLOCKER_MARGIN, _BLOCKER_MARGIN)
+		blocker.size = tex_size + Vector2(_BLOCKER_MARGIN, _BLOCKER_MARGIN) * 2.0
+		blocker.visible = btn.visible
 
 
 # =============================================================================
@@ -279,7 +294,7 @@ func _update_visibility() -> void:
 		and GameManager.minigame_active
 	)
 	_btn_exit_minigame.visible = minigame_touch
-	_blocker_cluster.visible = gameplay_ok or minigame_touch
+	_sync_button_blockers()
 
 	# Hamburguesa: como Esc, pero oculta durante diálogos (pausar en medio de un
 	# diálogo dejaba la UI de opciones sin respuesta en táctil), en el minijuego
@@ -400,10 +415,14 @@ func _force_release_all() -> void:
 func _is_point_on_controls(pos: Vector2) -> bool:
 	if _gameplay_controls_visible and _joystick_zone.has_point(pos):
 		return true
-	if _blocker_cluster.visible and _cluster_zone.has_point(pos):
-		return true
 	if _btn_pause.visible and _hamburger_zone.has_point(pos):
 		return true
+	for btn: TouchScreenButton in _button_blockers:
+		if not btn.visible:
+			continue
+		var blocker: Control = _button_blockers[btn]
+		if Rect2(blocker.position, blocker.size).has_point(pos):
+			return true
 	return false
 
 
