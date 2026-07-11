@@ -235,33 +235,6 @@ max_value = 90.0
 value = 75.0
 script = ExtResource("5_fov")
 
-[node name="HSeparator6" type="HSeparator" parent="VScrollBar"]
-z_index = -1
-custom_minimum_size = Vector2(0, 15)
-layout_mode = 2
-offset_top = 428.0
-offset_right = 456.0
-offset_bottom = 443.0
-theme_override_styles/separator = SubResource("StyleBoxEmpty_ygj4d")
-
-[node name="lblMovementProfile" type="Label" parent="VScrollBar"]
-layout_mode = 2
-offset_top = 447.0
-offset_right = 456.0
-offset_bottom = 471.0
-theme_override_fonts/font = ExtResource("2_6hfwq")
-theme_override_font_sizes/font_size = 20
-text = "Movement profile"
-
-[node name="MovementProfileControl" type="OptionButton" parent="VScrollBar"]
-layout_mode = 2
-offset_top = 475.0
-offset_right = 456.0
-offset_bottom = 506.0
-theme_override_fonts/font = ExtResource("2_6hfwq")
-theme_override_font_sizes/font_size = 18
-script = ExtResource("7_moveprof")
-
 [node name="btnBack" type="Button" parent="VScrollBar"]
 custom_minimum_size = Vector2(456, 79)
 layout_mode = 2

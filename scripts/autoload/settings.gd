@@ -74,6 +74,7 @@ func load_settings() -> void:
 			data[k] = parsed[k]
 	else:
 		save_settings()
+	data["movement_profile"] = "production"
 
 
 func apply_audio() -> void:
@@ -100,18 +101,15 @@ func mouse_sensitivity_to_look_speed(mouse_sensitivity: float) -> float:
 
 
 func get_movement_profile() -> MovementProfile:
-	var raw := str(get_value("movement_profile", "production")).to_lower()
-	if raw in ["develop", "development", "testing", "test", "debug"]:
-		return MovementProfile.DEVELOP
 	return MovementProfile.PRODUCTION
 
 
-func set_movement_profile(profile: MovementProfile) -> void:
-	data["movement_profile"] = "develop" if profile == MovementProfile.DEVELOP else "production"
+func set_movement_profile(_profile: MovementProfile) -> void:
+	data["movement_profile"] = "production"
 
 
 func get_movement_profile_display_name() -> String:
-	return "Develop" if get_movement_profile() == MovementProfile.DEVELOP else "Production"
+	return "Production"
 
 
 func get_walk_speed() -> float:
@@ -131,7 +129,7 @@ func get_jump_velocity() -> float:
 
 
 func is_freefly_enabled() -> bool:
-	return get_movement_profile() == MovementProfile.DEVELOP
+	return false
 
 
 func apply_movement_to_player(player: Node = null) -> void:

@@ -257,6 +257,13 @@ func _finish_death_sequence() -> void:
 	set_process(false)
 
 
+func reset_session_state() -> void:
+	_fin_awaiting_input = false
+	set_process_unhandled_input(false)
+	_teardown_death_overlays()
+	_finish_death_sequence()
+
+
 func _process(_delta: float) -> void:
 	if not _running:
 		return

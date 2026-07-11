@@ -8,6 +8,7 @@ const INNER_THOUGHT_COLOR := Color(0.796, 0.694, 0.404, 1.0)
 const Character09Bake := preload("res://scripts/characters/character_09_bake.gd")
 const Character05Bake := preload("res://scripts/characters/character_05_bake.gd")
 const OldLadyGhostBake := preload("res://scripts/characters/old_lady_ghost_bake.gd")
+const MAIN_MENU_SCENE_PATH := "res://scenes/main/main_menu.tscn"
 
 @export_group("Cámara")
 @export_range(1.0, 60.0, 0.5) var camera_travel_duration: float = 15.0
@@ -15,8 +16,10 @@ const OldLadyGhostBake := preload("res://scripts/characters/old_lady_ghost_bake.
 
 @export_group("Créditos")
 @export var thanks_text: String = "gracias por jugar"
+@export var thanks_continue_text: String = "gracias por jugar. Da click para volver al menu principal"
 @export_range(0.0, 3.0, 0.05) var thanks_fade_in_duration: float = 1.0
 @export_range(0.0, 1.0, 0.05) var thanks_fade_delay: float = 0.35
+@export_range(0.0, 2.0, 0.05) var continue_text_fade_duration: float = 0.65
 
 @export_group("Audio")
 @export_range(-24.0, 6.0, 0.5) var outro_volume_db: float = -2.0
@@ -28,6 +31,7 @@ var _thanks_layer: CanvasLayer
 var _thanks_label: Label
 var _music_player: AudioStreamPlayer
 var _thanks_tween: Tween
+var _awaiting_menu_input: bool = false
 
 
 func _ready() -> void:
@@ -46,6 +50,10 @@ func _begin_sequence() -> void:
 	_start_character_dances()
 	_start_camera_travel()
 	_show_thanks_text()
+	await _wait_for_camera_travel_finished()
+	await _show_continue_prompt()
+	await _wait_for_menu_input()
+	_go_to_main_menu()
 
 
 func _prepare_characters_for_ending() -> void:
@@ -104,6 +112,62 @@ func _start_camera_travel() -> void:
 		camera_end_position,
 		camera_travel_duration
 	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+func _wait_for_camera_travel_finished() -> void:
+	if camera_travel_duration <= 0.0:
+		return
+	await get_tree().create_timer(camera_travel_duration).timeout
+
+
+func _show_continue_prompt() -> void:
+	if _thanks_label == null:
+		return
+	_kill_thanks_tween()
+	_thanks_label.text = thanks_continue_text
+	_thanks_tween = create_tween()
+	_thanks_tween.tween_property(
+		_thanks_label,
+		"modulate:a",
+		1.0,
+		maxf(continue_text_fade_duration, 0.05)
+	).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+	await _thanks_tween.finished
+
+
+func _wait_for_menu_input() -> void:
+	_awaiting_menu_input = true
+	set_process_unhandled_input(true)
+	while _awaiting_menu_input:
+		await get_tree().process_frame
+	_awaiting_menu_input = false
+	set_process_unhandled_input(false)
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not _awaiting_menu_input:
+		return
+	if _is_menu_continue_input(event):
+		_awaiting_menu_input = false
+		get_viewport().set_input_as_handled()
+
+
+func _is_menu_continue_input(event: InputEvent) -> bool:
+	if event is InputEventMouseButton:
+		return (event as InputEventMouseButton).pressed
+	if event is InputEventKey:
+		var key_event := event as InputEventKey
+		return key_event.pressed and not key_event.echo
+	if event is InputEventJoypadButton:
+		return (event as InputEventJoypadButton).pressed
+	return false
+
+
+func _go_to_main_menu() -> void:
+	if _music_player != null and is_instance_valid(_music_player):
+		_music_player.stop()
+	GameManager.reset_progress_for_new_game()
+	get_tree().change_scene_to_file(MAIN_MENU_SCENE_PATH)
 
 
 func _start_character_dances() -> void:

@@ -74,10 +74,10 @@ func _close_options() -> void:
 
 func _go_main_menu() -> void:
 	_play_back()
-	# Salir al menú principal
 	get_tree().paused = false
 	_set_crosshair_pause_hidden(false)
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	GameManager.reset_progress_for_new_game()
 	get_tree().change_scene_to_file("res://scenes/main/main_menu.tscn")
 
 func _play_enter() -> void:

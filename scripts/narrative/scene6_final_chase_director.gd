@@ -35,6 +35,13 @@ var _active_setup: Node
 var _player_was_caught: bool = false
 
 
+func reset_session_state() -> void:
+	_running = false
+	_chasing = false
+	_active_setup = null
+	_player_was_caught = false
+
+
 func start_sequence(setup: Node, player: Node3D) -> void:
 	if _running:
 		return

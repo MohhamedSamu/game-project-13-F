@@ -26,6 +26,20 @@ const WALK_ANIM := &"walking"
 const WALK_IN_PLACE_ANIM := &"walking_in_place"
 
 var _toilet_exit_running: bool = false
+var _sequence_token: int = 0
+
+
+func reset_session_state() -> void:
+	_sequence_token += 1
+	_toilet_exit_running = false
+
+
+func _abort_requested(token: int) -> bool:
+	return token != _sequence_token
+
+
+func _is_valid_npc(npc: Node3D) -> bool:
+	return npc != null and is_instance_valid(npc) and npc.is_inside_tree()
 
 
 func clear_bathroom_presentation() -> void:
@@ -40,6 +54,7 @@ func clear_bathroom_presentation() -> void:
 
 
 func peek_into_empty_bathroom() -> void:
+	var token := _sequence_token
 	var player := GameManager.get_player()
 	var peek_position := _resolve_peek_position()
 
@@ -48,6 +63,8 @@ func peek_into_empty_bathroom() -> void:
 
 	if peek_hold_duration > 0.0:
 		await get_tree().create_timer(peek_hold_duration).timeout
+		if _abort_requested(token):
+			return
 
 	_restore_dialogue_focus(player)
 
@@ -62,12 +79,13 @@ func enter_toilet_cubicle() -> void:
 		return
 
 	var npc := _find_gas_station_npc()
-	if npc == null:
+	if not _is_valid_npc(npc):
 		push_warning("Scene4BathroomExitDirector: no se encontró GasStationNPC.")
 		return
 	if not npc.visible and not completion_flag.is_empty() and GameManager.get_flag(completion_flag):
 		return
 
+	var token := _sequence_token
 	_toilet_exit_running = true
 	_unlock_player_control()
 
@@ -91,36 +109,51 @@ func enter_toilet_cubicle() -> void:
 		return
 
 	await get_tree().process_frame
+	if _abort_requested(token) or not _is_valid_npc(npc):
+		_toilet_exit_running = false
+		return
 	_lock_npc_for_scripted_exit(npc)
 	_stop_talking(npc)
 
 	# 1. Caminar hasta fuera de la puerta del cubículo.
 	_play_walking(npc)
-	await _walk_npc_to_marker(npc, door_outside)
+	await _walk_npc_to_marker(npc, door_outside, token)
+	if _abort_requested(token) or not _is_valid_npc(npc):
+		_toilet_exit_running = false
+		return
 	_halt_walking(npc)
 
 	# 2. Abrir puerta 005 y esperar 1 s mientras se abre.
 	_play_idle(npc)
-	if door_setup != null:
+	if door_setup != null and is_instance_valid(door_setup):
 		door_setup.open_door()
 	if door_open_wait > 0.0:
 		await get_tree().create_timer(door_open_wait).timeout
+		if _abort_requested(token) or not _is_valid_npc(npc):
+			_toilet_exit_running = false
+			return
 
 	# 3. Entrar y caminar hasta el marker interior.
 	_play_walking(npc)
-	await _walk_npc_to_marker(npc, door_inside)
+	await _walk_npc_to_marker(npc, door_inside, token)
+	if _abort_requested(token) or not _is_valid_npc(npc):
+		_toilet_exit_running = false
+		return
 	_halt_walking(npc)
 
 	# 4. Darse la vuelta hacia el punto de diálogo (donde quedó el jugador).
 	var look_target := (
 		dialogue_focus.global_position
-		if dialogue_focus != null
+		if dialogue_focus != null and is_instance_valid(dialogue_focus)
 		else door_outside.global_position
 	)
-	await _turn_npc_over_time(npc, look_target, turn_duration)
+	await _turn_npc_over_time(npc, look_target, turn_duration, token)
+	if _abort_requested(token) or not _is_valid_npc(npc):
+		_toilet_exit_running = false
+		return
 
 	# 5. Sentarse.
-	if door_setup != null:
+	if door_setup != null and is_instance_valid(door_setup):
 		_queue_close_door_before_animation_ends(
 			door_setup,
 			npc,
@@ -128,13 +161,19 @@ func enter_toilet_cubicle() -> void:
 			door_close_advance_seconds
 		)
 	_play_sitting(npc)
-	await _await_animation(npc, sitting_animation)
+	await _await_animation(npc, sitting_animation, token)
+	if _abort_requested(token) or not _is_valid_npc(npc):
+		_toilet_exit_running = false
+		return
 	_snap_npc_to_seat(npc, door_inside)
 	_hold_sitting_pose(npc)
 
 	# 6. Cerrar puerta y desaparecer.
-	if door_setup != null:
+	if door_setup != null and is_instance_valid(door_setup):
 		await door_setup.wait_for_animation_if_running()
+		if _abort_requested(token):
+			_toilet_exit_running = false
+			return
 
 	_finalize_npc_exit(npc)
 	_mark_scene_complete()
@@ -190,6 +229,8 @@ func _stop_talking(npc: Node3D) -> void:
 
 
 func _play_walking(npc: Node3D) -> void:
+	if not _is_valid_npc(npc):
+		return
 	var animation_player := _get_animation_player(npc)
 	if animation_player == null:
 		return
@@ -208,6 +249,8 @@ func _halt_walking(npc: Node3D) -> void:
 
 
 func _play_idle(npc: Node3D) -> void:
+	if not _is_valid_npc(npc):
+		return
 	var animation_player := _get_animation_player(npc)
 	if animation_player == null:
 		return
@@ -232,6 +275,8 @@ func _play_idle(npc: Node3D) -> void:
 
 
 func _play_sitting(npc: Node3D) -> void:
+	if not _is_valid_npc(npc):
+		return
 	var animation_player := _get_animation_player(npc)
 	if animation_player == null:
 		return
@@ -268,21 +313,34 @@ func _hold_sitting_pose(npc: Node3D) -> void:
 	animation_player.pause()
 
 
-func _walk_npc_to_marker(npc: Node3D, marker: Marker3D) -> void:
-	if marker == null:
+func _walk_npc_to_marker(npc: Node3D, marker: Marker3D, token: int = -1) -> void:
+	if marker == null or not is_instance_valid(marker):
 		return
-	await _walk_npc_to(npc, marker.global_position, true)
+	await _walk_npc_to(npc, marker.global_position, true, token)
 
 
-func _walk_npc_to(npc: Node3D, target: Vector3, use_marker_height: bool = false) -> void:
+func _walk_npc_to(
+	npc: Node3D,
+	target: Vector3,
+	use_marker_height: bool = false,
+	token: int = -1
+) -> void:
+	if not _is_valid_npc(npc):
+		return
 	var grounded_target := target
 	if snap_to_floor and not use_marker_height:
 		grounded_target = _project_to_floor(target, npc)
-	while is_instance_valid(npc) and npc.is_inside_tree():
+	while _is_valid_npc(npc):
+		if token >= 0 and _abort_requested(token):
+			return
 		var delta := get_tree().root.get_physics_process_delta_time()
 		if delta <= 0.0:
 			delta = 1.0 / 60.0
 		await get_tree().physics_frame
+		if token >= 0 and _abort_requested(token):
+			return
+		if not _is_valid_npc(npc):
+			return
 		var offset := grounded_target - npc.global_position
 		offset.y = 0.0
 		var dist := offset.length()
@@ -300,7 +358,14 @@ func _walk_npc_to(npc: Node3D, target: Vector3, use_marker_height: bool = false)
 		_face_horizontal(npc, direction)
 
 
-func _turn_npc_over_time(npc: Node3D, look_target: Vector3, duration: float) -> void:
+func _turn_npc_over_time(
+	npc: Node3D,
+	look_target: Vector3,
+	duration: float,
+	token: int = -1
+) -> void:
+	if not _is_valid_npc(npc):
+		return
 	_play_idle(npc)
 	if duration <= 0.0:
 		_face_toward_position(npc, look_target)
@@ -313,17 +378,46 @@ func _turn_npc_over_time(npc: Node3D, look_target: Vector3, duration: float) -> 
 	end_basis = end_basis.rotated(Vector3.UP, MIXAMO_YAW_CORRECTION)
 	var end_yaw := end_basis.get_euler().y
 	var elapsed := 0.0
-	while elapsed < duration and is_instance_valid(npc) and npc.is_inside_tree():
+	while elapsed < duration and _is_valid_npc(npc):
+		if token >= 0 and _abort_requested(token):
+			return
 		var delta := get_tree().root.get_process_delta_time()
 		if delta <= 0.0:
 			delta = 1.0 / 60.0
 		await get_tree().process_frame
+		if token >= 0 and _abort_requested(token):
+			return
+		if not _is_valid_npc(npc):
+			return
 		var t := elapsed / duration
 		npc.global_rotation.y = lerp_angle(start_yaw, end_yaw, t)
 		elapsed += delta
 
 
+func _await_animation(npc: Node3D, anim_name: StringName, token: int = -1) -> void:
+	if not _is_valid_npc(npc):
+		return
+	var animation_player := _get_animation_player(npc)
+	if animation_player == null:
+		return
+	if animation_player.current_animation != String(anim_name):
+		return
+	while animation_player.is_playing() and animation_player.current_animation == String(anim_name):
+		if token >= 0 and _abort_requested(token):
+			return
+		if not _is_valid_npc(npc):
+			return
+		await animation_player.animation_finished
+		if token >= 0 and _abort_requested(token):
+			return
+		if not _is_valid_npc(npc):
+			return
+		break
+
+
 func _face_toward_position(npc: Node3D, look_target: Vector3) -> void:
+	if not _is_valid_npc(npc):
+		return
 	_face_horizontal(npc, _horizontal_direction(npc.global_position, look_target))
 
 
@@ -333,15 +427,6 @@ func _horizontal_direction(from: Vector3, to: Vector3) -> Vector3:
 	if direction.length_squared() < 0.0001:
 		return Vector3.FORWARD
 	return direction.normalized()
-
-
-func _await_animation(npc: Node3D, anim_name: StringName) -> void:
-	var animation_player := _get_animation_player(npc)
-	if animation_player == null:
-		return
-	if animation_player.current_animation != String(anim_name):
-		return
-	await animation_player.animation_finished
 
 
 func _queue_close_door_before_animation_ends(
@@ -399,6 +484,8 @@ func _project_to_floor(world_pos: Vector3, context: Node3D) -> Vector3:
 
 
 func _get_animation_player(npc: Node3D) -> AnimationPlayer:
+	if not _is_valid_npc(npc):
+		return null
 	if npc.has_method("get_animation_player"):
 		return npc.call("get_animation_player") as AnimationPlayer
 	return npc.find_child("AnimationPlayer", true, false) as AnimationPlayer

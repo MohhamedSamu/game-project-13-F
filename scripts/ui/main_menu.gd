@@ -35,7 +35,8 @@ func _play_back() -> void:
 		sfx_back.play()
 
 func _ready() -> void:
-	# Estado inicial limpio
+	# Estado inicial limpio: siempre partida nueva desde escena 1.
+	GameManager.reset_progress_for_new_game()
 	current_panel = 0
 	start_panel.visible = false
 	options_panel.visible = false
