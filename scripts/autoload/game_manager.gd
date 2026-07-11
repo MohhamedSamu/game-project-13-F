@@ -57,6 +57,51 @@ func clear_flag(flag_name: String) -> void:
 	flags.erase(flag_name)
 
 
+## Reinicia todo el progreso narrativo para una partida nueva (menú, pausa o ending).
+func reset_progress_for_new_game() -> void:
+	dialogue_active = false
+	interaction_prep_active = false
+	interaction_prep_committed = false
+	minigame_active = false
+	level_intro_active = false
+	instructions_overlay_active = false
+	has_met_clown = false
+	flags.clear()
+	current_level_id = ""
+	current_scene_id = ""
+	toilet_bladder_remaining = TOILET_BLADDER_UNSET
+	_level_scene_profiles.clear()
+	_level_narrative_state.clear()
+	_unregister_player()
+	_reset_session_autoloads()
+	Engine.time_scale = 1.0
+	var tree := get_tree()
+	if tree != null:
+		tree.paused = false
+
+
+func _unregister_player() -> void:
+	if player != null and is_instance_valid(player):
+		if player.tree_exited.is_connected(_on_player_tree_exited):
+			player.tree_exited.disconnect(_on_player_tree_exited)
+	player = null
+
+
+func _reset_session_autoloads() -> void:
+	InnerThoughts.hide_thought()
+	MusicDirector.stop_music()
+	if DialogueController.current_balloon != null and is_instance_valid(DialogueController.current_balloon):
+		DialogueController.current_balloon.queue_free()
+	DialogueController.current_balloon = null
+	DialogueController.current_focus_target = null
+	if Scene6FinalChaseDirector.has_method("reset_session_state"):
+		Scene6FinalChaseDirector.reset_session_state()
+	if Scene6FinalDeathDirector.has_method("reset_session_state"):
+		Scene6FinalDeathDirector.reset_session_state()
+	if Scene4BathroomExitDirector.has_method("reset_session_state"):
+		Scene4BathroomExitDirector.reset_session_state()
+
+
 func reset_scene4_bathroom_dev_state() -> void:
 	clear_flag("scene4_gas_npc_after_bath_done")
 	clear_flag("scene4_bathroom_exit_jumpscare_done")
@@ -71,6 +116,7 @@ func reset_scene4_bathroom_dev_state() -> void:
 			var npc := scene.find_child("GasStationNPC", true, false) as GasStationNPC
 			if npc != null:
 				npc.restore_after_scene4_dev_reset()
+	print("GameManager: flags escena 4 baño reseteadas.")
 
 
 func set_flag(flag_name: String, value: bool = true) -> void:

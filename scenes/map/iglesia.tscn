@@ -1,8 +1,10 @@
-[gd_scene load_steps=2 format=3 uid="uid://duud6tvy4wnso"]
+[gd_scene load_steps=3 format=3 uid="uid://duud6tvy4wnso"]
 
-[ext_resource type="PackedScene" uid="uid://ynpif7otlghr" path="res://scenes/map/iglesia_inherited.tscn" id="1_gosdm"]
+[ext_resource type="PackedScene" uid="uid://cjqgp4ek3vsj6" path="res://assets/models/iglesia/IGLESIA 2.glb" id="1_iglesia2"]
+[ext_resource type="Script" uid="uid://dvpd40h7ecvpw" path="res://scripts/map/iglesia_setup.gd" id="2_setup"]
 
 [node name="Iglesia" type="Node3D"]
+script = ExtResource("2_setup")
 
-[node name="iglesia" parent="." instance=ExtResource("1_gosdm")]
+[node name="IGLESIA2" parent="." instance=ExtResource("1_iglesia2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1, 0, 2)

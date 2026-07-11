@@ -125,8 +125,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.523059, 0.523058)
-shader_parameter/cirrus_position2 = Vector2(0.523059, 0.523058)
+shader_parameter/cirrus_position1 = Vector2(0.0272705, 0.0272704)
+shader_parameter/cirrus_position2 = Vector2(0.0272705, 0.0272704)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -136,7 +136,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(12.6326, 12.6326)
+shader_parameter/cumulus_position = Vector2(0.136356, 0.136355)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -395,7 +395,7 @@ wall_height = 5.0
 wall_enabled = false
 
 [node name="Iglesia" parent="." instance=ExtResource("3_y2gk5")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.222, -0.00352758, 26.2195)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.222, 9.05117, 20.6439)
 
 [node name="ProtoController" parent="." instance=ExtResource("2_y2gk5")]
 transform = Transform3D(-0.999224, 0, -0.0393646, 0, 1, 0, 0.0393646, 0, -0.999224, 99.5419, 0.395215, 20.4431)
@@ -857,7 +857,7 @@ dialogue_animation = "breathing_idle"
 exit_after_dialogue = false
 
 [node name="Scene4BathroomExitJumpscare" parent="Jumpscares" groups=["scene4_bathroom_exit_jumpscare"] instance=ExtResource("31_rvwo1")]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 19.7434, 0.024999, -17.3682)
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 19.7034, 0.024999, -17.3682)
 audio_tier = 1
 trigger_flag = "scene4_bathroom_exit_jumpscare_done"
 require_flag = "bathroom_sink_horror_done"
