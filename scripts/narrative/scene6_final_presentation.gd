@@ -96,6 +96,12 @@ var _chase_run_shake_active: bool = false
 func _ready() -> void:
 	if Engine.is_editor_hint():
 		return
+	# OPTIMIZACIÓN: _process solo sincroniza posición de audio del monstruo y el shake de
+	# la persecución, que no existen hasta la escena final. Sin audio reproduciéndose,
+	# _sync_monster_3d_audio() hace early-return y _chase_footsteps_active es false, así que
+	# _process no hacía nada útil durante TODA la demo. Lo activamos al empezar la escena
+	# final (begin_zone / begin_chase_footsteps). Comportamiento idéntico.
+	set_process(false)
 	call_deferred("_build_audio_players")
 
 
@@ -104,6 +110,7 @@ func begin_zone(monster: Node3D) -> void:
 		_update_eating_anchor(monster)
 		return
 	_zone_started = true
+	set_process(true)  # OPTIMIZACIÓN: empieza el audio del monstruo → activar sync por frame.
 	_update_eating_anchor(monster)
 	if play_ambience_on_zone_unlock:
 		MusicDirector.play_ambience()
@@ -147,6 +154,7 @@ func begin_chase_music() -> void:
 func begin_chase_footsteps(monster: Node3D, interval_scale: float = 1.0) -> void:
 	_monster_anchor = monster
 	chase_footstep_interval_scale = maxf(interval_scale, 0.1)
+	set_process(true)  # OPTIMIZACIÓN: empiezan pasos/temblor de persecución → activar sync por frame.
 	_chase_footsteps_active = true
 	_footstep_cycle_generation += 1
 	_run_chase_footstep_cycle(_footstep_cycle_generation)

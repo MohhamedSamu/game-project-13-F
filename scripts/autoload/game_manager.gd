@@ -26,15 +26,9 @@ var toilet_bladder_remaining: float = TOILET_BLADDER_UNSET
 var _level_scene_profiles: Dictionary = {}
 var _level_narrative_state: Dictionary = {}
 
-# Called when the node enters the scene tree for the first time.
-func _ready() -> void:
-	pass # Replace with function body.
-
-
-# Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(_delta: float) -> void:
-	pass
-
+# OPTIMIZACIÓN: este autoload no necesitaba _ready/_process (ambos eran cuerpos vacíos
+# con `pass`). Un _process vacío en un autoload se invoca en CADA frame durante todo el
+# juego sin hacer nada. Al eliminarlo, el motor deja de llamarlo. Sin cambio de comportamiento.
 func set_dialogue_active(value: bool) -> void:
 	dialogue_active = value
 
