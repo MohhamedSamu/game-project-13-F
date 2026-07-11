@@ -11,6 +11,7 @@ const MIXAMO_SOURCES: Dictionary = {
 	"laying_seizure": "Laying Seizure.fbx",
 	"laying_shaking_head": "Laying Shaking Head.fbx",
 	"stroke_shaking_head": "Stroke Shaking Head.fbx",
+	"silly_dance": "Silly Dancing.fbx",
 }
 
 const ROOT_HIPS_BONE_NAMES: PackedStringArray = [
@@ -84,7 +85,7 @@ func _center_at_origin() -> void:
 	var bounds := AABB()
 	var has_bounds := false
 	for mesh_instance in mesh_instances:
-		if mesh_instance.mesh == null:
+		if mesh_instance.mesh == null or not mesh_instance.is_inside_tree():
 			continue
 		var mesh_aabb := mesh_instance.global_transform * mesh_instance.get_aabb()
 		if not has_bounds:

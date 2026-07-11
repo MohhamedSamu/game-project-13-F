@@ -12,6 +12,7 @@ const MIXAMO_SOURCES: Dictionary = {
 	"running": "Running.fbx",
 	"start_walking": "Start Walking.fbx",
 	"walking": "Walking.fbx",
+	"silly_dance": "silly_dance.fbx",
 }
 
 const SINGLE_SHOT_ANIMATIONS: Array[String] = ["start_walking"]

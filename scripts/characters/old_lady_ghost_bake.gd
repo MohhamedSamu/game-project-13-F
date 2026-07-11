@@ -32,6 +32,11 @@ const ANIMATION_SOURCES: Dictionary = {
 		"lock_hips": true,
 		"hips_reference": "neck_stretching_trim",
 	},
+	"silly_dance": {
+		"fbx": "res://assets/characters/oldLadyGhost/animations/Silly Dancing.fbx",
+		"loop": true,
+		"lock_hips": true,
+	},
 }
 
 

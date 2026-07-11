@@ -71,6 +71,11 @@ const ANIMATION_SOURCES: Dictionary = {
 		"loop": false,
 		"lock_hips": false,
 	},
+	"silly_dance": {
+		"fbx": "res://assets/characters/character_npc_gas_station/animations/Silly Dancing.fbx",
+		"loop": true,
+		"lock_hips": true,
+	},
 }
 
 const ROOT_MOTION_BONE_HINTS: PackedStringArray = [

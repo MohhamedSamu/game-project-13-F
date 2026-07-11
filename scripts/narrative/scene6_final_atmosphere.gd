@@ -151,6 +151,10 @@ func _build_wall_crossing_area() -> void:
 
 
 func _position_wall_crossing_area(wall: Node3D) -> void:
+	if wall == null or not wall.is_inside_tree() or _wall_crossing_area == null:
+		return
+	if not _wall_crossing_area.is_inside_tree():
+		return
 	_wall_crossing_area.global_transform = wall.global_transform
 	var shape := _wall_crossing_shape.shape as BoxShape3D
 	if shape != null:
@@ -169,6 +173,10 @@ func _on_wall_crossing_body_entered(body: Node3D) -> void:
 func _handle_wall_crossed() -> void:
 	_wall_crossing_area.set_deferred("monitoring", false)
 	_set_end_lamp_mode(StreetLampController.LampMode.FLICKERING)
+	var setup := get_parent() as Scene6FinalSceneSetup
+	if setup != null:
+		setup.ensure_unlocked_from_end_of_road_cross()
+		setup.on_end_of_road_crossed()
 	var presentation := _resolve_presentation()
 	if presentation != null:
 		presentation.on_wall_crossed()

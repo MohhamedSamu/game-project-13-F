@@ -16,6 +16,8 @@ const MIXAMO_SOURCES: Dictionary = {
 	"turn_left": "Action Adventure Pack/left turn.fbx",
 	"turn_right": "Action Adventure Pack/right turn.fbx",
 	"superhuman_choke_lift": "Superhuman Choke Lift.fbx",
+	"thrust_slash": "Thrust Slash.fbx",
+	"silly_dance": "Silly Dancing.fbx",
 }
 
 enum AnimationChoice {
@@ -28,6 +30,7 @@ enum AnimationChoice {
 	TURN_LEFT,
 	TURN_RIGHT,
 	SUPERHUMAN_CHOKE_LIFT,
+	THRUST_SLASH,
 }
 
 const ANIMATION_NAMES: Array[String] = [
@@ -40,6 +43,7 @@ const ANIMATION_NAMES: Array[String] = [
 	"turn_left",
 	"turn_right",
 	"superhuman_choke_lift",
+	"thrust_slash",
 ]
 
 const SINGLE_SHOT_ANIMATIONS: Array[String] = [
@@ -49,6 +53,7 @@ const SINGLE_SHOT_ANIMATIONS: Array[String] = [
 	"turn_left",
 	"turn_right",
 	"superhuman_choke_lift",
+	"thrust_slash",
 ]
 
 const SEQUENCE_STANCE_REFERENCE := "turn_left"
@@ -142,6 +147,7 @@ func _harmonize_stance_animations(
 		SEQUENCE_STANCE_REFERENCE,
 		"turn_right",
 		"zombie_running",
+		"thrust_slash",
 	]:
 		if not library.has_animation(anim_name):
 			continue

@@ -21,6 +21,7 @@ enum WorkState {
 
 @export_group("Behavior")
 @export var behavior_enabled: bool = false
+@export var auto_idle_on_ready: bool = true
 @export var start_behavior_after_intro: bool = true
 @export var start_behavior_flag: String = "gas_npc_intro_done"
 @export var move_speed: float = 0.9
@@ -129,7 +130,8 @@ var _scripted_sequence_active: bool = false
 func _ready() -> void:
 	_dialogue_focus_point = get_node_or_null("DialogueFocusPoint") as Marker3D
 	await _wait_for_character_animations()
-	play_idle()
+	if auto_idle_on_ready:
+		play_idle()
 	_connect_animation_player()
 	if not DialogueController.dialogue_finished.is_connected(_on_dialogue_finished):
 		DialogueController.dialogue_finished.connect(_on_dialogue_finished)

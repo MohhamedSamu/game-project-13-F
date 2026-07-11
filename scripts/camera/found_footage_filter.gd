@@ -109,9 +109,13 @@ extends CanvasLayer
 
 var _material: ShaderMaterial
 var _vignette_tween: Tween
+var _trauma_tween: Tween
 var _saved_vignette: float = -1.0
 var _saved_softness: float = -1.0
 var _saved_edge_softness: float = -1.0
+var _saved_trauma_chroma: float = -1.0
+var _saved_trauma_barrel: float = -1.0
+var _trauma_active: bool = false
 
 
 func _ready() -> void:
@@ -170,6 +174,48 @@ func _kill_vignette_tween() -> void:
 	if _vignette_tween != null and _vignette_tween.is_valid():
 		_vignette_tween.kill()
 	_vignette_tween = null
+
+
+func begin_trauma_pulse(
+	blur_min: float = 0.22,
+	blur_max: float = 1.28,
+	chroma_max: float = 0.011,
+	period: float = 0.55
+) -> void:
+	if _saved_softness < 0.0:
+		_saved_softness = softness
+		_saved_trauma_chroma = chromatic_aberration
+		_saved_trauma_barrel = barrel_distortion
+	_trauma_active = true
+	_kill_trauma_tween()
+	softness = blur_max
+	chromatic_aberration = maxf(chroma_max, chromatic_aberration)
+	barrel_distortion = minf(_saved_trauma_barrel + 0.1, 0.58)
+	_trauma_tween = create_tween().set_loops()
+	_trauma_tween.set_trans(Tween.TRANS_SINE)
+	_trauma_tween.set_ease(Tween.EASE_IN_OUT)
+	_trauma_tween.tween_property(self, "softness", blur_min, period * 0.5)
+	_trauma_tween.tween_property(self, "softness", blur_max, period * 0.5)
+
+
+func end_trauma_pulse() -> void:
+	_trauma_active = false
+	_kill_trauma_tween()
+	if _saved_softness >= 0.0:
+		softness = _saved_softness
+		chromatic_aberration = _saved_trauma_chroma
+		barrel_distortion = _saved_trauma_barrel
+		_saved_softness = -1.0
+
+
+func is_trauma_active() -> bool:
+	return _trauma_active
+
+
+func _kill_trauma_tween() -> void:
+	if _trauma_tween != null and _trauma_tween.is_valid():
+		_trauma_tween.kill()
+	_trauma_tween = null
 
 
 func apply_settings(settings: Dictionary) -> void:

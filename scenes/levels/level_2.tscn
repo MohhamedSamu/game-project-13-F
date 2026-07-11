@@ -356,7 +356,7 @@ wall_length = 25.0
 wall_height = 5.0
 
 [node name="InvisibleWallEndOfRoad" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
-transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, -16.7722, -0.0805888, 38.5747)
+transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, -18.4768, -0.0805888, 38.5747)
 wall_length = 25.0
 wall_height = 5.0
 
@@ -375,6 +375,25 @@ wall_height = 5.0
 transform = Transform3D(0.918722, 0, -0.394904, 0, 1, 0, 0.394904, 0, 0.918722, 81.7306, 0.0497312, 36.234)
 wall_length = 5.0
 wall_height = 5.0
+
+[node name="InvisibleWallEndOfRoad2" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, -13.679, -0.0805888, 38.5747)
+wall_length = 25.0
+wall_height = 5.0
+wall_enabled = false
+
+[node name="InvisibleWallFinalScene1" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, 8.77447, -0.0805888, 11.5923)
+wall_length = 75.0
+wall_height = 5.0
+wall_enabled = false
+
+[node name="InvisibleWallFinalScene2" parent="invisibleObjects" instance=ExtResource("4_wikm6")]
+transform = Transform3D(1, 0, 1.74845e-07, 0, 1, 0, -1.74845e-07, 0, 1, 5.27859, -0.0805888, 32.1129)
+wall_length = 50.0
+wall_height = 5.0
+wall_enabled = false
+
 
 [node name="Iglesia" parent="." instance=ExtResource("3_y2gk5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.222, -0.00352758, 26.2195)
@@ -880,10 +899,21 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 23.3054, 0.149616, -18.8752)
 script = ExtResource("49_scene4exit")
 jumpscare_path = NodePath("../Scene4BathroomExitJumpscare")
 
-[node name="Scene5" type="Node3D" parent="."]
-
 [node name="FinalScene" parent="Jumpscares" instance=ExtResource("71_finalscene")]
 invisible_wall_path = NodePath("../../invisibleObjects/InvisibleWallEndOfRoad")
+endcam_height_scale = 1.8
+endcam_face_look_z = 0.8
+endcam_forward_distance_scale = 3.5
+endcam_blood_intensity = 0.86
+endcam_blood_drip_amount = 0.7
+endcam_blood_edge_pool = 0.5
+endcam_eating_approach_distance = 0.8
+endcam_eating_approach_duration = 1.5
+endcam_pickup_camera_local_y = 2.6
+endcam_pickup_camera_local_z = 3.4
+endcam_pickup_camera_look_local_y = 4.5
+
+[node name="Scene5" type="Node3D" parent="."]
 
 [node name="TerrorHead01" parent="Scene5" instance=ExtResource("56_g8c2j")]
 transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, 9.02209, 3.22026, -14.1725)

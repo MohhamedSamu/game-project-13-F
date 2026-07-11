@@ -21,14 +21,18 @@ const MIXAMO_YAW_CORRECTION := PI
 @export var chase_animation: StringName = &"zombie_running"
 
 @export_group("Persecución")
-@export_range(3.0, 14.0, 0.1) var chase_speed: float = 7.5
-@export_range(0.4, 3.0, 0.05) var catch_distance: float = 1.15
+@export_range(3.0, 16.0, 0.1) var chase_speed: float = 9.4
+## Radio de agarre (horizontal). El monstruo no llega a montarse encima del jugador.
+@export_range(0.8, 3.0, 0.05) var catch_distance: float = 1.5
+@export_range(0.8, 1.6, 0.05) var chase_animation_speed_scale: float = 1.12
 @export var snap_to_floor: bool = true
 @export var floor_ray_height: float = 3.0
 @export var floor_ray_depth: float = 12.0
 
 var _running: bool = false
 var _chasing: bool = false
+var _active_setup: Node
+var _player_was_caught: bool = false
 
 
 func start_sequence(setup: Node, player: Node3D) -> void:
@@ -46,6 +50,8 @@ func start_sequence(setup: Node, player: Node3D) -> void:
 		return
 
 	_running = true
+	_active_setup = setup
+	_player_was_caught = false
 	if not completion_flag.is_empty():
 		GameManager.set_flag(completion_flag, true)
 
@@ -88,16 +94,25 @@ func start_sequence(setup: Node, player: Node3D) -> void:
 	_begin_scream_moment(setup)
 	await _play_and_wait(monster, scream_animation, animation_blend_time)
 
-	if setup.get("disable_invisible_wall_on_trigger"):
-		if setup.has_method("disable_end_of_road_wall"):
-			setup.call("disable_end_of_road_wall")
-
 	_end_camera_zoom(player)
 	_unlock_player(player)
+	if setup.has_method("begin_chase_access"):
+		setup.call("begin_chase_access")
 	_begin_chase_music(setup)
+	_begin_chase_footsteps(setup, monster)
+	_set_monster_animation_speed(monster, chase_animation_speed_scale)
 	_play_monster_animation(monster, chase_animation)
 	await _chase_player(monster, player)
+	_stop_chase_footsteps(setup)
+	if _player_was_caught:
+		await Scene6FinalDeathDirector.play_sequence(setup, player, monster)
+		_running = false
+		_active_setup = null
+		return
+	if setup.has_method("end_chase_access"):
+		setup.call("end_chase_access")
 	_running = false
+	_active_setup = null
 
 
 func _notify_standup_started(
@@ -128,9 +143,32 @@ func _begin_chase_music(setup: Node) -> void:
 		presentation.begin_chase_music()
 
 
+func _begin_chase_footsteps(setup: Node, monster: Node3D) -> void:
+	if setup == null or not setup.has_method("get_presentation"):
+		return
+	var presentation := setup.call("get_presentation") as Scene6FinalPresentation
+	if presentation != null:
+		var interval_scale := 1.0 / maxf(chase_animation_speed_scale, 0.1)
+		presentation.begin_chase_footsteps(monster, interval_scale)
+
+
+func _stop_chase_footsteps(setup: Node) -> void:
+	if setup == null or not setup.has_method("get_presentation"):
+		return
+	var presentation := setup.call("get_presentation") as Scene6FinalPresentation
+	if presentation != null:
+		presentation.stop_chase_footsteps()
+
+
 func stop_chase() -> void:
 	_chasing = false
 	_running = false
+	var setup := _active_setup
+	if setup != null:
+		_stop_chase_footsteps(setup)
+		if setup.has_method("end_chase_access"):
+			setup.call("end_chase_access")
+	_active_setup = null
 
 
 func _chase_player(monster: Node3D, player: Node3D) -> void:
@@ -141,17 +179,26 @@ func _chase_player(monster: Node3D, player: Node3D) -> void:
 			delta = 1.0 / 60.0
 		await get_tree().physics_frame
 
-		var target := player.global_position
+		var target := _get_chase_target_position(player)
 		var offset := target - monster.global_position
 		offset.y = 0.0
 		var dist := offset.length()
-		if dist <= catch_distance:
-			_chasing = false
-			player_caught.emit(player)
+		var step_budget := chase_speed * delta
+
+		if _should_catch_player(dist, step_budget):
+			_trigger_catch(monster, player)
+			return
+
+		if dist <= 0.0001:
+			_trigger_catch(monster, player)
 			return
 
 		var direction := offset / dist
-		var step := minf(dist, chase_speed * delta)
+		var step := minf(dist, step_budget)
+		if dist - step <= catch_distance:
+			_trigger_catch(monster, player)
+			return
+
 		var next_pos := monster.global_position + direction * step
 		if snap_to_floor:
 			next_pos = _project_to_floor(next_pos, monster)
@@ -159,6 +206,35 @@ func _chase_player(monster: Node3D, player: Node3D) -> void:
 			next_pos.y = target.y
 		monster.global_position = next_pos
 		_face_horizontal(monster, direction)
+
+
+func _should_catch_player(dist: float, step_budget: float) -> bool:
+	return dist <= catch_distance or dist - step_budget <= catch_distance
+
+
+func _trigger_catch(monster: Node3D, player: Node3D) -> void:
+	_chasing = false
+	_player_was_caught = true
+	_begin_catch_attack(monster, player)
+	player_caught.emit(player)
+
+
+func _get_chase_target_position(player: Node3D) -> Vector3:
+	if player == null or not player.is_inside_tree():
+		return Vector3.ZERO
+	if player.has_node("Head"):
+		var head := player.get_node("Head") as Node3D
+		if head != null and head.is_inside_tree():
+			return head.global_position
+	return player.global_position
+
+
+func _begin_catch_attack(monster: Node3D, player: Node3D) -> void:
+	if monster == null or player == null:
+		return
+	_lock_player(player)
+	_set_monster_animation_speed(monster, 1.0)
+	_face_toward_position(monster, player.global_position)
 
 
 func _play_and_wait(monster: Node3D, anim_name: StringName, blend_time: float = 0.0) -> void:
@@ -284,6 +360,13 @@ func _get_animation_player(actor: Node3D) -> AnimationPlayer:
 	if actor == null:
 		return null
 	return actor.find_child("AnimationPlayer", true, false) as AnimationPlayer
+
+
+func _set_monster_animation_speed(monster: Node3D, speed_scale: float) -> void:
+	var animation_player := _get_animation_player(monster)
+	if animation_player == null:
+		return
+	animation_player.speed_scale = maxf(speed_scale, 0.1)
 
 
 func _face_horizontal(actor: Node3D, flat_direction: Vector3) -> void:

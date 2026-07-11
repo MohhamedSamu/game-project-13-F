@@ -11,6 +11,11 @@ const ANIMATION_SOURCES: Dictionary = {
 		"loop": true,
 		"lock_hips": true,
 	},
+	"silly_dance": {
+		"fbx": "res://assets/characters/npc_supermarket/animations/Silly Dancing.fbx",
+		"loop": true,
+		"lock_hips": true,
+	},
 }
 
 const ROOT_MOTION_BONE_HINTS: PackedStringArray = [
