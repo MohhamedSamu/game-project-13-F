@@ -109,8 +109,14 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 
 @export_group("Sequence Look Limits")
 @export var restrict_camera_during_sequence: bool = true
+@export_range(0.0, 180.0, 1.0) var phase_1_yaw_limit_degrees: float = 50.0
 @export_range(0.0, 180.0, 1.0) var sequence_yaw_limit_degrees: float = 90.0
 @export_range(0.0, 89.0, 1.0) var sequence_look_up_limit_degrees: float = 35.0
+## Tras este tiempo desde el inicio de fase 2, vuelve a ±50° (ancla de fase 1).
+## Si la vista está fuera de ±50°, el yaw se ajusta suavemente al borde; pitch sin cambios.
+@export var phase_2_tighten_look_enabled: bool = true
+@export_range(0.0, 12.0, 0.1) var phase_2_tighten_look_delay: float = 6.0
+@export_range(0.1, 1.5, 0.05) var phase_2_tighten_look_smooth_duration: float = 0.45
 
 @export_group("Phase 2 Nervous Camera Shake")
 @export var phase_2_camera_shake_enabled: bool = true
@@ -122,7 +128,7 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 
 @export_group("Audio")
 @export var scream_audio: AudioStream = preload("res://assets/audio/SFX/screams/soft1.mp3")
-@export_range(-40.0, 6.0, 0.5) var scream_volume_db: float = 0.0
+@export_range(-40.0, 6.0, 0.5) var scream_volume_db: float = 2.0
 @export_range(0.0, 2.0, 0.01) var scream_playback_offset: float = 0.0
 @export_range(0.0, 24.0, 0.5) var cross_whispers_duck_on_scream_db: float = 10.0
 @export var phase_2_transition_sound: AudioStream = preload("res://assets/audio/SFX/screams/soft2.mp3")
@@ -133,7 +139,7 @@ const COUNTER_ITEMS_GROUP := &"supermarket_counter_items"
 @export_range(-40.0, 6.0, 0.5) var phase_2_horror_yell_volume_db: float = 0.0
 @export_range(0.0, 8.0, 0.1) var phase_2_horror_yell_delay_after_soft2: float = 3.0
 @export var cross_idle_sound: AudioStream = preload("res://assets/audio/SFX/cross/sound_idle_cross.mp3")
-@export_range(-40.0, 12.0, 0.5) var cross_idle_sound_volume_db: float = 4.0
+@export_range(-40.0, 12.0, 0.5) var cross_idle_sound_volume_db: float = 6.0
 @export var cross_whispers_sound: AudioStream = preload(
 	"res://assets/audio/SFX/cross/creepy-female-ghost-whispers-430175.mp3"
 )
@@ -165,9 +171,11 @@ var _jumpscare_flicker_cancelled: bool = false
 var _cross_idle_player: AudioStreamPlayer
 var _cross_whispers_player: AudioStreamPlayer
 var _horror_yell_schedule_id: int = 0
+var _look_tighten_schedule_id: int = 0
 var _red_overlay_layer: CanvasLayer
 var _red_rect: ColorRect
 var _saved_can_move: bool = true
+var _player_lock_state_saved: bool = false
 var _saved_interaction_enabled: bool = true
 var _saved_input_enabled: bool = true
 var _used_full_input_lock: bool = false
@@ -239,6 +247,7 @@ func _ready() -> void:
 
 	if GameManager.get_flag(PHASE_2_DONE_FLAG):
 		call_deferred("_apply_post_sequence_state")
+		call_deferred("_sync_supermarket_exit_blocker")
 		return
 
 	if GameManager.get_flag(STARTED_FLAG) and not _cashier_deactivated:
@@ -246,9 +255,11 @@ func _ready() -> void:
 		call_deferred("_set_cashier_active", false)
 
 	if run_once and GameManager.get_flag(DONE_FLAG):
+		call_deferred("_sync_supermarket_exit_blocker")
 		return
 
 	call_deferred("_cache_light_states")
+	call_deferred("_sync_supermarket_exit_blocker")
 
 
 func try_start_sequence() -> void:
@@ -263,6 +274,8 @@ func try_start_sequence() -> void:
 
 	_running = true
 	GameManager.set_flag(STARTED_FLAG, true)
+	InnerThoughts.hide_thought()
+	_player_lock_state_saved = false
 	_resolve_cashier_refs()
 	# No ocultar a la cajera aquí: el prompt ya se bloquea vía flags + lock_player.
 	# La desaparición visual ocurre en _turn_lights_off() (con luces apagadas).
@@ -277,8 +290,7 @@ func _run_sequence() -> void:
 	await _prepare_background_street_lamp()
 	_cache_light_states()
 	_resolve_cashier_refs()
-	_lock_player()
-	_apply_sequence_look_limits()
+	_apply_sequence_look_limits(phase_1_yaw_limit_degrees, true)
 	_dip_ambient_if_enabled()
 
 	await _flicker_lights_short()
@@ -334,6 +346,8 @@ func start_phase_2() -> void:
 
 
 func _run_phase_2() -> void:
+	_apply_sequence_look_limits(sequence_yaw_limit_degrees, false)
+	_schedule_phase_2_look_tighten()
 	_stop_cross_whispers()
 	_start_phase_2_camera_shake()
 	await _flicker_phase_2_transition()
@@ -584,6 +598,28 @@ func _play_phase_2_transition_sound() -> void:
 	_schedule_phase_2_horror_yell()
 
 
+func _schedule_phase_2_look_tighten() -> void:
+	if not phase_2_tighten_look_enabled or not restrict_camera_during_sequence:
+		return
+	if phase_2_tighten_look_delay <= 0.0:
+		_apply_sequence_look_limits(phase_1_yaw_limit_degrees, false, true)
+		return
+	_look_tighten_schedule_id += 1
+	var schedule_id := _look_tighten_schedule_id
+	_run_look_tighten_schedule(schedule_id)
+
+
+func _run_look_tighten_schedule(schedule_id: int) -> void:
+	await get_tree().create_timer(phase_2_tighten_look_delay).timeout
+	if schedule_id != _look_tighten_schedule_id or not _phase_2_running:
+		return
+	_apply_sequence_look_limits(phase_1_yaw_limit_degrees, false, true)
+
+
+func _stop_phase_2_look_tighten_schedule() -> void:
+	_look_tighten_schedule_id += 1
+
+
 func _schedule_phase_2_horror_yell() -> void:
 	if _phase_2_horror_yell_player == null or phase_2_horror_yell == null:
 		return
@@ -626,6 +662,7 @@ func _activate_phase_2_horror_cast() -> void:
 
 
 func _deactivate_phase_2_horror_cast() -> void:
+	_stop_phase_2_look_tighten_schedule()
 	_stop_phase_2_horror_yell()
 	_stop_phase_2_jumpscare_scream()
 	_reset_blood_cashier_transform()
@@ -957,11 +994,24 @@ func _start_after_vision_dialogue() -> void:
 
 
 func _on_after_vision_dialogue_finished() -> void:
+	_remove_counter_items_permanently()
+	SupermarketExitBlocker.set_enabled(false)
 	_unlock_player_flashlight()
 	_clear_sequence_look_limits()
 	_unlock_player()
 	_restore_ambient_if_needed()
 	_restore_bathroom_lights()
+
+
+func _remove_counter_items_permanently() -> void:
+	for item in _find_counter_items():
+		if is_instance_valid(item):
+			item.queue_free()
+	_counter_item_state_cache.clear()
+
+
+func _sync_supermarket_exit_blocker() -> void:
+	SupermarketExitBlocker.sync_from_flags()
 
 
 func _apply_post_sequence_state() -> void:
@@ -1797,10 +1847,13 @@ func _lock_player() -> void:
 	player.stop_movement_immediately()
 
 	if allow_camera_look and player.get("can_move") != null:
-		_saved_can_move = player.can_move
+		if not _player_lock_state_saved:
+			_saved_can_move = player.can_move
+			if player.get("interaction_enabled") != null:
+				_saved_interaction_enabled = player.interaction_enabled
+			_player_lock_state_saved = true
 		player.can_move = false
 		if player.get("interaction_enabled") != null:
-			_saved_interaction_enabled = player.interaction_enabled
 			player.interaction_enabled = false
 		if player.has_method("capture_mouse"):
 			player.capture_mouse()
@@ -1835,17 +1888,28 @@ func _unlock_player() -> void:
 		player.can_move = _saved_can_move
 	if player.get("interaction_enabled") != null:
 		player.interaction_enabled = _saved_interaction_enabled
+	_player_lock_state_saved = false
 
 
-func _apply_sequence_look_limits() -> void:
+func _apply_sequence_look_limits(
+	yaw_limit_degrees: float = -1.0,
+	recenter: bool = true,
+	smooth_clamp_yaw: bool = false
+) -> void:
 	if not restrict_camera_during_sequence:
 		return
 	var player: Node = GameManager.get_player()
 	if player == null:
 		return
+	var yaw := sequence_yaw_limit_degrees if yaw_limit_degrees < 0.0 else yaw_limit_degrees
 	if player.has_method("set_sequence_look_limits"):
 		player.set_sequence_look_limits(
-			true, sequence_yaw_limit_degrees, sequence_look_up_limit_degrees
+			true,
+			yaw,
+			sequence_look_up_limit_degrees,
+			recenter,
+			smooth_clamp_yaw,
+			phase_2_tighten_look_smooth_duration
 		)
 
 

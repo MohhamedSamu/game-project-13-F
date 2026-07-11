@@ -4,6 +4,8 @@ extends RefCounted
 ## La UI (diálogo, etc.) sigue por encima porque usa CanvasLayer.
 
 const VIEWMODEL_SHADER := preload("res://assets/shaders/held_viewmodel.gdshader")
+const VIEWMODEL_BRIGHTNESS := 0.82
+const VIEWMODEL_SATURATION := 0.88
 
 
 static func apply(root: Node) -> void:
@@ -47,6 +49,7 @@ static func _disable_physics(node: Node) -> void:
 
 static func _apply_viewmodel_mesh(mesh: MeshInstance3D) -> void:
 	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mesh.gi_mode = GeometryInstance3D.GI_MODE_DISABLED
 	var tex := _resolve_albedo_texture(mesh)
 	var color := _resolve_albedo_color(mesh)
 	var mat := ShaderMaterial.new()
@@ -54,6 +57,8 @@ static func _apply_viewmodel_mesh(mesh: MeshInstance3D) -> void:
 	mat.render_priority = BaseMaterial3D.RENDER_PRIORITY_MAX
 	mat.set_shader_parameter("albedo_color", color)
 	mat.set_shader_parameter("albedo_alpha", color.a)
+	mat.set_shader_parameter("brightness", VIEWMODEL_BRIGHTNESS)
+	mat.set_shader_parameter("saturation", VIEWMODEL_SATURATION)
 	if tex != null:
 		mat.set_shader_parameter("use_albedo_texture", true)
 		mat.set_shader_parameter("albedo_texture", tex)

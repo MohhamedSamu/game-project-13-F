@@ -1,7 +1,52 @@
-[gd_resource type="Resource" script_class="NpcDialogueProfile" load_steps=5 format=3 uid="uid://xnv2fph2cxsk"]
+[gd_resource type="Resource" script_class="NpcDialogueProfile" load_steps=8 format=3 uid="uid://xnv2fph2cxsk"]
 
 [ext_resource type="Script" uid="uid://dxn1fgps4oaah" path="res://scripts/narrative/npc_dialogue_profile.gd" id="1_profile"]
 [ext_resource type="Script" uid="uid://b52s51m6jrkno" path="res://scripts/narrative/npc_dialogue_beat.gd" id="2_beat"]
+
+[sub_resource type="Resource" id="beat_after_vision"]
+script = ExtResource("2_beat")
+beat_id = "after_vision_repeat"
+dialogue_title = "after_vision_repeat_church"
+required_scene_id = ""
+required_objectives = PackedStringArray()
+required_objectives_scene_id = ""
+required_objectives_any_scene = false
+forbidden_objectives = PackedStringArray()
+required_flags = PackedStringArray("supermarket_ghost_reveal_done")
+play_once = false
+complete_objectives_on_finish = PackedStringArray()
+set_scene_on_finish = ""
+set_flags_on_finish = {}
+
+[sub_resource type="Resource" id="beat_waiting_churro_holding"]
+script = ExtResource("2_beat")
+beat_id = "waiting_churro_holding"
+dialogue_title = "waiting_churro"
+required_scene_id = ""
+required_objectives = PackedStringArray()
+required_objectives_scene_id = ""
+required_objectives_any_scene = false
+forbidden_objectives = PackedStringArray()
+required_flags = PackedStringArray("coca_placed_on_counter", "has_churro_in_left_hand")
+play_once = false
+complete_objectives_on_finish = PackedStringArray()
+set_scene_on_finish = ""
+set_flags_on_finish = {}
+
+[sub_resource type="Resource" id="beat_waiting_churro"]
+script = ExtResource("2_beat")
+beat_id = "waiting_churro"
+dialogue_title = "waiting_churro"
+required_scene_id = ""
+required_objectives = PackedStringArray()
+required_objectives_scene_id = ""
+required_objectives_any_scene = false
+forbidden_objectives = PackedStringArray()
+required_flags = PackedStringArray("coca_placed_on_counter", "needs_churro")
+play_once = false
+complete_objectives_on_finish = PackedStringArray()
+set_scene_on_finish = ""
+set_flags_on_finish = {}
 
 [sub_resource type="Resource" id="beat_repeat"]
 script = ExtResource("2_beat")
@@ -40,4 +85,4 @@ set_flags_on_finish = {
 script = ExtResource("1_profile")
 npc_id = "supermarket_npc"
 fallback_title = "start"
-beats = Array[ExtResource("2_beat")]([SubResource("beat_repeat"), SubResource("beat_intro")])
+beats = Array[ExtResource("2_beat")]([SubResource("beat_after_vision"), SubResource("beat_waiting_churro_holding"), SubResource("beat_waiting_churro"), SubResource("beat_repeat"), SubResource("beat_intro")])

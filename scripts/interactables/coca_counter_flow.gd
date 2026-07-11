@@ -23,6 +23,7 @@ static func on_coca_received_in_hand() -> void:
 	GameManager.set_flag("coca_placed_on_counter", false)
 	GameManager.set_flag("needs_churro", false)
 	CounterPlaceCamera.refresh_counter_interact_areas()
+	SupermarketExitBlocker.set_enabled(true)
 	InnerThoughts.show_thought(THOUGHT_AFTER_PICKUP)
 
 
@@ -85,4 +86,4 @@ static func _find_place_setup() -> Node:
 static func _on_counter_dialogue_finished() -> void:
 	GameManager.set_flag("needs_churro", true)
 	CounterPlaceCamera.refresh_counter_interact_areas()
-	InnerThoughts.show_thought(ChurroCounterFlow.THOUGHT_AFTER_COCA)
+	InnerThoughts.show_thought(ChurroCounterFlow.THOUGHT_AFTER_COCA, 0.0)

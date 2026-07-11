@@ -3,6 +3,10 @@ extends CharacterBody3D
 const GHOST_REVEAL_STARTED_FLAG := &"supermarket_ghost_reveal_started"
 const GHOST_REVEAL_DONE_FLAG := &"supermarket_ghost_reveal_done"
 const READY_FOR_JUMPSCARE_FLAG := &"ready_for_cashier_jumpscare"
+const AFTER_VISION_REPEAT_TITLES := [
+	"after_vision_repeat_church",
+	"after_vision_repeat_closed",
+]
 
 @onready var _dialogue: InteractableDialogueComponent = $InteractableDialogueComponent
 
@@ -42,3 +46,13 @@ func handle_interaction() -> void:
 		CocaCounterFlow.place_coca_from_cashier($DialogueFocusPoint)
 		return
 	_dialogue.call("_begin_dialogue_interaction")
+
+
+func consume_dialogue_interaction_override() -> Dictionary:
+	if not GameManager.get_flag(GHOST_REVEAL_DONE_FLAG):
+		return {}
+	var title: String = AFTER_VISION_REPEAT_TITLES[randi() % AFTER_VISION_REPEAT_TITLES.size()]
+	return {
+		"title": title,
+		"beat_id": "after_vision_repeat",
+	}

@@ -10,10 +10,9 @@ extends Node3D
 @export var hand_item_name: String = "churro"
 @export var prompt_text: String = "Presiona [E] para agarrar churro"
 @export var hand_hold_offset: Vector3 = Vector3(0.04, -0.1, -0.3)
-## Misma base que la Coca en HandLeft; la bolsa rota en el hijo Mesh.
-@export var hand_hold_rotation_deg: Vector3 = Vector3(10.0, 90.0, -12.0)
+## Ajuste fino sobre la orientación calculada al agarrar (bolsa de pie, como en el estante).
+@export var hand_hold_rotation_offset_deg: Vector3 = Vector3.ZERO
 @export_range(0.05, 1.5, 0.01) var hand_size_multiplier: float = 0.52
-@export var mesh_hold_rotation_deg: Vector3 = Vector3(-90.0, 28.0, 8.0)
 
 @onready var _interact: InteractableDialogueComponent = $InteractableDialogueComponent
 
@@ -89,7 +88,8 @@ func handle_interaction() -> void:
 		return
 
 	var attach_scale := _get_world_display_scale() * hand_size_multiplier
-	if player.give_left_hand_visual(visual, hand_hold_offset, hand_hold_rotation_deg, attach_scale):
+	var hold_rotation := _compute_hand_hold_rotation_deg()
+	if player.give_left_hand_visual(visual, hand_hold_offset, hold_rotation, attach_scale):
 		_hide_source_churro()
 		_picked = true
 		_interact.enabled = false
@@ -99,6 +99,26 @@ func handle_interaction() -> void:
 		_interact.enabled = true
 		visual.queue_free()
 		_show_source_churro()
+
+
+func _compute_hand_hold_rotation_deg() -> Vector3:
+	if target_churro_node == null:
+		return hand_hold_rotation_offset_deg
+	var player := GameManager.get_player()
+	if player == null:
+		return hand_hold_rotation_offset_deg
+	var hand_left := player.get_node_or_null("Head/Camera3D/HandLeft") as Node3D
+	if hand_left == null:
+		return hand_hold_rotation_offset_deg
+	# Conservar la orientación global del estante al pasar al espacio local de HandLeft.
+	var shelf_basis := target_churro_node.global_transform.basis.orthonormalized()
+	var hand_local_basis := hand_left.global_transform.basis.inverse() * shelf_basis
+	var euler := hand_local_basis.get_euler(EULER_ORDER_YXZ)
+	return Vector3(
+		rad_to_deg(euler.x),
+		rad_to_deg(euler.y),
+		rad_to_deg(euler.z)
+	) + hand_hold_rotation_offset_deg
 
 
 func _duplicate_churro_visual() -> Node3D:
@@ -111,12 +131,7 @@ func _duplicate_churro_visual() -> Node3D:
 	for child in copy.get_children():
 		if child is StaticBody3D or child is CollisionShape3D:
 			child.queue_free()
-	var mesh_euler := Vector3(
-		deg_to_rad(mesh_hold_rotation_deg.x),
-		deg_to_rad(mesh_hold_rotation_deg.y),
-		deg_to_rad(mesh_hold_rotation_deg.z)
-	)
-	copy.transform = Transform3D(Basis.from_euler(mesh_euler), Vector3.ZERO)
+	copy.transform = Transform3D.IDENTITY
 	wrapper.add_child(copy)
 	wrapper.set_meta("held_display_scale", _get_world_display_scale())
 	return wrapper

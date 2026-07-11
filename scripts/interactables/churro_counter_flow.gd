@@ -16,7 +16,6 @@ static func on_churro_received_in_hand() -> void:
 	GameManager.set_flag("churro_taken", true)
 	GameManager.set_flag("needs_churro", false)
 	CounterPlaceCamera.refresh_counter_interact_areas()
-	InnerThoughts.hide_thought()
 
 
 static func place_churro_from_counter(setup: Node) -> void:
@@ -55,11 +54,13 @@ static func _execute_place(
 	place_setup.place_counter_churro(item)
 
 	GameManager.set_flag("has_churro_in_left_hand", false)
+	GameManager.set_flag("churro_placed_on_counter", true)
 
 	var focus := focus_target
 	if focus == null and place_setup.has_method("get_cashier_focus"):
 		focus = place_setup.get_cashier_focus()
 
+	InnerThoughts.hide_thought()
 	var focus_speed := CounterPlaceCamera.resolve_focus_speed(place_setup, use_camera_focus)
 	_start_cashier_final_dialogue(focus, use_camera_focus, focus_speed)
 
@@ -83,7 +84,6 @@ static func _find_place_setup() -> Node:
 
 
 static func _on_counter_dialogue_finished() -> void:
-	GameManager.set_flag("churro_placed_on_counter", true)
 	GameManager.set_flag("ready_for_cashier_jumpscare", true)
 	var player := GameManager.get_player()
 	if player != null and player.has_method("clear_interaction_focus"):

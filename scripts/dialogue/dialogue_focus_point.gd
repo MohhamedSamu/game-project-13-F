@@ -8,6 +8,8 @@ extends Marker3D
 @export var stand_max_distance: float = 2.6
 @export var stand_lateral_tolerance: float = 0.28
 @export var stand_distance_tolerance: float = 0.25
+## Desplazamiento ideal perpendicular a forward (+ = derecha del NPC).
+@export var stand_lateral_offset: float = 0.0
 
 
 func get_dialogue_stand_position() -> Vector3:
@@ -25,7 +27,8 @@ func get_dialogue_stand_position() -> Vector3:
 		owner_node = self
 
 	var player_pos := player.global_position
-	var origin_pos := owner_node.global_position
+	var origin_pos := global_position
+	origin_pos.y = player_pos.y
 
 	var offset := player_pos - origin_pos
 	offset.y = 0.0
@@ -49,23 +52,25 @@ func get_dialogue_stand_position() -> Vector3:
 	if along < 0.0:
 		along = offset.length()
 
-	var lateral := offset - forward * along
-	var lateral_len := Vector2(lateral.x, lateral.z).length()
+	var target_along := clampf(along, stand_min_distance, stand_max_distance)
 
-	var target_along := along
-	if along < stand_min_distance:
-		target_along = stand_min_distance
-	elif along > stand_max_distance:
-		target_along = stand_max_distance
-
-	if lateral_len <= stand_lateral_tolerance:
-		if along >= stand_min_distance and along <= stand_max_distance:
-			return player_pos
-		if absf(along - target_along) <= stand_distance_tolerance:
-			return player_pos
-
-	return Vector3(
+	var ideal_pos := Vector3(
 		origin_pos.x + forward.x * target_along,
 		player_pos.y,
 		origin_pos.z + forward.z * target_along,
 	)
+
+	if absf(stand_lateral_offset) > 0.001:
+		var right := forward.cross(Vector3.UP)
+		if right.length_squared() > 0.0001:
+			ideal_pos += right.normalized() * stand_lateral_offset
+
+	var horizontal_delta := Vector2(
+		player_pos.x - ideal_pos.x,
+		player_pos.z - ideal_pos.z
+	).length()
+
+	if horizontal_delta <= maxf(stand_lateral_tolerance, stand_distance_tolerance):
+		return player_pos
+
+	return ideal_pos

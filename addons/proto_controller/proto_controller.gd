@@ -152,8 +152,12 @@ var _highlighted_interactable: Node
 var _sequence_look_limits_active: bool = false
 var _sequence_look_center_yaw: float = 0.0
 var _sequence_look_center_pitch: float = 0.0
+var _sequence_look_anchor_yaw: float = 0.0
+var _sequence_look_anchor_pitch: float = 0.0
+var _sequence_look_anchor_set: bool = false
 var _sequence_yaw_limit_rad: float = deg_to_rad(90.0)
 var _sequence_look_up_limit_rad: float = deg_to_rad(35.0)
+var _sequence_yaw_clamp_tween: Tween
 
 var _camera_default_local: Transform3D = Transform3D.IDENTITY
 var _nervous_shake_active: bool = false
@@ -358,6 +362,7 @@ func _physics_process(delta: float) -> void:
 ## Base of controller rotates around y (left/right). Head rotates around x (up/down).
 ## Modifies look_rotation based on rot_input, then resets basis and rotates by look_rotation.
 func rotate_look(rot_input : Vector2):
+	_kill_sequence_yaw_clamp_tween()
 	look_rotation.x -= rot_input.y * look_speed
 	look_rotation.x = clampf(look_rotation.x, _get_pitch_min_rad(), _get_pitch_max_rad())
 	look_rotation.y -= rot_input.x * look_speed
@@ -372,21 +377,77 @@ func rotate_look(rot_input : Vector2):
 func set_sequence_look_limits(
 	enabled: bool,
 	yaw_limit_degrees: float = 90.0,
-	look_up_limit_degrees: float = 35.0
+	look_up_limit_degrees: float = 35.0,
+	recenter: bool = true,
+	smooth_clamp_yaw: bool = false,
+	smooth_clamp_duration: float = 0.45
 ) -> void:
 	if not enabled:
+		_kill_sequence_yaw_clamp_tween()
 		_sequence_look_limits_active = false
 		return
 
-	_sequence_look_center_yaw = look_rotation.y
-	_sequence_look_center_pitch = look_rotation.x
-	_sequence_yaw_limit_rad = deg_to_rad(yaw_limit_degrees)
+	_kill_sequence_yaw_clamp_tween()
+
+	if recenter or not _sequence_look_limits_active:
+		_sequence_look_center_yaw = look_rotation.y
+		_sequence_look_center_pitch = look_rotation.x
+		if not _sequence_look_anchor_set:
+			_sequence_look_anchor_yaw = _sequence_look_center_yaw
+			_sequence_look_anchor_pitch = _sequence_look_center_pitch
+			_sequence_look_anchor_set = true
+
+	var new_limit_rad := deg_to_rad(yaw_limit_degrees)
+	_sequence_yaw_limit_rad = new_limit_rad
 	_sequence_look_up_limit_rad = deg_to_rad(look_up_limit_degrees)
 	_sequence_look_limits_active = true
 
+	if smooth_clamp_yaw:
+		var offset := angle_difference(_sequence_look_center_yaw, look_rotation.y)
+		if absf(offset) > new_limit_rad + 0.0001:
+			_start_smooth_yaw_clamp(offset, new_limit_rad, smooth_clamp_duration)
+		return
+
+	look_rotation.y = _clamp_sequence_yaw(look_rotation.y)
+	look_rotation.x = clampf(look_rotation.x, _get_pitch_min_rad(), _get_pitch_max_rad())
+	_apply_look_rotation_from_state()
+
 
 func clear_sequence_look_limits() -> void:
+	_kill_sequence_yaw_clamp_tween()
 	_sequence_look_limits_active = false
+	_sequence_look_anchor_set = false
+
+
+func _apply_look_rotation_from_state() -> void:
+	transform.basis = Basis()
+	rotate_y(look_rotation.y)
+	head.transform.basis = Basis()
+	head.rotate_x(look_rotation.x)
+
+
+func _kill_sequence_yaw_clamp_tween() -> void:
+	if _sequence_yaw_clamp_tween != null and _sequence_yaw_clamp_tween.is_valid():
+		_sequence_yaw_clamp_tween.kill()
+	_sequence_yaw_clamp_tween = null
+
+
+func _start_smooth_yaw_clamp(start_offset: float, limit_rad: float, duration: float) -> void:
+	var target_offset := clampf(start_offset, -limit_rad, limit_rad)
+	var tween := create_tween()
+	_sequence_yaw_clamp_tween = tween
+	tween.set_trans(Tween.TRANS_SINE)
+	tween.set_ease(Tween.EASE_OUT)
+	tween.tween_method(
+		func(t: float) -> void:
+			var offset := lerpf(start_offset, target_offset, t)
+			look_rotation.y = _sequence_look_center_yaw + offset
+			_apply_look_rotation_from_state(),
+		0.0,
+		1.0,
+		maxf(duration, 0.01)
+	)
+	tween.finished.connect(func() -> void: _sequence_yaw_clamp_tween = null)
 
 
 func _get_pitch_min_rad() -> float:

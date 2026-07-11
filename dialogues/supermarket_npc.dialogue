@@ -18,3 +18,15 @@ Clerk: ¿Necesitas algo más?
 - Solo estoy mirando.
 	Clerk: No me hagas perder el tiempo.
 => END
+
+~ waiting_churro
+Clerk: Apúrese con el churro, señor, que ya estamos por cerrar.
+=> END
+
+~ after_vision_repeat_church
+Clerk: ¿Tengo monos en la cara? Vaya, confiese y deje de asustarme.
+=> END
+
+~ after_vision_repeat_closed
+Clerk: No le voy a cobrar los churros, ya cerré caja por hoy.
+=> END

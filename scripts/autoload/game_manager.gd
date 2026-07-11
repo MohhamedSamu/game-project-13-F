@@ -368,6 +368,22 @@ func unlock_player() -> void:
 	else:
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
+	_restore_churro_wait_thought_if_needed()
+
+
+func _restore_churro_wait_thought_if_needed() -> void:
+	if not get_flag("coca_placed_on_counter"):
+		return
+	if get_flag("churro_placed_on_counter"):
+		return
+	if get_flag("ready_for_cashier_jumpscare"):
+		return
+	if get_flag("supermarket_ghost_reveal_started"):
+		return
+	if get_flag("supermarket_ghost_reveal_done"):
+		return
+	InnerThoughts.show_thought(ChurroCounterFlow.THOUGHT_AFTER_COCA, 0.0)
+
 
 func lock_player_interaction_prep() -> void:
 	if interaction_prep_active or dialogue_active:

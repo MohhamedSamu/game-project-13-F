@@ -124,8 +124,8 @@ shader_parameter/cirrus_absorption = 2.0
 shader_parameter/cirrus_sky_tint_fade = 0.5
 shader_parameter/cirrus_size = 1.0
 shader_parameter/cirrus_uv = Vector2(0.16, 0.11)
-shader_parameter/cirrus_position1 = Vector2(0.384132, 0.384132)
-shader_parameter/cirrus_position2 = Vector2(0.384132, 0.384132)
+shader_parameter/cirrus_position1 = Vector2(0.0186911, 0.018691)
+shader_parameter/cirrus_position2 = Vector2(0.0186911, 0.018691)
 shader_parameter/cirrus_texture = ExtResource("14_sbygb")
 shader_parameter/cumulus_visible = true
 shader_parameter/cumulus_intensity = 0.6
@@ -135,7 +135,7 @@ shader_parameter/cumulus_absorption = 2.0
 shader_parameter/cumulus_noise_freq = 2.7
 shader_parameter/cumulus_sky_tint_fade = 0.0
 shader_parameter/cumulus_size = 0.5
-shader_parameter/cumulus_position = Vector2(16.9552, 16.9552)
+shader_parameter/cumulus_position = Vector2(0.0934572, 0.0934561)
 shader_parameter/cumulus_texture = ExtResource("15_5niy6")
 shader_parameter/cumulus_partial_mie_phase = Vector3(0.957564, 1.04244, 0.412)
 shader_parameter/cumulus_mie_intensity = 1.0
@@ -357,6 +357,12 @@ wall_height = 5.0
 transform = Transform3D(1.31134e-07, 0, -1, 0, 1, 0, 1, 0, 1.31134e-07, -16.7722, 0.0497312, 38.5747)
 wall_length = 25.0
 wall_height = 5.0
+
+[node name="InvisibleWallSuper14" parent="invisibleObjects" groups=["supermarket_exit_blocker_wall"] instance=ExtResource("4_wikm6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.78156, 0.0497312, 0.0487881)
+wall_length = 18.0
+wall_height = 5.0
+wall_enabled = false
 
 [node name="Iglesia" parent="." instance=ExtResource("3_y2gk5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -144.222, -0.00352758, 26.2195)
