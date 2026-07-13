@@ -1182,39 +1182,10 @@ func _resolve_pickup_item_id(pickup: Node3D) -> StringName:
 
 func _load_footstep_library() -> void:
 	_footstep_streams.clear()
-	var root := footsteps_root
-	if not root.ends_with("/"):
-		root += "/"
-	var d_root := DirAccess.open(root)
-	if d_root == null:
-		push_warning("ProtoController: no se puede abrir footsteps_root: %s" % root)
-		return
-	d_root.list_dir_begin()
-	var sub := d_root.get_next()
-	while sub != "":
-		if d_root.current_is_dir() and not sub.begins_with("."):
-			var subpath := root + sub + "/"
-			var streams: Array[AudioStream] = []
-			var d_sub := DirAccess.open(subpath)
-			if d_sub != null:
-				d_sub.list_dir_begin()
-				var fn := d_sub.get_next()
-				while fn != "":
-					if not d_sub.current_is_dir():
-						var lower := fn.to_lower()
-						if lower.ends_with(".ogg") or lower.ends_with(".wav") or lower.ends_with(".mp3"):
-							var res_path := subpath + fn
-							var st: Resource = load(res_path)
-							if st is AudioStream:
-								streams.append(st)
-					fn = d_sub.get_next()
-				d_sub.list_dir_end()
-			if not streams.is_empty():
-				_footstep_streams[sub] = streams
-		sub = d_root.get_next()
-	d_root.list_dir_end()
+	if FootstepLibrary != null:
+		_footstep_streams = FootstepLibrary.get_surface_library()
 	if _footstep_streams.is_empty():
-		push_warning("ProtoController: no hay clips en subcarpetas de %s" % root)
+		push_warning("ProtoController: FootstepLibrary no tiene clips de pasos cargados")
 
 
 func _footstep_key_for_name(surface_name: String) -> String:

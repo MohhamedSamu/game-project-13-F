@@ -89,7 +89,7 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_8uki6")
 theme_override_styles/hover = SubResource("StyleBoxFlat_8uki6")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_f6eus")
 theme_override_styles/normal = SubResource("StyleBoxFlat_0bnpd")
-text = "Resume"
+text = "Continuar"
 
 [node name="btnOptions" type="Button" parent="Panel/VBoxContainer"]
 custom_minimum_size = Vector2(456, 79)
@@ -105,7 +105,7 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_8uki6")
 theme_override_styles/hover = SubResource("StyleBoxFlat_8uki6")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_f6eus")
 theme_override_styles/normal = SubResource("StyleBoxFlat_0bnpd")
-text = "Options"
+text = "Opciones"
 
 [node name="btnMainMenu" type="Button" parent="Panel/VBoxContainer"]
 custom_minimum_size = Vector2(456, 79)
@@ -121,7 +121,7 @@ theme_override_styles/focus = SubResource("StyleBoxFlat_8uki6")
 theme_override_styles/hover = SubResource("StyleBoxFlat_8uki6")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_f6eus")
 theme_override_styles/normal = SubResource("StyleBoxFlat_0bnpd")
-text = "Main menu"
+text = "Menú principal"
 
 [node name="ConfigModule" parent="." instance=ExtResource("1_6tw0m")]
 visible = false
