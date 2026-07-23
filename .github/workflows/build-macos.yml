@@ -46,6 +46,10 @@ jobs:
           mkdir -p "$TEMPLATES_DIR"
           curl -fsSL -o templates.tpz "$TEMPLATES_URL"
           unzip -q templates.tpz -d "$TEMPLATES_DIR"
+          if [ -f "$TEMPLATES_DIR/templates/macos.zip" ]; then
+            mv "$TEMPLATES_DIR/templates/"* "$TEMPLATES_DIR/"
+            rmdir "$TEMPLATES_DIR/templates"
+          fi
 
           if [ ! -f "$TEMPLATES_DIR/macos.zip" ]; then
             echo "macos.zip no está en la ruta esperada. Contenido de templates:"
