@@ -23,7 +23,7 @@ var _advancing: bool = false
 func _ready() -> void:
 	layer = 120
 	visible = true
-	_hint_label.text = sequence.continue_hint if sequence != null else "Clic para seguir leyendo"
+	_hint_label.text = tr("UI_INTRO_CONTINUE")
 	_body_label.text = ""
 	_lock_player()
 	GameManager.level_intro_active = true
@@ -121,9 +121,10 @@ func _refresh_page_display() -> void:
 
 
 func _format_paragraph_text(paragraph: LevelIntroParagraph) -> String:
+	var localized := tr(paragraph.text)
 	if paragraph.style == LevelIntroParagraph.TextStyle.INNER_THOUGHT:
-		return paragraph.text.to_lower()
-	return paragraph.text
+		return localized.to_lower()
+	return localized
 
 
 func _apply_page_style(style: LevelIntroParagraph.TextStyle) -> void:

@@ -12,11 +12,30 @@ extends OptionButton
 
 func _ready() -> void:
 	clear()
-	add_item("Alta", Settings.GraphicsQuality.HIGH)
-	add_item("Medios", Settings.GraphicsQuality.MEDIUM)
-	add_item("Bajos", Settings.GraphicsQuality.LOW)
+	add_item(tr("UI_GFX_HIGH"), Settings.GraphicsQuality.HIGH)
+	add_item(tr("UI_GFX_MED"), Settings.GraphicsQuality.MEDIUM)
+	add_item(tr("UI_GFX_LOW"), Settings.GraphicsQuality.LOW)
 	_load_saved_value()
 	item_selected.connect(_on_item_selected)
+	if not Settings.locale_changed.is_connected(_on_locale_changed):
+		Settings.locale_changed.connect(_on_locale_changed)
+
+
+func _on_locale_changed(_locale: String) -> void:
+	refresh_localized_items()
+
+
+func refresh_localized_items() -> void:
+	var selected_id := get_selected_id() if get_item_count() > 0 else Settings.get_graphics_quality()
+	clear()
+	add_item(tr("UI_GFX_HIGH"), Settings.GraphicsQuality.HIGH)
+	add_item(tr("UI_GFX_MED"), Settings.GraphicsQuality.MEDIUM)
+	add_item(tr("UI_GFX_LOW"), Settings.GraphicsQuality.LOW)
+	for i in range(get_item_count()):
+		if get_item_id(i) == selected_id:
+			select(i)
+			return
+	_load_saved_value()
 
 
 func _load_saved_value() -> void:

@@ -24,7 +24,23 @@ func _ready() -> void:
 	if config_module.has_signal("back_pressed"):
 		config_module.connect("back_pressed", Callable(self, "_close_options"))
 
+	_refresh_localized_texts()
+	if not Settings.locale_changed.is_connected(_on_locale_changed):
+		Settings.locale_changed.connect(_on_locale_changed)
+
 	call_deferred("_focus_main_menu")
+
+
+func _on_locale_changed(_locale: String) -> void:
+	_refresh_localized_texts()
+
+
+func _refresh_localized_texts() -> void:
+	btn_resume.text = tr("UI_PAUSE_CONTINUE")
+	btn_options.text = tr("UI_PAUSE_OPTIONS")
+	btn_main_menu.text = tr("UI_PAUSE_MAIN_MENU")
+	if config_module != null and config_module.has_method("refresh_localized_texts"):
+		config_module.refresh_localized_texts()
 
 
 func _unhandled_input(event: InputEvent) -> void:

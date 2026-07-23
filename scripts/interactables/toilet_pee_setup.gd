@@ -407,7 +407,7 @@ func get_interaction_prompt() -> String:
 	if _state == State.ACTIVE:
 		return _exit_prompt()
 	if _state == State.IDLE and _is_bathroom_accessible() and not _is_bladder_empty():
-		return InputHints.adapt_prompt(prompt_enter)
+		return prompt_enter
 	return ""
 
 
@@ -653,7 +653,10 @@ func _get_bladder_percent() -> float:
 func _update_bladder_ui() -> void:
 	var pct := _get_bladder_percent()
 	if _bladder_label != null:
-		_bladder_label.text = "Vejiga: %d%%" % int(round(pct))
+		var fmt := tr("UI_BLADDER_FMT")
+		if "%d" not in fmt:
+			fmt = "Vejiga: %d%%"
+		_bladder_label.text = fmt % int(round(pct))
 	if _bladder_bar != null:
 		_bladder_bar.max_value = 100.0
 		_bladder_bar.value = pct
@@ -748,11 +751,15 @@ func _update_active_controls(delta: float) -> void:
 
 func _aim_hint_text() -> String:
 	var exit_label := InputHints.label_menu_back() if InputHints.is_gamepad() else "[E]"
+	if Settings.get_locale() == "en":
+		return "%s · %s to leave" % [InputHints.label_spray_hold(), exit_label]
 	return "%s · %s para salir" % [InputHints.label_spray_hold(), exit_label]
 
 
 func _exit_prompt() -> String:
 	if InputHints.is_gamepad():
+		if Settings.get_locale() == "en":
+			return "Press %s to leave" % InputHints.label_menu_back()
 		return "Presiona %s para salir" % InputHints.label_menu_back()
-	return InputHints.adapt_prompt(prompt_exit)
+	return prompt_exit
 

@@ -41,7 +41,9 @@ func show_thought(
 	if GameManager.instructions_overlay_active:
 		return
 
-	var display_text := text.to_lower() if lowercase_text else text
+	var display_text := tr(text)
+	if lowercase_text:
+		display_text = display_text.to_lower()
 	if _anchor.visible and _current_text == display_text:
 		if duration > 0.0:
 			_auto_hide_timer.start(duration)

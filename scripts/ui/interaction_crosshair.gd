@@ -67,8 +67,9 @@ func set_highlight(active: bool) -> void:
 func set_prompt(text: String) -> void:
 	if prompt_label == null:
 		return
-	prompt_label.text = text
-	prompt_label.visible = text.strip_edges().length() > 0
+	var localized := "" if text.strip_edges().is_empty() else InputHints.adapt_prompt(tr(text))
+	prompt_label.text = localized
+	prompt_label.visible = localized.strip_edges().length() > 0
 
 
 func _notification(what: int) -> void:

@@ -107,26 +107,32 @@ func label_menu_back() -> String:
 
 func label_spray_hold() -> String:
 	if not is_gamepad():
-		return "Clic izquierdo (mantener)"
+		return tr("HINT_SPRAY_HOLD_MOUSE")
+	if Settings.get_locale() == "en":
+		return "%s (hold)" % label_interact()
 	return "%s (mantener)" % label_interact()
 
 
 func close_instructions_hint() -> String:
 	if is_gamepad():
+		if Settings.get_locale() == "en":
+			return "%s or %s to close" % [label_menu_confirm(), label_interact()]
 		return "%s o %s para cerrar" % [label_menu_confirm(), label_interact()]
-	return "Clic o [E] para cerrar"
+	return tr("UI_INSTR_CLOSE")
 
 
 func adapt_pickup_prompt(prompt: String) -> String:
-	if prompt.is_empty() or not is_gamepad():
-		return prompt
-	return prompt.replace("[E]", label_pickup())
+	var localized := tr(prompt)
+	if localized.is_empty() or not is_gamepad():
+		return localized
+	return localized.replace("[E]", label_pickup())
 
 
 func adapt_prompt(prompt: String) -> String:
-	if prompt.is_empty() or not is_gamepad():
-		return prompt
-	var adapted := prompt
+	var localized := tr(prompt)
+	if localized.is_empty() or not is_gamepad():
+		return localized
+	var adapted := localized
 	adapted = adapted.replace("[Q]", label_drop())
 	adapted = adapted.replace("[F]", label_flashlight())
 	adapted = adapted.replace("[E]", label_interact())
@@ -140,40 +146,13 @@ func instructions_body() -> String:
 
 
 func _keyboard_instructions_body() -> String:
-	return """Controles (teclado y ratón)
-
-• WASD — caminar y moverte por el entorno.
-• Mantén SHIFT — correr.
-• Espacio — saltar.
-
-• E — interactuar y recoger objetos.
-• Q — soltar lo que llevas en la mano.
-• F — usar / cambiar lo que llevas en la mano (linterna).
-• Ratón — mirar.
-• Esc — pausa.
-
-Explora la zona: debería haber una linterna cerca.
-Recógela con [E] y cámbiala con [F] cuando la lleves en la mano."""
+	return tr("UI_INSTR_BODY_KB")
 
 
 func _gamepad_instructions_body() -> String:
 	var family := get_family_name()
 	if gamepad_family == GamepadFamily.PLAYSTATION:
-		return """Controles (%s)
-
-• Stick izquierdo — caminar.
-• L3 (stick izquierdo) — correr.
-• %s — saltar.
-• %s — interactuar (puertas, NPCs, leer el libro).
-• %s — recoger objetos / usar en la mano.
-• %s — soltar lo que llevas.
-• Stick derecho — mirar.
-• %s — pausa / menús.
-• %s — confirmar en menús.
-• %s — volver en menús.
-
-Explora la zona: debería haber una linterna cerca.
-Recógela con %s y cámbiala con %s en la mano.""" % [
+		return tr("UI_INSTR_BODY_PAD_PS") % [
 			family,
 			label_jump(),
 			label_interact(),
@@ -185,21 +164,7 @@ Recógela con %s y cámbiala con %s en la mano.""" % [
 			label_pickup(),
 			label_flashlight(),
 		]
-	return """Controles (%s)
-
-• Stick izquierdo — caminar.
-• L3 — correr.
-• %s — saltar.
-• %s — interactuar (puertas, NPCs, leer el libro).
-• %s — recoger objetos / usar en la mano.
-• %s — soltar lo que llevas.
-• Stick derecho — mirar.
-• %s — pausa / menús.
-• %s — confirmar en menús.
-• %s — volver en menús.
-
-Explora la zona: debería haber una linterna cerca.
-Recógela con %s y cámbiala con %s en la mano.""" % [
+	return tr("UI_INSTR_BODY_PAD_XBOX") % [
 		family,
 		label_jump(),
 		label_interact(),

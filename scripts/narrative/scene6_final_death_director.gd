@@ -895,7 +895,7 @@ func _show_fin_screen() -> void:
 	_ensure_fin_label()
 	_ensure_fin_continue_hint()
 	_fade_layer.visible = true
-	_fin_label.text = fin_title
+	_fin_label.text = tr(fin_title)
 	_fin_label.modulate.a = 0.0
 	if _fin_continue_label != null:
 		_fin_continue_label.modulate.a = 0.0
@@ -1015,7 +1015,7 @@ func _ensure_fin_label() -> void:
 		return
 	_fin_label = Label.new()
 	_fin_label.name = "FinLabel"
-	_fin_label.text = fin_title
+	_fin_label.text = tr(fin_title)
 	_fin_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_fin_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_fin_label.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -1031,7 +1031,7 @@ func _ensure_fin_continue_hint() -> void:
 		return
 	_fin_continue_label = Label.new()
 	_fin_continue_label.name = "FinContinueHint"
-	_fin_continue_label.text = fin_continue_hint_text
+	_fin_continue_label.text = tr(fin_continue_hint_text)
 	_fin_continue_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_fin_continue_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
 	_fin_continue_label.set_anchors_and_offsets_preset(Control.PRESET_BOTTOM_WIDE)

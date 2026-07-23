@@ -44,6 +44,11 @@ const GRAPHICS_CAMERA_EXPOSURE_OFFSET := {
 ## Alta [4096] por defecto en una partida nueva (pedido de diseño).
 const DEFAULT_GRAPHICS_QUALITY := GraphicsQuality.HIGH
 
+const DEFAULT_LOCALE := "es"
+const SUPPORTED_LOCALES := ["es", "en"]
+
+signal locale_changed(locale: String)
+
 const DEVELOP_WALK_SPEED := 7.0
 const DEVELOP_SPRINT_SPEED := 10.0
 const DEVELOP_FREEFLY_SPEED := 25.0
@@ -65,6 +70,7 @@ var data := {
 	"fullscreen": false,
 	"input_device_scheme": "keyboard",
 	"gamepad_family": "xbox",
+	"locale": DEFAULT_LOCALE,
 }
 
 
@@ -73,9 +79,33 @@ func _ready() -> void:
 	data["fullscreen"] = OS.has_feature("mobile")
 	load_settings()
 	_migrate_mobile_fullscreen_default()
+	apply_locale()
 	apply_audio()
 	_apply_display()
 	apply_graphics_quality()
+
+
+func get_locale() -> String:
+	var locale := str(get_value("locale", DEFAULT_LOCALE))
+	if locale not in SUPPORTED_LOCALES:
+		return DEFAULT_LOCALE
+	return locale
+
+
+func set_locale(locale: String) -> void:
+	if locale not in SUPPORTED_LOCALES:
+		return
+	if get_locale() == locale:
+		apply_locale()
+		return
+	data["locale"] = locale
+	apply_locale()
+	locale_changed.emit(locale)
+
+
+func apply_locale() -> void:
+	var locale := get_locale()
+	TranslationServer.set_locale(locale)
 
 
 ## Una sola vez por instalación: en móvil activa fullscreen aunque ya exista un
@@ -243,12 +273,12 @@ func get_graphics_camera_exposure_offset(quality: int) -> float:
 func get_graphics_quality_display_name() -> String:
 	match get_graphics_quality():
 		GraphicsQuality.HIGH:
-			return "Alta"
+			return tr("UI_GFX_HIGH")
 		GraphicsQuality.MEDIUM:
-			return "Medios"
+			return tr("UI_GFX_MED")
 		GraphicsQuality.LOW:
-			return "Bajos"
-	return "Alta"
+			return tr("UI_GFX_LOW")
+	return tr("UI_GFX_HIGH")
 
 
 # --- MOVEMENT PROFILE ---------------------------------------------------------

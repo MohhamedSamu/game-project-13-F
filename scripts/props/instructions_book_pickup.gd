@@ -39,13 +39,13 @@ func _ready() -> void:
 
 
 func get_interaction_prompt() -> String:
-	return InputHints.adapt_pickup_prompt(pickup_prompt)
+	return pickup_prompt
 
 
 func get_use_prompt() -> String:
 	if InstructionsOverlay.is_open():
 		return ""
-	return InputHints.adapt_prompt(use_prompt)
+	return use_prompt
 
 
 func get_item_id() -> StringName:

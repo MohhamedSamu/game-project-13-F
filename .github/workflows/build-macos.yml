@@ -1,0 +1,67 @@
+name: Build macOS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: 4.5-stable
+  EXPORT_PRESET: macOS
+  EXPORT_PATH: build/macos/project-13-f.app
+  ARTIFACT_ZIP: project-13-f-macos.zip
+
+jobs:
+  build-macos:
+    name: Export macOS
+    runs-on: macos-14
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Godot and export templates
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          GODOT_URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_macos.universal.zip"
+          TEMPLATES_URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
+          TEMPLATES_DIR="$HOME/Library/Application Support/Godot/export_templates/${GODOT_VERSION}"
+
+          curl -fsSL -o godot.zip "$GODOT_URL"
+          unzip -q godot.zip -d godot_dir
+
+          GODOT_BIN="$(find godot_dir -type f -path '*/MacOS/Godot' | head -1)"
+          if [ -z "$GODOT_BIN" ]; then
+            echo "No se encontró el binario de Godot en el zip descargado."
+            exit 1
+          fi
+          chmod +x "$GODOT_BIN"
+          echo "GODOT_BIN=$GODOT_BIN" >> "$GITHUB_ENV"
+
+          mkdir -p "$TEMPLATES_DIR"
+          curl -fsSL -o templates.tpz "$TEMPLATES_URL"
+          unzip -q templates.tpz -d "$TEMPLATES_DIR"
+
+      - name: Export release build
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p build/macos
+          "$GODOT_BIN" --headless --path . --export-release "$EXPORT_PRESET" "$EXPORT_PATH"
+
+      - name: Ad-hoc code sign
+        run: codesign --force --deep -s - "$EXPORT_PATH"
+
+      - name: Create zip artifact
+        run: ditto -c -k --sequesterRsrc --keepParent "$EXPORT_PATH" "$ARTIFACT_ZIP"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: project-13-f-macos
+          path: ${{ env.ARTIFACT_ZIP }}
+          if-no-files-found: error

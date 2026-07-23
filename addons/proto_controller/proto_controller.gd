@@ -620,13 +620,16 @@ func _interaction_prompt(node: Node) -> String:
 			prompt = t as String
 	if prompt.is_empty():
 		return ""
-	if node.is_in_group("pickup"):
-		return InputHints.adapt_pickup_prompt(prompt)
-	return InputHints.adapt_prompt(prompt)
+	return prompt
 
 
 func _drop_before_pickup_prompt() -> String:
 	if InputHints.is_gamepad():
+		if Settings.get_locale() == "en":
+			return "You're already holding something. Press %s to drop it before picking up another (%s)." % [
+				InputHints.label_drop(),
+				InputHints.label_pickup(),
+			]
 		return "Ya llevas un objeto en la mano. Pulsa %s para soltarlo antes de coger otro (%s)." % [
 			InputHints.label_drop(),
 			InputHints.label_pickup(),

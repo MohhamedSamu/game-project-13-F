@@ -1,0 +1,50 @@
+[gd_scene load_steps=2 format=3 uid="uid://0axyphbwtf53"]
+
+[ext_resource type="Script" path="res://scripts/ui/language_flags.gd" id="1_lang"]
+
+[node name="LanguageFlags" type="Control"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -168.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 88.0
+grow_horizontal = 0
+script = ExtResource("1_lang")
+
+[node name="FlagsRow" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+alignment = 2
+
+[node name="BtnES" type="TextureButton" parent="FlagsRow"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "Español"
+
+[node name="BtnEN" type="TextureButton" parent="FlagsRow"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+ignore_texture_size = true
+stretch_mode = 5
+tooltip_text = "English"
+
+[node name="ConfirmDialog" type="ConfirmationDialog" parent="."]
+title = "Cambiar idioma"
+initial_position = 2
+size = Vector2i(420, 160)
+ok_button_text = "Sí"
+dialog_text = "¿Quieres cambiar el idioma del juego?"

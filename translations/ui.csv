@@ -1,0 +1,164 @@
+keys,es,en
+UI_MAIN_START,Iniciar juego,Start game
+UI_MAIN_OPTIONS,Opciones,Options
+UI_MAIN_QUIT,Salir,Quit
+UI_MAIN_NEW_GAME,Iniciar nueva partida,Start new game
+UI_COMMON_BACK,Volver,Back
+UI_PAUSE_CONTINUE,Continuar,Continue
+UI_PAUSE_OPTIONS,Opciones,Options
+UI_PAUSE_MAIN_MENU,Menú principal,Main menu
+UI_OPT_TITLE,Configuración,Settings
+UI_OPT_MASTER_VOL,Volumen general,Master volume
+UI_OPT_MUSIC_VOL,Volumen de música,Music volume
+UI_OPT_SFX_VOL,Volumen de efectos,SFX volume
+UI_OPT_FULLSCREEN,Pantalla completa,Fullscreen
+UI_OPT_MOUSE_SENS,Sensibilidad del ratón,Mouse sensitivity
+UI_OPT_FOV,Campo de visión,Field of view
+UI_OPT_GRAPHICS,Gráficos,Graphics
+UI_GFX_HIGH,Alta,High
+UI_GFX_MED,Medios,Medium
+UI_GFX_LOW,Bajos,Low
+UI_LANG_CONFIRM_TITLE,Cambiar idioma,Change language
+UI_LANG_CONFIRM_BODY,¿Quieres cambiar el idioma del juego?,Do you want to change the game language?
+UI_LANG_CONFIRM_YES,Sí,Yes
+UI_LANG_CONFIRM_NO,No,No
+UI_INSTR_TITLE,Instrucciones,Instructions
+UI_INSTR_CLOSE,Clic o [E] para cerrar,Click or [E] to close
+UI_INTRO_CONTINUE,Clic para seguir leyendo,Click to keep reading
+UI_BLADDER_FMT,Vejiga: %d%%,Bladder: %d%%
+UI_FIN_TITLE,FIN,THE END
+UI_FIN_CONTINUE,click para continuar,click to continue
+PROMPT_INTERACT,Presiona [E] para interactuar,Press [E] to interact
+PROMPT_TALK,Presiona [E] para hablar,Press [E] to talk
+PROMPT_DOOR_LOCKED,Presiona [E] para interactuar,Press [E] to interact
+PROMPT_DOOR_USE_KEY,Presiona [E] para usar la llave,Press [E] to use the key
+PROMPT_DOOR_OPEN,Presiona [E] para abrir,Press [E] to open
+PROMPT_DOOR_CLOSE,Presiona [E] para cerrar,Press [E] to close
+PROMPT_CHURRO_PICKUP,Presiona [E] para agarrar churro,Press [E] to grab a churro
+PROMPT_CHURRO_PLACE,Presiona [E] para dejar el churro,Press [E] to put down the churro
+PROMPT_COCA_PLACE,Presiona [E] para dejar la coca,Press [E] to put down the Coke
+PROMPT_COCA_TAKE,Presiona [E] para tomar una coca,Press [E] to grab a Coke
+PROMPT_SINK_WASH,Presiona [E] para lavarte las manos,Press [E] to wash your hands
+PROMPT_TOILET_ENTER,Presiona [E] para usar el inodoro,Press [E] to use the toilet
+PROMPT_TOILET_EXIT,Presiona [E] para salir,Press [E] to leave
+PROMPT_FLASHLIGHT,[E] Recoger linterna,[E] Pick up flashlight
+PROMPT_GENERIC_PICKUP,[E] Recoger objeto,[E] Pick up item
+PROMPT_KEY_PICKUP,[E] Recoger llave,[E] Pick up key
+PROMPT_CAMERA_PICKUP,[E] Recoger cámara,[E] Pick up camera
+PROMPT_BOOK_PICKUP,[E] Recoger libro de instrucciones,[E] Pick up instructions booklet
+PROMPT_BOOK_READ,[E] Leer instrucciones,[E] Read instructions
+PROMPT_NEED_DROP,"Ya llevas un objeto en la mano. Pulsa [Q] para soltarlo antes de coger otro ([E]).","You're already holding something. Press [Q] to drop it before picking up another ([E])."
+HINT_TOILET_AIM,Mantén click izquierdo · [E] para salir,Hold left click · [E] to leave
+HINT_SPRAY_HOLD_MOUSE,Clic izquierdo (mantener),Left click (hold)
+CREDITS_OPEN,Gracias por jugar,Thanks for playing
+CREDITS_INFO_01,Proyecto 13F será un juego de terror psicológico inspirado en historias locales,Project 13F will be a psychological horror game inspired by local stories
+CREDITS_INFO_02,"La historia seguirá a un vigilante asignado a la Iglesia Virgen de Fátima, en San Salvador","The story follows a night watchman assigned to the Church of Our Lady of Fátima, in San Salvador"
+CREDITS_INFO_03,Durante un turno que no debió aceptar. Esperalo Pronto ...,On a shift he never should have taken. Coming soon...
+CREDITS_THANKS_CONTINUE,Gracias por jugar. Da click para volver al menu principal,Thanks for playing. Click to return to the main menu
+INTRO_P01,Gracias por querer jugar esta demo.,Thanks for wanting to play this demo.
+INTRO_P02,Esperamos que la disfruten tanto como nosotros la hemos disfrutado creándola.,We hope you enjoy it as much as we enjoyed making it.
+INTRO_P03,Todos sus comentarios serán bien recibidos.,All feedback is welcome.
+INTRO_P04,Esta es una demo de prueba de jugabilidad y mecánicas.,This is a gameplay and mechanics test demo.
+INTRO_P05,No tiene nada que ver con la historia real del juego final.,It has nothing to do with the real story of the final game.
+INTRO_P06,No esperen lore definitivo: solo escenas con objetivos para probar la jugabilidad.,Don't expect final lore: just scenes with objectives to try out the gameplay.
+INTRO_P07,"Muchas gracias de parte de Samuel, Walter y Diego.","Thank you so much from Samuel, Walter, and Diego."
+INTRO_P08,Ahora sí… vamos al demo.,Alright… on to the demo.
+INTRO_THOUGHT_01,Estoy muy cansando… ya no puedo caminar más.,I'm so exhausted… I can't walk any farther.
+INTRO_THOUGHT_02,El carro se quedó sin gasolina a kilómetros de cualquier lugar.,The car ran out of gas miles from anywhere.
+INTRO_THOUGHT_03,"Tengo hambre y sed, pero sobre todo ganas de ir al baño.","I'm hungry and thirsty, but more than anything I really need to pee."
+INTRO_THOUGHT_04,Llevo rato caminando sin ver a nadie.,I've been walking a while without seeing anyone.
+INTRO_THOUGHT_05,Tiene que aparecer en algún momento un lugar donde pueda pedir ayuda… ¿no?,Somewhere I can ask for help has to show up eventually… right?
+THOUGHT_COCA_TO_COUNTER,ahora iré a dejarla en el mostrador,now I'll go leave it on the counter
+THOUGHT_GET_CHURRO,ahora iré por un churro,now I'll go grab a churro
+THOUGHT_BLADDER_EMPTY,ya no tenía deseos de usar el inodoro,I didn't feel like using the toilet anymore
+THOUGHT_POST_TOILET,"ya no quería ir al baño, era mejor tomar algo","I didn't want to go to the bathroom anymore — better to grab a drink"
+THOUGHT_WASH_HANDS,tengo que lavarme las manos,I need to wash my hands
+THOUGHT_SINK_1,¿qué? ¿qué es esto? ....,what? what is this? ....
+THOUGHT_SINK_2,¿esto es sangre?????,is this blood?????
+THOUGHT_SINK_2_SHORT,¿esto es sangre?,is this blood?
+THOUGHT_SINK_FLEE,"no sé qué era eso, solo pensé en huir","I don't know what that was — I just thought about running"
+UI_INSTR_BODY_KB,"Controles (teclado y ratón)
+
+• WASD — caminar y moverte por el entorno.
+• Mantén SHIFT — correr.
+• Espacio — saltar.
+
+• E — interactuar y recoger objetos.
+• Q — soltar lo que llevas en la mano.
+• F — usar / cambiar lo que llevas en la mano (linterna).
+• Ratón — mirar.
+• Esc — pausa.
+
+Explora la zona: debería haber una linterna cerca.
+Recógela con [E] y cámbiala con [F] cuando la lleves en la mano.","Controls (keyboard and mouse)
+
+• WASD — walk and move around.
+• Hold SHIFT — sprint.
+• Space — jump.
+
+• E — interact and pick up items.
+• Q — drop whatever you're holding.
+• F — use / switch what you're holding (flashlight).
+• Mouse — look around.
+• Esc — pause.
+
+Explore the area: there should be a flashlight nearby.
+Pick it up with [E] and switch it with [F] when you're holding it."
+UI_INSTR_BODY_PAD_XBOX,"Controles (%s)
+
+• Stick izquierdo — caminar.
+• L3 — correr.
+• %s — saltar.
+• %s — interactuar (puertas, NPCs, leer el libro).
+• %s — recoger objetos / usar en la mano.
+• %s — soltar lo que llevas.
+• Stick derecho — mirar.
+• %s — pausa / menús.
+• %s — confirmar en menús.
+• %s — volver en menús.
+
+Explora la zona: debería haber una linterna cerca.
+Recógela con %s y cámbiala con %s en la mano.","Controls (%s)
+
+• Left stick — walk.
+• L3 — sprint.
+• %s — jump.
+• %s — interact (doors, NPCs, read the book).
+• %s — pick up items / use what's in hand.
+• %s — drop what you're holding.
+• Right stick — look around.
+• %s — pause / menus.
+• %s — confirm in menus.
+• %s — back in menus.
+
+Explore the area: there should be a flashlight nearby.
+Pick it up with %s and switch it with %s while holding it."
+UI_INSTR_BODY_PAD_PS,"Controles (%s)
+
+• Stick izquierdo — caminar.
+• L3 (stick izquierdo) — correr.
+• %s — saltar.
+• %s — interactuar (puertas, NPCs, leer el libro).
+• %s — recoger objetos / usar en la mano.
+• %s — soltar lo que llevas.
+• Stick derecho — mirar.
+• %s — pausa / menús.
+• %s — confirmar en menús.
+• %s — volver en menús.
+
+Explora la zona: debería haber una linterna cerca.
+Recógela con %s y cámbiala con %s en la mano.","Controls (%s)
+
+• Left stick — walk.
+• L3 (left stick) — sprint.
+• %s — jump.
+• %s — interact (doors, NPCs, read the book).
+• %s — pick up items / use what's in hand.
+• %s — drop what you're holding.
+• Right stick — look around.
+• %s — pause / menus.
+• %s — confirm in menus.
+• %s — back in menus.
+
+Explore the area: there should be a flashlight nearby.
+Pick it up with %s and switch it with %s while holding it."

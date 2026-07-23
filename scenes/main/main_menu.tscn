@@ -1,6 +1,6 @@
-[gd_scene load_steps=36 format=3 uid="uid://cke50ywqyobsp"]
+[gd_scene load_steps=37 format=3 uid="uid://cke50ywqyobsp"]
 
-[ext_resource type="Script" uid="uid://dac62wfr0wfjl" path="res://scripts/ui/main_menu.gd" id="1_hiibk"]
+[ext_resource type="Script" path="res://scripts/ui/main_menu.gd" id="1_hiibk"]
 [ext_resource type="PackedScene" uid="uid://bpn1b4yevkvaq" path="res://scenes/map/terreno_juego_13_f.tscn" id="1_sd5it"]
 [ext_resource type="FontFile" uid="uid://dqt0hrd2fvvrb" path="res://assets/fonts/jackwrite/Jackwrite.ttf" id="3_byqcc"]
 [ext_resource type="Shader" uid="uid://cvd0x7lon1ur6" path="res://addons/sky_3d/shaders/SkyMaterial.gdshader" id="3_eftjy"]
@@ -20,6 +20,7 @@
 [ext_resource type="Script" uid="uid://b4tkplvh7fq40" path="res://addons/sky_3d/src/SkyDome.gd" id="11_wnuh0"]
 [ext_resource type="Script" uid="uid://cjmkcj8hwm7ts" path="res://addons/sky_3d/src/TimeOfDay.gd" id="12_m0ciu"]
 [ext_resource type="Script" uid="uid://b0vsytimkedpu" path="res://scripts/environment/sky3d_project_profile.gd" id="13_profile"]
+[ext_resource type="PackedScene" uid="uid://bq8langflags01" path="res://scenes/ui/language_flags.tscn" id="14_lang"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_st2cm"]
 shader = ExtResource("3_eftjy")
@@ -535,6 +536,17 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="LanguageFlags" parent="UI" instance=ExtResource("14_lang")]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -168.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 88.0
+grow_horizontal = 0
+
 [node name="MainBtns" type="VBoxContainer" parent="UI"]
 layout_mode = 1
 anchors_preset = 8
@@ -562,7 +574,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
 theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
 theme_override_styles/focus = SubResource("StyleBoxFlat_w6ykx")
-text = "Iniciar juego"
+text = "UI_MAIN_START"
 
 [node name="btnOptions" type="Button" parent="UI/MainBtns"]
 layout_mode = 2
@@ -576,8 +588,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
 theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
 theme_override_styles/focus = SubResource("StyleBoxFlat_w6ykx")
-text = "Opciones
-"
+text = "UI_MAIN_OPTIONS"
 
 [node name="btnExit" type="Button" parent="UI/MainBtns"]
 layout_mode = 2
@@ -591,8 +602,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
 theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
 theme_override_styles/focus = SubResource("StyleBoxFlat_w6ykx")
-text = "Salir
-"
+text = "UI_MAIN_QUIT"
 
 [node name="Titulo" type="Label" parent="UI"]
 layout_mode = 1
@@ -655,8 +665,7 @@ theme_override_styles/normal = SubResource("StyleBoxFlat_1i17u")
 theme_override_styles/pressed = SubResource("StyleBoxFlat_hiibk")
 theme_override_styles/hover = SubResource("StyleBoxFlat_w6ykx")
 theme_override_styles/focus = SubResource("StyleBoxFlat_w6ykx")
-text = "Volver
-"
+text = "UI_COMMON_BACK"
 
 [node name="OptionsPanel" type="Control" parent="UI"]
 layout_mode = 1

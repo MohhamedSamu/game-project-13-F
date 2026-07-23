@@ -152,7 +152,7 @@ func _show_credit_line(text: String, segment_duration: float) -> void:
 	if _thanks_label == null or text.is_empty() or segment_duration <= 0.0:
 		return
 	var is_first_line := _thanks_label.modulate.a <= 0.01
-	_thanks_label.text = text
+	_thanks_label.text = tr(text)
 	if is_first_line:
 		await _fade_thanks_label(1.0)
 	else:
@@ -165,7 +165,7 @@ func _show_continue_prompt() -> void:
 		return
 	if _thanks_label.modulate.a > 0.01:
 		await _fade_thanks_label(0.0)
-	_thanks_label.text = thanks_continue_text
+	_thanks_label.text = tr(thanks_continue_text)
 	await _fade_thanks_label(1.0, continue_text_fade_duration)
 
 
