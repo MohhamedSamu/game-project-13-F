@@ -8,6 +8,7 @@ on:
 
 env:
   GODOT_VERSION: 4.5-stable
+  GODOT_TEMPLATE_VERSION: 4.5.stable
   EXPORT_PRESET: macOS
   EXPORT_PATH: build/macos/project-13-f.app
   ARTIFACT_ZIP: project-13-f-macos.zip
@@ -29,7 +30,7 @@ jobs:
 
           GODOT_URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_macos.universal.zip"
           TEMPLATES_URL="https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_export_templates.tpz"
-          TEMPLATES_DIR="$HOME/Library/Application Support/Godot/export_templates/${GODOT_VERSION}"
+          TEMPLATES_DIR="$HOME/Library/Application Support/Godot/export_templates/${GODOT_TEMPLATE_VERSION}"
 
           curl -fsSL -o godot.zip "$GODOT_URL"
           unzip -q godot.zip -d godot_dir
@@ -45,6 +46,13 @@ jobs:
           mkdir -p "$TEMPLATES_DIR"
           curl -fsSL -o templates.tpz "$TEMPLATES_URL"
           unzip -q templates.tpz -d "$TEMPLATES_DIR"
+
+          if [ ! -f "$TEMPLATES_DIR/macos.zip" ]; then
+            echo "macos.zip no está en la ruta esperada. Contenido de templates:"
+            find "$TEMPLATES_DIR" -maxdepth 2 -type f | sort
+            exit 1
+          fi
+          echo "Export templates instalados en: $TEMPLATES_DIR/macos.zip"
 
       - name: Export release build
         shell: bash
